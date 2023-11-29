@@ -1,0 +1,150 @@
+body{
+    font-family: 'Lexend', sans-serif;
+}
+
+.container{
+    padding-top: 70px;
+}
+
+.navbar{
+    box-shadow: 0px 0px 5px gray;
+    padding: 10px 50px;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+}
+
+#navbar-info{
+    display: flex;
+    align-items: center;
+
+}
+
+#navbar-info li{
+    margin-top: 10px;
+    list-style: none;
+    padding-left: 35px;
+}
+
+.main{
+    background-image: url("https://www.geantcasino.fr/wp-content/uploads/sites/2/2023/09/940x250-3.jpg");
+    width: 100%;
+    height: 50vh;
+    background-size: cover;
+    background-position: top 25% right 0%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding-left: 30px;
+}
+
+.main h1{
+    font-size: 55px;
+    color: white;
+    padding-bottom: 20px;
+    font-weight: 500;
+}
+
+.main button{
+    background-color: rgb(255, 230, 0);
+    border: none;
+    color: rgb(0, 95, 0);
+    border-radius: 10px;
+    font-size: 20px;
+    padding: 10px 20px;
+    margin-left: 20px;
+}
+
+.main button:hover{
+    background-color: rgb(190, 172, 3);
+}
+
+#slogan{
+    text-align: center;
+    padding-top: 20px;
+    padding-bottom: 40px;
+}
+
+.shop-nav{
+    width: 22%;
+    margin: 0px 45px;
+    text-align: left;
+    text-decoration: none;
+    color: black;
+    font-size: 20px;
+}
+
+.shop-nav:hover{
+    text-decoration: none;
+    color: black;
+    border: black;
+}
+
+.shop-now:hover{
+    text-decoration: underline;
+    font-weight: 400;
+    color: rgb(2, 90, 2);
+}
+
+
+.shop-nav img{
+    width: 100%;
+    height: 100%;
+    margin-bottom: 10px;
+    border-radius: 3%;
+}
+
+.shop-now{
+    font-size: 16px;
+}
+
+.shopping{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.work{
+    width: 100%;
+    height: 55vh;
+    background-color: rgba(255, 238, 0, 0.425);
+    font-size: 25px;
+    display: flex;
+    justify-content: center;
+    margin-top: 60px;
+    padding-top: 60px;
+    padding-bottom: 60px;
+}
+
+.work img{
+    width: 40%;
+    padding-right: 100px;
+}
+
+.work h3{
+    font-size: 50px;
+    padding-bottom: 10px;
+}
+
+.work li{
+    padding-bottom: 20px;
+}
+
+.about{
+    width: 100%;
+    height: 50vh;
+    background-color: black;
+}
+
+.fav-button{
+    background: transparent;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+#map{
+    height: 400px;
+}

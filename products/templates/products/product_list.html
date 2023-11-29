@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% block content %}
+
+<div class="container">
+    <h1>Shop</h1>
+    <form method="get">
+        <input name="q" type="text" placeholder="Search">
+    </form>
+    {% if products %}
+    <ul>
+        {% for product in products %}
+        <li class="col-md-4">
+            <p>Name: {{ product.name }}</p>
+            <p>Category: {{ product.category.name }}</p>
+            <p>Description: {{ product.description }}</p>
+            {% if product.unit == "piece" %}
+            <p>Price: €{{ product.price }}/Piece</p>
+            {% elif product.unit == "kg" %}
+            <p>Price: €{{ product.price }}/Kg</p>
+            {% endif %}
+            {% if product.available %}
+            <p>Available: <i class="fa-solid fa-circle-check" style="color: #25511f;"></i></p>
+            {% else %}
+            <p>Available: <i class="fa-solid fa-circle-xmark" style="color: #ff0000;"></i></p>
+            {% endif %}
+            <p>Rating: {{ product.avg_rating }}/5</p>
+            <p>Seller: <a href="{% url "accounts:user_detail" pk=product.seller.pk %}">{{ product.seller.username }}</a></p>
+            <a href="{% url "products:product_detail" pk=product.pk %}">View Details</a>
+            <button class="add_to_cart" data-product-id={{ product.pk }} data-add-url="{% url "cart:add_to_cart" pk=product.pk %}">
+                Add
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No products available...</p>
+    {% endif %}
+    {% if user.is_farmer %}
+    <a href="{% url "products:create_product" %}">
+        <button>Add new product</button>
+    </a>
+    {% endif %}
+</div>
+
+<script src="{% static "farmfresh/js/cart_update.js" %}"></script>
+{% endblock %}

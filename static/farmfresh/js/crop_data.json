@@ -1,0 +1,15 @@
+{
+    "areas": {
+        "Brussels Capital Region": [],
+        "Antwerp": ["Apples", "Pears", "Berries", "Leeks", "Brussels Sprouts", "Chicory"],
+        "East Flanders": ["Hops"],
+        "Flemish Brabant": ["Leeks", "Asparagus"],
+        "Walloon Brabant": ["Sugar Beets", "Potatoes"],
+        "Limburg": ["Apples", "Pears"],
+        "West Flanders": ["Leeks", "Chicory"],
+        "Hainaut": ["Sugar Beets", "Potatoes"],
+        "Liège": ["Apples", "Pears", "Strawberries"],
+        "Luxembourg": ["Potatoes"],
+        "Namur": ["Potatoes"]
+    }
+}

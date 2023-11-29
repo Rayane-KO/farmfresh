@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% block content %}
+
+<div class="container">
+    <div class="user-info" data-user-id={{ user.pk }}>
+        <h1>Details</h1>
+        <p>Username: {{ user_detail.username }}</p>
+        {% if user_detail.is_farmer %}
+        <p>Farmer: YES</p>
+        {% else %}
+        <p>Farmer: NO</p>
+        {% endif %}
+        <p>First Name: {{ user_detail.first_name }}</p>
+        <p>Last Name: {{ user_detail.last_name }}</p>
+        <p>Email: {{ user_detail.email }}</p>
+        <p>Address: {{ user_detail.address }}, {{ user_detail.city }}, {{ user_detail.country.name }}</p>
+        <p>About me:</p>
+        <p>{{ user_detail.bio }}</p>
+        
+        {% if user_detail.profile_pic %}
+        <img src="{{ user_detail.profile_pic.url }}">
+        {% else %}
+        <p>NO PFP</p>
+        {% endif %}
+
+        {% if request.user == object %}
+        <a href="{% url "accounts:update_user" pk=object.pk %}">
+            <button>Update profile</button>
+        </a>
+        <a href="{% url "accounts:delete_user" pk=object.pk %}">
+            <button>Delete profile</button>
+        </a>
+        {% endif %}
+
+        {% if user_detail.is_farmer %}
+        <form method="get" action="{% url "products:farmer_products" pk=user_detail.pk %}">
+            <button type="submit">
+                My products
+            </button>
+        </form>
+        {% if user_detail != user and user.is_authenticated %}
+            <button class="fav-button" data-farmer-id={{ farmer.pk }} data-auth={{ user.is_authenticated }}>
+                <i class="fa-regular fa-star" style="color: #ffd43b;"></i>
+            </button>
+        {% endif %}
+    </div>
+    {% if reviews %}
+    <ul>
+        {% for review in reviews %}
+        <li>
+            <p>Name: {{ review.user.username }}</p>
+            <p>Date: {{ review.date }}</p>
+            <p>Rating: {{ review.rating }}/5</p>
+            <p>Review: {{ review.review }}</p>
+        </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+    <p>No reviews available yet...</p>
+    {% endif %}
+    {% endif %}
+</div>
+
+<script src="{% static "farmfresh/js/fav_farmer.js" %}"></script>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% block content %}
+
+<div class="container">
+    <h1>Cart</h1>
+    {% if cart_items %}
+    <ul>
+        {% for item in cart_items %}
+        <li class="cart-item">
+            <p>Name: {{ item.product.name }}</p>
+            <p>Category: {{ item.product.category.name }}</p>
+            {% if item.product.unit == "piece" %}
+            <p>Price: €{{ item.product.price }}/Piece</p>
+            <p class="qty">Quantity: {{ item.quantity }} Pieces</p>
+            {% elif item.product.unit == "kg" %}
+            <p>Price: €{{ item.product.price }}/Kg</p>
+            <p class="qty">Quantity: {{ item.quantity }} Kg</p>
+            {% endif %}
+            {% if item.product.available %}
+            <p>Available: YES</p>
+            {% else %}
+            <p>Available: NO</p>
+            {% endif %}
+            <p>Seller: <a href="{% url "accounts:user_detail" pk=item.product.seller.pk %}">{{ item.product.seller.username }}</a></p>
+            <a href="{% url "products:product_detail" pk=item.product.pk %}">View Details</a>
+            <button class="add_to_cart" data-product-id={{ item.product.pk }} data-add-url="{% url "cart:remove_from_cart" pk=item.product.pk %}" data-unit={{ item.product.unit }} data-debug={{ item.product.pk }}>
+                Delete
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty">No products available yet...</p>
+    {% endif %}
+</div>
+
+<script src="{% static "farmfresh/js/cart_update.js" %}"></script>
+{% endblock %}

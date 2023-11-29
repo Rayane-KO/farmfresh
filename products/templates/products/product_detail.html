@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% block content %}
+
+<div class="container">
+    <h1>Details</h1>
+    <p>Name: {{ product.name }}</p>
+    <p>Category: {{ product.category.name }}</p>
+    <p>Description: {{ product.description }}</p>
+    <p>Rating: {{ product.avg_rating }}</p>
+    {% if product.unit == "piece" %}
+    <p>Price: €{{ product.price }}/Piece</p>
+    {% elif product.unit == "kg" %}
+    <p>Price: €{{ product.price }}/Kg</p>
+    {% endif %}
+    {% if product.available %}
+    <p>Available: YES</p>
+    {% else %}
+    <p>Available: NO</p>
+    {% endif %}
+    <p>Seller: {{ product.seller.username }}</p>
+    <img src="{{ product.image.url }}">
+    <form method="post" action="{% url "cart:add_to_cart" pk=object.pk %}">
+        {% csrf_token %}
+        <button class="add_to_cart" data-product-id={{ product.pk }} data-add-url="{% url "cart:add_to_cart" pk=object.pk %}">
+            Add
+        </button>
+   </form>
+    {% if user == product.seller %}
+    <a href="{% url "products:delete_product" pk=object.pk %}">
+        <button>Delete product</button>
+    </a>
+    <a href="{% url "products:update_product" pk=object.pk %}">
+        <button>Update product</button>
+    </a>
+    {% endif %}
+    <h5>Nutritional Information</h5>
+    {% if nutritional_info %}
+    {% for info, qty in nutritional_info.items %}
+    <p>{{ info }}: {{ qty }}</p>
+    {% endfor %}
+    {% else %}
+    <p>No information available</p>
+    {% endif %}
+    {% if reviews %}
+    <ul>
+        {% for review in reviews %}
+        <li>
+            <p>Name: {{ review.user.username }}</p>
+            <p>Date: {{ review.date }}</p>
+            <p>Rating: {{ review.rating }}/5</p>
+            <p>Review: {{ review.review }}</p>
+        </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+    <p>No reviews available yet...</p>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.rating }}
+        {{ form.review }}
+        <button type="submit">Post Review</button>
+    </form>
+</div>
+
+<script src="{% static "farmfresh/js/cart_update.js" %}"></script>
+{% endblock %}

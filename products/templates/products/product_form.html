@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+{% block content %}
+
+<div class="container">
+    {% if is_update %}
+    <h1>Update product</h1>
+    {% else %}
+    <h1>Add new product</h1>
+    {% endif %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+
+        {% if is_update %}
+        <div><button type="submit">Update Product</button></div>
+        {% else %}
+        <div><button type="submit">Add Product</button></div>
+        {% endif %}
+   </form>
+</div>
+
+{% endblock %}

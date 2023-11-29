@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% block content %}
+
+<div class="container">
+    <h1>Farmers</h1>
+    <div id="map"></div>
+    {% if farmers %}
+    <ul>
+        {% for farmer in farmers %}
+        <li>
+            <div class="user-info" data-user-id={{ user.pk }}>
+                <p>Name: {{ farmer.username }}</p>
+                <p>Farm: {{ farmer.farm_nr }}</p>
+                <a href="{% url "accounts:user_detail" pk=farmer.pk %}">View Details</a>
+                {% if farmer != user and user.is_authenticated %}
+                <button class="fav-button" data-farmer-id={{ farmer.pk }} data-auth={{ user.is_authenticated }}>
+                    <i class="fa-regular fa-star" style="color: #ffd43b;"></i>
+                </button>
+                {% endif %}
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No products available yet...</p>
+    {% endif %}
+</div>
+
+
+<script src="{% static "farmfresh/js/fav_farmer.js" %}"></script>
+<script src="{% static "farmfresh/js/map.js" %}"></script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% block content %}
+
+<div class="container">
+    <h1>Sign Up</h1>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        {% if field.name == "farm_nr" %}
+        <div id="farm_nr" style="display: none">
+            {% bootstrap_field field %}
+        </div>
+        {% else %}
+        {% bootstrap_field field %}
+        {% endif %}
+        {% endfor %}
+        <div><button type="submit">Sign Up</button></div>
+   </form>
+</div>
+<script src="{% static "farmfresh/js/signup.js" %}"></script>
+{% endblock %}

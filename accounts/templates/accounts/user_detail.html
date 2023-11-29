@@ -21,8 +21,6 @@
         
         {% if user_detail.profile_pic %}
         <img src="{{ user_detail.profile_pic.url }}">
-        {% else %}
-        <p>NO PFP</p>
         {% endif %}
 
         {% if request.user == object %}

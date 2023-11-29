@@ -54,7 +54,6 @@ class FarmerList(ListView):
         farmers = list(User.objects.filter(is_farmer=True).values("username", "pk", "latitude", "longitude"))
         my_location = (self.request.user.longitude, self.request.user.latitude)
         return JsonResponse({"farmers": farmers, "location": my_location}, safe=False)
-
     
 class UpdateUser(LoginRequiredMixin, UpdateView):
     model = User

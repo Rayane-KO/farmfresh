@@ -6,11 +6,22 @@ import requests
 
 # Source: https://www.geoapify.com/tutorial/geocoding-python
 
-# Create your models here.
+"""
+A custom user model that has next attributes:
+    username: a unique username for each user
+    is_farmer: a boolean field that tells if a user is a farmer or a customer
+    farm_nr: a field for the farm number of the farmer (is unique to each farmer and only farmers have one)
+    address, city, state, zip_code and country: address of the user
+    phone_number: phone number of the user
+    latitude, longitude: calculated using the address to pin it on the map
+    profile_pic: the user can have a profile picture
+    avg_rating: this field is only for the farmers, it's their average rating
+    bio: users can also have a bio
+"""
 class User(auth.models.AbstractUser):
     username = models.CharField(max_length=50, unique=True)
     is_farmer = models.BooleanField(default=False)
-    farm_nr = models.CharField(max_length=200, null=True)
+    farm_nr = models.CharField(max_length=200, null=True, unique=True)
     address = models.CharField(max_length=300, null=True)
     city = models.CharField(max_length=200, null=True)
     state = models.CharField(max_length=50, null=True)
@@ -19,7 +30,7 @@ class User(auth.models.AbstractUser):
     phone_number = PhoneNumberField(blank=True, null=True)
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
-    profile_pic = models.ImageField(upload_to="pfp/", blank=True, null=True)
+    profile_pic = models.ImageField(upload_to="pfp/", blank=True, null=True, default="pfp/default.jpg")
     avg_rating = models.DecimalField(max_digits=2, decimal_places=1, default=0)
     bio = models.TextField(blank=True)
 

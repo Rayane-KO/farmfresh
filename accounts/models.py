@@ -16,7 +16,7 @@ A custom user model that has next attributes:
     latitude, longitude: calculated using the address to pin it on the map
     profile_pic: the user can have a profile picture
     avg_rating: this field is only for the farmers, it's their average rating
-    bio: users can also have a bio
+    bio: the biography of the user
 """
 class User(auth.models.AbstractUser):
     username = models.CharField(max_length=50, unique=True)
@@ -37,13 +37,19 @@ class User(auth.models.AbstractUser):
     def __str__(self):
         return "@{}".format(self.username)
     
+    # translate_address takes an address like (147, Grote Veldstraat, Staden, Roeselare 8840)
+    # and translates it to latitude and longitude
     def translate_address(self, address):
+        # the API-key to access Geoapify API
         API_KEY = "dc6022f53f114e3982208865dcc884a4"
+        # then build the API url for the request
         url = f"https://api.geoapify.com/v1/geocode/search?text={address}&apiKey={API_KEY}"
+        # send the API request and get the response
         response = requests.get(url)
 
+        # check for successfull status_code (200)
         if response.status_code == 200:
-            data = response.json()
+            data = response.json() # parse the JSON data
             result = data["features"][0]
             return (result["geometry"]["coordinates"][1], result["geometry"]["coordinates"][0])
 
@@ -51,6 +57,7 @@ class User(auth.models.AbstractUser):
             print(f"Request failed: {response.status_code}")
             return None
 
+    # use translate_address to get the latitude and longitude
     def save(self, *args, **kwargs):
         if self.address and self.city and self.state and self.zip_code and self.country:
             address = address = f"{self.address}, {self.city}, {self.state}, {self.zip_code}, {self.country.name}"

@@ -26,6 +26,11 @@ body{
     padding-left: 35px;
 }
 
+.nav-item {
+    background-color: #f8f9fa;
+}
+
+
 .main{
     background-image: url("https://www.geantcasino.fr/wp-content/uploads/sites/2/2023/09/940x250-3.jpg");
     width: 100%;
@@ -147,4 +152,28 @@ body{
 
 #map{
     height: 400px;
+}
+
+
+.card {
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.btn-primary,
+.btn-success {
+    margin-top: 10px;
+}
+
+.btn-success:hover {
+    background-color: #2e7d32;
+    border-color: #2e7d32;
+}
+
+.card-img-top {
+    height: 300px;
+    object-fit: cover; 
 }

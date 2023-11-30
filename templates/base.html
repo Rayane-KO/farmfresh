@@ -21,48 +21,70 @@
     </head>
     <body>
         <nav class="navbar navbar-expand-sm bg-light navbar-light fixed-top">
-            <!-- Brand/logo -->
+            
             <a class="navbar-brand" href="{% url "home" %}">
               <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1yMS3OmB9dzcAgQO0tmxXnl9wWraP8ylU1aNlGqX6sAJvf1K8" alt="logo" style="width:30px;">
             </a>
+            
           
-            <ul id="navbar-info">
-              <li>
-                <a class="nav-link" href="{% url "home" %}">Home</a>
-              </li>
-              <li>
-                <a class="nav-link" href="{% url "products:all" %}">Shop</a>
-              </li>
-              <li>
-                <a class="nav-link" href="{% url "accounts:farmers_list" %}">Farmers</a>
-              </li>
-              <li>
-                <a class="nav-link" href="{% url "about" %}">About</a>
-              </li>
-              {% if user.is_authenticated %}    
-              <li>
-                <a href="{% url "cart:cart_items" %}">
-                    <i class="fa-solid fa-basket-shopping fa-xl" style="color: #0a5200;"></i>
-                </a>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link" href="#" id="navbardrop" data-toggle="dropdown">
-                  <i class="fa-solid fa-user fa-xl"  style="color: #0a5200;"></i>
-                </a>
-                <div class="dropdown-menu">
-                  <a class="dropdown-item" href="{% url "accounts:user_detail" pk=user.pk %}">My Account</a>
-                  <a class="dropdown-item" href="#">Fav farmers</a>
-                  <a class="dropdown-item" href="{% url 'accounts:logout' %}">Log Out</a>
-                </div>
-              </li>    
-              {% else %}
-              <li>
-                <a href="{% url 'accounts:login' %}">Log In</a>
-              </li>
-              {% endif %}
-            </ul>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button> 
+
+                      
+           
+              <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mr-auto"> 
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url "home" %}">Home</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url "products:all" %}">Shop</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url "accounts:farmers_list" %}">Farmers</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url "about" %}">About</a>
+                  </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">   
+                  {% if user.is_authenticated %}    
+                  <li class="nav-item dropdown">
+                      <a class="nav-link" href="#" id="navbardrop" data-toggle="dropdown">Settings</a>
+                      <div class="dropdown-menu">
+                          <a class="dropdown-item" href="{% url "accounts:user_detail" pk=user.pk %}">My Account</a>
+                          <a class="dropdown-item" href="#">Fav farmers</a>
+                          <a class="dropdown-item" href="{% url 'accounts:logout' %}">Log Out</a>
+                      </div>
+                  </li>
+                  {% else %}
+                  <li class="nav-item">
+                    <a href="{% url 'accounts:login' %}" class="nav-link">Log In</a>
+                  </li>
+                  {% endif %}
+                </ul>
+              </div>
+
+              
+              <ul class="navbar-nav ml-auto">   
+                {% if user.is_authenticated %}    
+                <li class="">
+                    <a href="{% url "cart:cart_items" %}" class="nav-link">
+                        <i class="fa-solid fa-basket-shopping fa-xl" style="color: #0a5200; margin-right: 10px;"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="">
+                  <a href="{% url 'accounts:login' %}" class="nav-link">Log In</a>
+                </li>
+                {% endif %}
+              </ul>
+      
+
         </nav>
 
+        
         {% block content %}
 
         {% endblock %}

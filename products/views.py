@@ -1,6 +1,6 @@
 from typing import Any
 from django import http
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from products.models import Category, Product, Box
 from django.views.generic import View, ListView, DetailView, CreateView, DeleteView, UpdateView
 from django.contrib.auth import get_user_model
@@ -230,6 +230,36 @@ class BoxDetail(DetailView):
         box = self.object
         context["products"] = box.products.all()
         return context
+
+class PendingBoxList(ListView):
+    model = Box
+    template_name = "products/pending_list.html"
+    context_object_name = "pending_boxes"
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return Box.objects.filter(status="pending")
+        elif user.is_farmer:
+            return Box.objects.filter(Q(asker=user) | Q(farmers__in=[user]))  
+        else: return None #later Error    
+
+class PendingDecision(View):
+    def post(self, request, *args, **kwargs):
+        box_id = self.kwargs.get("pk")
+        action = request.POST.get("action")
+        try:
+            box = Box.objects.get(pk=box_id)
+            if action == "approve":
+                box.status = "approved"
+                box.save()
+            elif action == "reject":
+                box.status = "rejected"
+                box.save()
+        except Box.DoesNotExist:
+            pass
+        return redirect("products:pending")
+    
     
     
     

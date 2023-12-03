@@ -48,7 +48,7 @@ class Box(models.Model):
     STATUS = [
         ("pending", "Pending"),
         ("approved", "Approved"),
-        ("reejected", "Rejected"),
+        ("rejected", "Rejected"),
     ]
 
     name = models.CharField(max_length=200)

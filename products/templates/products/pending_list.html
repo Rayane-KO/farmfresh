@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% block content %}
+
+<div class="container">
+    {% if pending_boxes %}
+        {% for box in pending_boxes %}
+        <p>{{ box.name }}</p>
+        {% if user.is_staff %}
+        <form method="post" action="{% url "products:decision" pk=box.pk %}">
+            {% csrf_token %}
+            <button type="submit" name="action" value="approve">Approve</button>
+            <button type="submit" name="action" value="reject">Reject</button>
+       </form>
+       {% elif user.is_farmer %}
+       <p>{{ box.status }}
+       {% if box.status == "pending" %}<i class="fa-solid fa-clock" style="color: #9f6e04;"></i>
+       {% elif box.status == "approved" %}<i class="fa-regular fa-circle-check" style="color: #06841b;"></i>
+       {% elif box.status == "rejected" %}<i class="fa-regular fa-circle-xmark" style="color: #e00000;"></i>
+        </p>
+       {% endif %}
+       {% endif %}
+        {% endfor %}
+    {% endif %}
+</div>
+
+{% endblock %}

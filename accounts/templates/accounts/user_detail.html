@@ -3,63 +3,123 @@
 {% load static %}
 {% block content %}
 
+<style>
+    .container {
+        padding: 20px;
+    }
+
+    .user-info {
+        margin-top: 70px;
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 5px;
+        background-color: #fff;
+    }
+
+    .fav-button:hover {
+    background-color: #f0bf0d; 
+}
+       
+</style>
+
 <div class="container">
-    <div class="user-info" data-user-id={{ user.pk }}>
-        <h1>Details</h1>
-        <p>Username: {{ user_detail.username }}</p>
-        {% if user_detail.is_farmer %}
-        <p>Farmer: YES</p>
-        {% else %}
-        <p>Farmer: NO</p>
-        {% endif %}
-        <p>First Name: {{ user_detail.first_name }}</p>
-        <p>Last Name: {{ user_detail.last_name }}</p>
-        <p>Email: {{ user_detail.email }}</p>
-        <p>Address: {{ user_detail.address }}, {{ user_detail.city }}, {{ user_detail.country.name }}</p>
-        <p>About me:</p>
-        <p>{{ user_detail.bio }}</p>
-        
-        {% if user_detail.profile_pic %}
-        <img src="{{ user_detail.profile_pic.url }}">
-        {% endif %}
+    <div class="row">
+        <div class="col-md-8">
+            <div class="user-info" data-user-id={{ user.pk }}>
+                <h1>Details</h1>
+                <p>Username: {{ user_detail.username }}</p>
+                {% if user_detail.is_farmer %}
+                <p>Farmer: YES</p>
+                {% else %}
+                <p>Farmer: NO</p>
+                {% endif %}
+                <p>First Name: {{ user_detail.first_name }}</p>
+                <p>Last Name: {{ user_detail.last_name }}</p>
+                <p>Email: {{ user_detail.email }}</p>
+                <p>Address: {{ user_detail.address }}, {{ user_detail.city }}, {{ user_detail.country.name }}</p>
+                <p>About me:</p>
+                <p>{{ user_detail.bio }}</p>
 
-        {% if request.user == object %}
-        <a href="{% url "accounts:update_user" pk=object.pk %}">
-            <button>Update profile</button>
-        </a>
-        <a href="{% url "accounts:delete_user" pk=object.pk %}">
-            <button>Delete profile</button>
-        </a>
-        {% endif %}
+                {% if user_detail.profile_pic %}
+                <img src="{{ user_detail.profile_pic.url }}" class="img-fluid">
+                {% endif %}
 
-        {% if user_detail.is_farmer %}
-        <form method="get" action="{% url "products:farmer_products" pk=user_detail.pk %}">
-            <button type="submit">
-                My products
-            </button>
-        </form>
-        {% if user_detail != user and user.is_authenticated %}
-            <button class="fav-button" data-farmer-id={{ farmer.pk }} data-auth={{ user.is_authenticated }}>
-                <i class="fa-regular fa-star" style="color: #ffd43b;"></i>
-            </button>
-        {% endif %}
+                {% if request.user == object %}
+                <a href="{% url "accounts:update_user" pk=object.pk %}" class="btn btn-primary">
+                    Update profile
+                </a>
+                <a href="{% url "accounts:delete_user" pk=object.pk %}" class="btn btn-danger">
+                    Delete profile
+                </a>
+                {% endif %}
+
+                {% if user_detail.is_farmer %}
+                <form method="get" action="{% url "products:farmer_products" pk=user_detail.pk %}">
+                    <button type="submit" class="btn btn-success mt-3 mb-3">
+                        My products
+                    </button>
+                </form>
+                {% endif %}
+
+
+                {% if user_detail != user and user.is_authenticated %}
+                <button class="btn btn-warning fav-button mt-3 mb-3" data-farmer-id={{ farmer.pk }} data-auth={{ user.is_authenticated }}>
+                    <i class="fa-regular fa-star" style="color: #ffd43b;"></i> Add to Favorites
+                </button>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            {% if reviews %}
+                <h2 class="mb-4">Reviews</h2>
+                <ul class="list-group">
+                    {% for review in reviews %}
+                        <li class="list-group-item">
+                            <p>Name: {{ review.user.username }}</p>
+                            <p>Date: {{ review.date }}</p>
+                            <p>Rating: {{ review.rating }}/5</p>
+                            <p>Review: {{ review.review }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="lead mt-3 mb-3">No reviews available yet...</p>
+            {% endif %}
+        </div>
     </div>
-    {% if reviews %}
-    <ul>
-        {% for review in reviews %}
-        <li>
-            <p>Name: {{ review.user.username }}</p>
-            <p>Date: {{ review.date }}</p>
-            <p>Rating: {{ review.rating }}/5</p>
-            <p>Review: {{ review.review }}</p>
-        </li>
-        {% endfor %}
-        </ul>
-    {% else %}
-    <p>No reviews available yet...</p>
-    {% endif %}
-    {% endif %}
 </div>
 
 <script src="{% static "farmfresh/js/fav_farmer.js" %}"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var userId = document.querySelector(".user-info").getAttribute("data-user-id");
+        var favoritesId = "favorites_" + userId;
+        var favorites = JSON.parse(localStorage.getItem(favoritesId)) || [];
+        document.querySelectorAll(".fav-button").forEach(function (button) {
+            var farmerId = button.getAttribute("data-farmer-id");
+            var isAuthenticated = button.getAttribute("data-auth");
+            var star = button.querySelector(".fa-star");
+            if (favorites.includes(farmerId)) {
+                star.classList.add("fa-solid");
+            }
+            button.addEventListener("click", function () {
+                var idx = favorites.indexOf(farmerId);
+                console.log(userId, farmerId);
+
+                if (idx === -1) {
+                    favorites.push(farmerId);
+                    star.classList.add("fa-solid");
+                } else {
+                    favorites.splice(idx, 1);
+                    star.classList.remove("fa-solid");
+                }
+
+                localStorage.setItem(favoritesId, JSON.stringify(favorites));
+                button.blur();
+            });
+        });
+    });
+</script>
 {% endblock %}

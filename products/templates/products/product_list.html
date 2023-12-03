@@ -4,6 +4,30 @@
 {% block content %}
 
 <link rel="stylesheet" href="{% static 'products/css/products.css' %}">
+<style>
+    .card {
+        transition: transform 0.3s;
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+    }
+
+    .btn-primary,
+    .btn-success {
+        margin-top: 10px;
+    }
+
+    .btn-success:hover {
+        background-color: #2e7d32;
+        border-color: #2e7d32;
+    }
+
+    .card-img-top {
+        height: 300px;
+        object-fit: cover;
+    }
+</style>
 
 <div class="container">
     <form method="get" class="mb-4">
@@ -17,28 +41,29 @@
     <div class="row">
         {% if products %}
         {% for product in products %}
-        <div class="col-md-4 mb-4">
+        <div class="col-md-6 col-lg-4 mb-4">
+            <!-- Use col-md-6 for medium screens and col-lg-4 for larger screens -->
             <div class="card h-100" data-rating={{ product.avg_rating }}>
                 <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
                 <div class="card-body">
                     <h5 class="card-title">{{ product.name }}</h5>
-                    <p class="card-text"><div class="stars"></div> {{ product.avg_rating }} out of 5</p>
+                    <p class="card-text"><div class="stars"></div></p>
                     <p class="card-text"><small class="text-muted">Category: {{ product.category.name }}</small></p>
                     <p class="card-text">
                         {% if product.unit == "piece" %}
-                        Price: €{{ product.price }}/Piece
+                            Price: €{{ product.price }}/Piece
                         {% elif product.unit == "kg" %}
-                        Price: €{{ product.price }}/Kg
+                            Price: €{{ product.price }}/Kg
                         {% endif %}
                     </p>
                     <p class="card-text">
                         {% if product.available %}
-                        <span class="text-success">Available: <i class="fa-solid fa-circle-check"></i></span>
+                            <span class="text-success">Available: <i class="fa-solid fa-circle-check"></i></span>
                         {% else %}
-                        <span class="text-danger">Not Available: <i class="fa-solid fa-circle-xmark"></i></span>
+                            <span class="text-danger">Not Available: <i class="fa-solid fa-circle-xmark"></i></span>
                         {% endif %}
                     </p>
-                    
+
                     <p class="card-text">
                         Seller: <a href="{% url "accounts:user_detail" pk=product.seller.pk %}">{{ product.seller.username }}</a>
                     </p>
@@ -49,7 +74,7 @@
                 </div>
             </div>
         </div>
-        {% endfor %}
+    {% endfor %}
         {% if boxes %}
         {% for box in boxes %}
         <div class="col-md-4 mb-4">
@@ -75,9 +100,9 @@
         {% endfor %}
         {% endif %}
         {% else %}
-        <div class="col-md-12">
-            <p class="lead">No products available...</p>
-        </div>
+            <div class="col-md-12">
+                <p class="lead">No products available...</p>
+            </div>
         {% endif %}
     </div>
     {% if user.is_farmer %}
@@ -117,9 +142,6 @@
         for (let i = 0; i < emptyStars; i++) {
             stars.push('<i class="fa-regular fa-star" style="color: #f8d544;"></i>');
         }
-        
-        
-        
 
         return stars.join('');
     }

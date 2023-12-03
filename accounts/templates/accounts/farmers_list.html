@@ -3,31 +3,100 @@
 {% load static %}
 {% block content %}
 
+<style>
+    .container {
+        padding: 20px;
+    }
+
+    .user-info:hover {
+        background-color: #0a5200; 
+        color: #fff; 
+    }
+
+    .user-info {
+        border: 1px solid #0a5200;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 30px;
+    }
+
+    h1 {
+        margin-top: 100px;
+    }
+
+    #map {
+        height: 400px; 
+        margin-top: 30px; 
+        margin-bottom: 50px;
+        border: #ddd;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    li {
+        margin-bottom: 20px;
+    }
+
+    a {
+        text-decoration: none;
+        color: #3498db; 
+    }
+
+    a:hover {
+        text-decoration: underline;
+        color: aquamarine;
+    }
+
+    .fav-button {
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+    }
+
+    .fa-regular.fa-star {
+        color: #ddd;
+    }
+
+    .fav-button.selected .fa-regular.fa-star {
+        color: #ffd43b;
+    }
+
+</style>
+
 <div class="container">
     <h1>Farmers</h1>
-    <div id="map"></div>
-    {% if farmers %}
-    <ul>
-        {% for farmer in farmers %}
-        <li>
-            <div class="user-info" data-user-id={{ user.pk }}>
-                <p>Name: {{ farmer.username }}</p>
-                <p>Farm: {{ farmer.farm_nr }}</p>
-                <a href="{% url "accounts:user_detail" pk=farmer.pk %}">View Details</a>
-                {% if farmer != user and user.is_authenticated %}
-                <button class="fav-button" data-farmer-id={{ farmer.pk }} data-auth={{ user.is_authenticated }}>
-                    <i class="fa-regular fa-star" style="color: #ffd43b;"></i>
-                </button>
-                {% endif %}
-            </div>
-        </li>
-        {% endfor %}
-    </ul>
-    {% else %}
-    <p>No products available yet...</p>
-    {% endif %}
+    <div class="row">
+        <div class="col-md-6 order-md-1 order-2">
+            {% if farmers %}
+                <ul>
+                    {% for farmer in farmers %}
+                        <li>
+                            <div class="user-info" data-user-id={{ user.pk }}>
+                                <p>Name: {{ farmer.username }}</p>
+                                <p>Farm: {{ farmer.farm_nr }}</p>
+                                <p>Address: {{ farmer.address }} </p>
+                                <a href="{% url "accounts:user_detail" pk=farmer.pk %}">View Details</a>
+                                {% if farmer != user and user.is_authenticated %}
+                                    <button class="fav-button" data-farmer-id={{ farmer.pk }} data-auth={{ user.is_authenticated }}>
+                                        <i class="fa-regular fa-star" style="color: #ffd43b;"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No products available yet...</p>
+            {% endif %}
+        </div>
+        <div class="col-md-6  order-md-2 order-1">
+            <div id="map"></div>
+        </div>
+    </div>
 </div>
-
 
 <script src="{% static "farmfresh/js/fav_farmer.js" %}"></script>
 <script src="{% static "farmfresh/js/map.js" %}"></script>

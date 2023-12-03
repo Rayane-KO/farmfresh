@@ -154,18 +154,8 @@ body{
     height: 400px;
 }
 
-
-.card {
-    transition: transform 0.3s;
-}
-
-.card:hover {
-    transform: scale(1.05);
-}
-
-.btn-primary,
-.btn-success {
-    margin-top: 10px;
+#breadcrumbs{
+    padding-top: 72px;
 }
 
 .btn-success:hover {
@@ -178,9 +168,7 @@ body{
     object-fit: cover; 
 }
 
-<<<<<<< HEAD
 #breadcrumbs{
     padding-top: 72px;
 }
-=======
->>>>>>> 9892d64c683b74af93e2589ceda42beb01beebdd
+

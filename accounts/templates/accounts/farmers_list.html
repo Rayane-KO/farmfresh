@@ -4,8 +4,9 @@
 {% block content %}
 
 <style>
-    .container {
-        padding: 20px;
+    .farmer_list {
+        position:relative;
+        margin-left: 300px;
     }
 
     .user-info:hover {
@@ -21,12 +22,20 @@
     }
 
     h1 {
-        margin-top: 100px;
+        margin-top: -50px;
+    }
+
+    #map-container {
+        position: fixed; /* Set map container position to fixed */
+        top: 150px; /* Adjust the top position as needed */
+        right: 20px; /* Adjust the right position as needed */
+        z-index: 1; /* Set a higher z-index to keep the map above other elements */
     }
 
     #map {
         height: 400px; 
-        margin-top: 30px; 
+        width: 650px;
+        margin-top: 112px;
         margin-bottom: 50px;
         border: #ddd;
     }
@@ -63,10 +72,9 @@
     .fav-button.selected .fa-regular.fa-star {
         color: #ffd43b;
     }
-
 </style>
 
-<div class="container">
+<div class="container farmer_list">
     <h1>Farmers</h1>
     <div class="row">
         <div class="col-md-6 order-md-1 order-2">
@@ -92,7 +100,7 @@
                 <p>No products available yet...</p>
             {% endif %}
         </div>
-        <div class="col-md-6  order-md-2 order-1">
+        <div class="col-md-6  order-md-2 order-1" id="map-container">
             <div id="map"></div>
         </div>
     </div>
@@ -100,4 +108,5 @@
 
 <script src="{% static "farmfresh/js/fav_farmer.js" %}"></script>
 <script src="{% static "farmfresh/js/map.js" %}"></script>
+
 {% endblock %}

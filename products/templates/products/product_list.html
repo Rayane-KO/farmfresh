@@ -2,6 +2,32 @@
 {% load bootstrap4 %}
 {% load static %}
 {% block content %}
+
+<style>
+    .card {
+        transition: transform 0.3s;
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+    }
+
+    .btn-primary,
+    .btn-success {
+        margin-top: 10px;
+    }
+
+    .btn-success:hover {
+        background-color: #2e7d32;
+        border-color: #2e7d32;
+    }
+
+    .card-img-top {
+        height: 300px;
+        object-fit: cover;
+    }
+</style>
+
 <div class="container">
     <h1 class="display-4 mb-4">Shop</h1>
     <form method="get" class="mb-4">
@@ -14,50 +40,51 @@
     </form>
     <div class="row">
         {% if products %}
-        {% for product in products %}
-        <div class="col-md-4 mb-4">
-            <div class="card h-100" data-rating={{ product.avg_rating }}>
-                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-                <div class="card-body">
-                    <h5 class="card-title">{{ product.name }}</h5>
-                    <p class="card-text"><div class="stars"></div></p>
-                    <p class="card-text"><small class="text-muted">Category: {{ product.category.name }}</small></p>
-                    <p class="card-text">
-                        {% if product.unit == "piece" %}
-                        Price: €{{ product.price }}/Piece
-                        {% elif product.unit == "kg" %}
-                        Price: €{{ product.price }}/Kg
-                        {% endif %}
-                    </p>
-                    <p class="card-text">
-                        {% if product.available %}
-                        <span class="text-success">Available: <i class="fa-solid fa-circle-check"></i></span>
-                        {% else %}
-                        <span class="text-danger">Not Available: <i class="fa-solid fa-circle-xmark"></i></span>
-                        {% endif %}
-                    </p>
-                    
-                    <p class="card-text">
-                        Seller: <a href="{% url "accounts:user_detail" pk=product.seller.pk %}">{{ product.seller.username }}</a>
-                    </p>
-                    <a href="{% url "products:product_detail" pk=product.pk %}" class="btn btn-primary">View Details</a>
-                    <button class="btn btn-success add_to_cart" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk %}">
-                        Add to Cart
-                    </button>
+            {% for product in products %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <!-- Use col-md-6 for medium screens and col-lg-4 for larger screens -->
+                    <div class="card h-100" data-rating={{ product.avg_rating }}>
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text"><div class="stars"></div></p>
+                            <p class="card-text"><small class="text-muted">Category: {{ product.category.name }}</small></p>
+                            <p class="card-text">
+                                {% if product.unit == "piece" %}
+                                    Price: €{{ product.price }}/Piece
+                                {% elif product.unit == "kg" %}
+                                    Price: €{{ product.price }}/Kg
+                                {% endif %}
+                            </p>
+                            <p class="card-text">
+                                {% if product.available %}
+                                    <span class="text-success">Available: <i class="fa-solid fa-circle-check"></i></span>
+                                {% else %}
+                                    <span class="text-danger">Not Available: <i class="fa-solid fa-circle-xmark"></i></span>
+                                {% endif %}
+                            </p>
+
+                            <p class="card-text">
+                                Seller: <a href="{% url "accounts:user_detail" pk=product.seller.pk %}">{{ product.seller.username }}</a>
+                            </p>
+                            <a href="{% url "products:product_detail" pk=product.pk %}" class="btn btn-primary">View Details</a>
+                            <button class="btn btn-success add_to_cart" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk %}">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        {% endfor %}
+            {% endfor %}
         {% else %}
-        <div class="col-md-12">
-            <p class="lead">No products available...</p>
-        </div>
+            <div class="col-md-12">
+                <p class="lead">No products available...</p>
+            </div>
         {% endif %}
     </div>
     {% if user.is_farmer %}
-    <div class="text-center mt-4">
-        <a href="{% url "products:create_product" %}" class="btn btn-primary btn-lg">Add New Product</a>
-    </div>
+        <div class="text-center mt-4">
+            <a href="{% url "products:create_product" %}" class="btn btn-primary btn-lg">Add New Product</a>
+        </div>
     {% endif %}
 </div>
 
@@ -84,15 +111,12 @@
         }
 
         if (halfStar) {
-            stars.push('<i class="fa-solid fa-star-half-strokeyy" style="color: #f8d544;"></i>');
+            stars.push('<i class="fa-solid fa-star-half-stroke" style="color: #f8d544;"></i>');
         }
 
         for (let i = 0; i < emptyStars; i++) {
             stars.push('<i class="fa-regular fa-star" style="color: #f8d544;"></i>');
         }
-        
-        
-        
 
         return stars.join('');
     }

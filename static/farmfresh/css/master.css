@@ -154,27 +154,3 @@ body{
     height: 400px;
 }
 
-
-.card {
-    transition: transform 0.3s;
-}
-
-.card:hover {
-    transform: scale(1.05);
-}
-
-.btn-primary,
-.btn-success {
-    margin-top: 10px;
-}
-
-.btn-success:hover {
-    background-color: #2e7d32;
-    border-color: #2e7d32;
-}
-
-.card-img-top {
-    height: 300px;
-    object-fit: cover; 
-}
-

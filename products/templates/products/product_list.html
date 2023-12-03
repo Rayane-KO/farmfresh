@@ -2,10 +2,15 @@
 {% load bootstrap4 %}
 {% load static %}
 {% block content %}
+<<<<<<< HEAD
 
 <link rel="stylesheet" href="{% static 'products/css/products.css' %}">
 
 <div class="container">
+=======
+<div class="container">
+    <h1 class="display-4 mb-4">Shop</h1>
+>>>>>>> 9892d64c683b74af93e2589ceda42beb01beebdd
     <form method="get" class="mb-4">
         <div class="input-group">
             <input name="q" type="text" class="form-control" placeholder="Search">
@@ -22,7 +27,11 @@
                 <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
                 <div class="card-body">
                     <h5 class="card-title">{{ product.name }}</h5>
+<<<<<<< HEAD
                     <p class="card-text"><div class="stars"></div> {{ product.avg_rating }} out of 5</p>
+=======
+                    <p class="card-text"><div class="stars"></div></p>
+>>>>>>> 9892d64c683b74af93e2589ceda42beb01beebdd
                     <p class="card-text"><small class="text-muted">Category: {{ product.category.name }}</small></p>
                     <p class="card-text">
                         {% if product.unit == "piece" %}
@@ -50,6 +59,7 @@
             </div>
         </div>
         {% endfor %}
+<<<<<<< HEAD
         {% if boxes %}
         {% for box in boxes %}
         <div class="col-md-4 mb-4">
@@ -74,6 +84,8 @@
         </div>
         {% endfor %}
         {% endif %}
+=======
+>>>>>>> 9892d64c683b74af93e2589ceda42beb01beebdd
         {% else %}
         <div class="col-md-12">
             <p class="lead">No products available...</p>
@@ -83,7 +95,10 @@
     {% if user.is_farmer %}
     <div class="text-center mt-4">
         <a href="{% url "products:create_product" %}" class="btn btn-primary btn-lg">Add New Product</a>
+<<<<<<< HEAD
         <a href="{% url "products:create_box" %}" class="btn btn-primary btn-lg">Add New Box</a>
+=======
+>>>>>>> 9892d64c683b74af93e2589ceda42beb01beebdd
     </div>
     {% endif %}
 </div>
@@ -111,7 +126,11 @@
         }
 
         if (halfStar) {
+<<<<<<< HEAD
             stars.push('<i class="fa-solid fa-star-half-stroke" style="color: #f8d544;"></i>');
+=======
+            stars.push('<i class="fa-solid fa-star-half-strokeyy" style="color: #f8d544;"></i>');
+>>>>>>> 9892d64c683b74af93e2589ceda42beb01beebdd
         }
 
         for (let i = 0; i < emptyStars; i++) {

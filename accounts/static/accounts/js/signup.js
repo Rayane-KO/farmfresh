@@ -6,10 +6,10 @@ function toggleIfFarmer(){
         if (userType.value === "farmer"){
             farmNr.style.display = "block";
         }
-        else "none";
+        else farmNr.style.display = "none";
     }
 
-    userType.addEventListener("toggle", toggleFarmNumber);
+    userType.addEventListener("change", toggleFarmNumber);
     toggleFarmNumber()
 }
 

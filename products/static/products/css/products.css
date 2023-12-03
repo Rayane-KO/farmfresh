@@ -1,0 +1,74 @@
+#nutritional-info{
+    display: none;
+}
+
+#reviews{
+    display: none;
+}
+
+#toggle-section{
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 0px 20px;
+    box-sizing: border-box;
+}
+
+.btn-section{
+    background-color: rgba(7, 199, 0, 0.096);
+}
+
+.toggle-btns{
+    background-color: white;
+}
+
+.section {
+    background-color: rgba(7, 199, 0, 0.096);
+    padding: 0px;
+    min-height: 48vh;
+}
+
+.section-elements{
+    padding-top: 10px;
+}
+
+.section-style{
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.card-img-top{
+    max-width: 100%;
+}
+
+.available{
+    color: rgb(3, 168, 3)
+}
+
+.not-available{
+    color: rgb(209, 3, 3)
+}
+
+.update{
+    margin-top: 20px;
+    margin-bottom: 0px;
+    margin-right: 0px;
+}
+
+.product-info{
+    padding-top: 0px;
+}
+
+.img-fluid{
+    height: 100%;
+    border-radius: 10px;
+}
+
+.btn-update{
+    margin-top: 0px;
+}
+
+.container{
+    padding-top: 0px;
+}

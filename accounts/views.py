@@ -1,10 +1,13 @@
 from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
+from django.views.generic import View, CreateView, ListView, DetailView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, JsonResponse
 from .models import User
-
+from view_breadcrumbs import ListBreadcrumbMixin, DetailBreadcrumbMixin
 from . import forms
+
+# Souces: 
+# - Breadcrumbs: https://pypi.org/project/django-view-breadcrumbs/
 
 """
     Views for handling different aspects of user management:
@@ -23,7 +26,7 @@ class SignUp(CreateView):
     # template for rendering
     template_name = "accounts/signup.html"
 
-class UserDetail(DetailView):
+class UserDetail(DetailBreadcrumbMixin, DetailView):
     # used model
     model = User
     template_name = "accounts/user_detail.html"
@@ -41,7 +44,7 @@ class UserDetail(DetailView):
         context["reviews"] = farmer.farmer_reviews.all()
         return context
 
-class FarmerList(ListView):
+class FarmerList(ListBreadcrumbMixin, ListView):
     model = User
     template_name = "accounts/farmers_list.html"
     context_object_name = "farmers"
@@ -51,10 +54,10 @@ class FarmerList(ListView):
         return User.objects.filter(is_farmer=True)
     
     def post(self, request, *args, **kwargs):
-        farmers = self.get_queryset()
+        farmers = self.get_queryset().values("username", "latitude", "longitude")
         my_location = (self.request.user.longitude, self.request.user.latitude)
         # return a JSON response with the farmers and the user's location
-        return JsonResponse({"farmers": farmers, "location": my_location}, safe=False)
+        return JsonResponse({"farmers": list(farmers), "location": my_location}, safe=False)
     
 #use LoginRequiredMixin to ensure that only authenticated users can access this view
 class UpdateUser(LoginRequiredMixin, UpdateView):
@@ -89,3 +92,11 @@ class DeleteUser(LoginRequiredMixin, DeleteView):
         if request.user != self.get_object():
             raise Http404("You don't have the permission to do that!")
         return super().dispatch(request, *args, **kwargs)
+    
+class CheckUsername(View):
+    def get(self, request, *args, **kwargs):
+        username = self.request.GET.get("username")
+        if username:
+            available = User.objects.filter(username__iexact=username).exists()
+            return JsonResponse({"available": available})
+        

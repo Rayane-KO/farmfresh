@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'products/css/products.css' %}">
+<div class="container product-info mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <img src="{{ object.image.url }}" class="img-fluid" alt="{{ object.name }}">
+        </div>
+        <div class="col-md-6">
+            <h2>{{ object.name }}</h2>
+            <p><strong>Category:</strong> {{ object.category.name }}</p>
+            <p><strong>Description:</strong> {{ object.description }}</p>
+            <p><strong>Rating:</strong> {{ object.avg_rating }}</p>
+            {% if object.available %}
+                <p class="available"><strong>Available:</strong> <i class="fa-solid fa-circle-check"></i></p>
+            {% else %}
+                <p class="not-available"><strong>Available:</strong> <i class="fa-solid fa-circle-xmark"></i></p>
+            {% endif %}
+            {% block product_specific %}{% endblock %}
+            {% block box_specific %}{% endblock %}
+            <form method="post" action="{% url "cart:add_to_cart" pk=object.pk %}">
+                {% csrf_token %}
+                <button class="btn btn-success add_to_cart" data-product-id={{ object.pk }} data-add-url="{% url "cart:add_to_cart" pk=object.pk %}">
+                    Add to Cart
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% block product_info %}{% endblock %}
+{% endblock %}

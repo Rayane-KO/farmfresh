@@ -9,9 +9,10 @@
         {% csrf_token %}
         {% for field in form %}
         {% if field.name == "farm_nr" %}
-        <div id="farm_nr" style="display: none">
-            {% bootstrap_field field %}
-        </div>
+        <div id="farm_nr" style="display: none"> {% bootstrap_field field %} </div>
+        {% elif field.name == "username" %}
+        <input type="text" required name="username" id="username" autofocus="">
+        <span id="username_check"></span>
         {% else %}
         {% bootstrap_field field %}
         {% endif %}
@@ -19,5 +20,5 @@
         <div><button type="submit">Sign Up</button></div>
    </form>
 </div>
-<script src="{% static "farmfresh/js/signup.js" %}"></script>
+<script src="{% static "accounts/js/signup.js" %}"></script>
 {% endblock %}

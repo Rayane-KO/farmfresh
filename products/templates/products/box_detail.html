@@ -1,0 +1,20 @@
+{% extends "products/detail_base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% block box_specific %}
+<p><strong>Price:</strong> €{{ box.price }}/Piece</p>
+{% endblock %}
+
+{% block product_info %}
+<p><strong>Farmers:</strong> 
+    {% for farmer in box.farmers.all %}
+    <p class="card-text"> {{ farmer.username }} </p>
+    {% endfor %}
+</p>
+
+<div class="container">
+    {% for product in products %}
+    <p><strong>{{ product.name }}</strong> 
+    {% endfor %}
+</div>
+{% endblock %}

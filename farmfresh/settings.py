@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    #'dynamic_breadcrumbs',
+    "view_breadcrumbs",
     "bootstrap4",
     "accounts",
     "products",
@@ -70,6 +72,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                #"dynamic_breadcrumbs.context_processors.breadcrumbs",
             ],
         },
     },
@@ -123,8 +126,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = "static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static",]
 
 # Media files
 MEDIA_URL = "media/"
@@ -137,3 +140,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_REDIRECT_URL = "test"
 LOGOUT_REDIRECT_URL = "thanks"
+
+# FATSECRET API info
+FATSECRET_CLIENT_ID = "212cb9126d1849aaaa9b0564f5eb8308"
+FATSECRET_CLIENT_SECRET = "fdef2f80a1264bacaed6244cf0357382"

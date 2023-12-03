@@ -1,7 +1,7 @@
 from typing import Any
 from django import http
 from django.shortcuts import render
-from products.models import Category, Product
+from products.models import Category, Product, Box
 from django.views.generic import View, ListView, DetailView, CreateView, DeleteView, UpdateView
 from django.contrib.auth import get_user_model
 from braces.views import SelectRelatedMixin
@@ -13,15 +13,29 @@ from django.urls import reverse_lazy, reverse
 from django.http import Http404, JsonResponse
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.conf import settings
+from datetime import datetime, timedelta
+from django.core.cache import cache
 import base64
 import requests
+from view_breadcrumbs import ListBreadcrumbMixin, DetailBreadcrumbMixin
+from fuzzywuzzy import fuzz
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.core.mail import send_mail
+import logging
 
 User = get_user_model()
 
-# Create your views here.
-class ProductList(SelectRelatedMixin, ListView):
+# Sources:
+# Fuzzy search: https://www.datacamp.com/tutorial/fuzzy-string-python
+
+"""
+    PRODUCT
+"""
+
+class ProductList(ListBreadcrumbMixin, ListView):
     model = Product
-    select_related = ("seller",)
     template_name = "products/product_list.html"
     context_object_name = "products"
     
@@ -29,34 +43,40 @@ class ProductList(SelectRelatedMixin, ListView):
         query = self.request.GET.get("q")
         farmer_id = self.kwargs.get("pk")
         if query:
-            return Product.objects.filter(Q(name__icontains=query) | Q(description__icontains=query))
+            return self.get_products_by_search(query)
         elif farmer_id:
-            farmer = get_object_or_404(User, pk=farmer_id)
-            return Product.objects.filter(seller=farmer)
+            return self.get_products_by_farmer(farmer_id)
         else:
-            return Product.objects.all()
+            return self.get_all_products()
+        
+    def get_products_by_farmer(self, farmer_id):
+        # return the products of a specific farmer
+        farmer = get_object_or_404(User, pk=farmer_id)
+        return Product.objects.filter(seller=farmer)
     
-
-class SellerProductList(ListView):
-    model = Product
-    template_name = "products/farmer_product_list.html"
-
-    def get_queryset(self):
-        try:
-            self.seller = User.objects.prefetch_related("products").get(username__iexact=self.kwargs.get("username"))
-
-        except User.DoesNotExist:
-            raise Http404
-
-        else:
-            return self.seller.products.all()
-
-    def get_context_data(self, **kwargs):
+    def get_products_by_search(self, search):
+        products = Product.objects.all()
+        # use token sort because it doesn't care in what order, it accounts for similar for similar strings
+        search_result = (
+            product for product in products
+            if fuzz.token_sort_ratio(search, product.name) >= 70
+                or fuzz.token_sort_ratio(search, product.seller) >= 70
+                  or fuzz.token_sort_ratio(search, product.description) >= 70
+        )
+        return search_result
+    
+    def get_all_products(self):
+        return Product.objects.all()
+        
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["seller"] = self.seller
+        boxes = Box.objects.all() 
+        context["boxes"] = boxes
         return context
     
-class ProductDetail(SelectRelatedMixin, DetailView):
+    
+    
+class ProductDetail(DetailBreadcrumbMixin, SelectRelatedMixin, DetailView):
     model = Product
     select_related = ("seller",)
     template_name = "products/product_detail.html"
@@ -66,8 +86,8 @@ class ProductDetail(SelectRelatedMixin, DetailView):
         return super().get_queryset().prefetch_related("review_set")
     
     def get_access_token(self):
-        client_id = "212cb9126d1849aaaa9b0564f5eb8308"
-        client_secret = "fdef2f80a1264bacaed6244cf0357382"
+        client_id = settings.FATSECRET_CLIENT_ID
+        client_secret = settings.FATSECRET_CLIENT_SECRET
         token_url = "https://oauth.fatsecret.com/connect/token"
         data = {
             "grant_type": "client_credentials",
@@ -76,9 +96,20 @@ class ProductDetail(SelectRelatedMixin, DetailView):
         headers = {
             "Authorization": "Basic " + base64.b64encode(f'{client_id}:{client_secret}'.encode()).decode('utf-8')
         }
+        # check if the access token is available in the cache
+        cached_token = cache.get("access_token")
+        if cached_token:
+            return cached_token
         response = requests.post(token_url, data=data, headers=headers)
         if response.ok:
-            return response.json().get("access_token")
+            access_data = response.json()
+            access_token = access_data.get("access_token")
+            expires_in = access_data.get("expires_in")
+            # each access token has an expires_in field so cache the token
+            # with a timeout equal to this field
+            if access_token and expires_in:
+                cache.set("access_token", access_token, timeout=expires_in)
+                return access_token
         else: None
 
     def get_product_id(self, name, access_token):
@@ -173,9 +204,32 @@ class UpdateProduct(LoginRequiredMixin, UpdateView):
             raise Http404("You do not have the permission for this action!")
         return super().dispatch(request, *args, **kwargs)
     
+"""
+    BOX
+"""
+
+class CreateBox(CreateView):
+    form_class = forms.BoxCreationForm
+    model = Box
+    template_name = "products/box_form.html"
     
+    def get_success_url(self):
+        return reverse("products:product_list")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+class BoxDetail(DetailView):
+    model = Box
+    template_name = "products/box_detail.html"
     
-    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        box = self.object
+        context["products"] = box.products.all()
+        return context
     
     
     

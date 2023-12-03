@@ -3,46 +3,126 @@
 {% load static %}
 {% block content %}
 
+<link rel="stylesheet" href="{% static 'products/css/products.css' %}">
+
 <div class="container">
-    <h1>Shop</h1>
-    <form method="get">
-        <input name="q" type="text" placeholder="Search">
+    <form method="get" class="mb-4">
+        <div class="input-group">
+            <input name="q" type="text" class="form-control" placeholder="Search">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="submit">Search</button>
+            </div>
+        </div>
     </form>
-    {% if products %}
-    <ul>
+    <div class="row">
+        {% if products %}
         {% for product in products %}
-        <li class="col-md-4">
-            <p>Name: {{ product.name }}</p>
-            <p>Category: {{ product.category.name }}</p>
-            <p>Description: {{ product.description }}</p>
-            {% if product.unit == "piece" %}
-            <p>Price: €{{ product.price }}/Piece</p>
-            {% elif product.unit == "kg" %}
-            <p>Price: €{{ product.price }}/Kg</p>
-            {% endif %}
-            {% if product.available %}
-            <p>Available: <i class="fa-solid fa-circle-check" style="color: #25511f;"></i></p>
-            {% else %}
-            <p>Available: <i class="fa-solid fa-circle-xmark" style="color: #ff0000;"></i></p>
-            {% endif %}
-            <p>Rating: {{ product.avg_rating }}/5</p>
-            <p>Seller: <a href="{% url "accounts:user_detail" pk=product.seller.pk %}">{{ product.seller.username }}</a></p>
-            <a href="{% url "products:product_detail" pk=product.pk %}">View Details</a>
-            <button class="add_to_cart" data-product-id={{ product.pk }} data-add-url="{% url "cart:add_to_cart" pk=product.pk %}">
-                Add
-            </button>
-        </li>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100" data-rating={{ product.avg_rating }}>
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text"><div class="stars"></div> {{ product.avg_rating }} out of 5</p>
+                    <p class="card-text"><small class="text-muted">Category: {{ product.category.name }}</small></p>
+                    <p class="card-text">
+                        {% if product.unit == "piece" %}
+                        Price: €{{ product.price }}/Piece
+                        {% elif product.unit == "kg" %}
+                        Price: €{{ product.price }}/Kg
+                        {% endif %}
+                    </p>
+                    <p class="card-text">
+                        {% if product.available %}
+                        <span class="text-success">Available: <i class="fa-solid fa-circle-check"></i></span>
+                        {% else %}
+                        <span class="text-danger">Not Available: <i class="fa-solid fa-circle-xmark"></i></span>
+                        {% endif %}
+                    </p>
+                    
+                    <p class="card-text">
+                        Seller: <a href="{% url "accounts:user_detail" pk=product.seller.pk %}">{{ product.seller.username }}</a>
+                    </p>
+                    <a href="{% url "products:product_detail" pk=product.pk %}" class="btn btn-primary">View Details</a>
+                    <button class="btn btn-success add_to_cart" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk %}">
+                        Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
         {% endfor %}
-    </ul>
-    {% else %}
-    <p>No products available...</p>
-    {% endif %}
+        {% if boxes %}
+        {% for box in boxes %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100" data-rating={{ product.avg_rating }}>
+                <img src="{{ box.image.url }}" class="card-img-top" alt="{{ box.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ box.name }}</h5>
+                    <p class="card-text"><div class="stars"></div> {{ box.avg_rating }} out of 5</p>
+                    <p class="card-text">
+                        {% if box.available %}
+                        <span class="text-success">Available: <i class="fa-solid fa-circle-check"></i></span>
+                        {% else %}
+                        <span class="text-danger">Not Available: <i class="fa-solid fa-circle-xmark"></i></span>
+                        {% endif %}
+                    </p>
+                    <a href="{% url "products:box_detail" pk=box.pk %}" class="btn btn-primary">View Details</a>
+                    <button class="btn btn-success add_to_cart" data-product-id="{{ box.pk }}" data-add-url="{% url "cart:add_to_cart" pk=box.pk %}">
+                        Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% else %}
+        <div class="col-md-12">
+            <p class="lead">No products available...</p>
+        </div>
+        {% endif %}
+    </div>
     {% if user.is_farmer %}
-    <a href="{% url "products:create_product" %}">
-        <button>Add new product</button>
-    </a>
+    <div class="text-center mt-4">
+        <a href="{% url "products:create_product" %}" class="btn btn-primary btn-lg">Add New Product</a>
+        <a href="{% url "products:create_box" %}" class="btn btn-primary btn-lg">Add New Box</a>
+    </div>
     {% endif %}
 </div>
 
-<script src="{% static "farmfresh/js/cart_update.js" %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const products = document.querySelectorAll('.card');
+
+        products.forEach(product => {
+            const rating = parseFloat(product.getAttribute('data-rating'));
+            const stars = getStars(rating);
+            const starContainer = product.querySelector('.stars');
+            starContainer.innerHTML = stars;
+        });
+    });
+
+    function getStars(rating) {
+        const fullStars = Math.floor(rating);
+        const halfStar = rating % 1 !== 0;
+        const emptyStars = Math.ceil(5 - fullStars - halfStar)
+        const stars = [];
+
+        for (let i = 0; i < fullStars; i++) {
+            stars.push('<i class="fa-solid fa-star" style="color: #f8d544;"></i>');
+        }
+
+        if (halfStar) {
+            stars.push('<i class="fa-solid fa-star-half-stroke" style="color: #f8d544;"></i>');
+        }
+
+        for (let i = 0; i < emptyStars; i++) {
+            stars.push('<i class="fa-regular fa-star" style="color: #f8d544;"></i>');
+        }
+        
+        
+        
+
+        return stars.join('');
+    }
+</script>
+
 {% endblock %}

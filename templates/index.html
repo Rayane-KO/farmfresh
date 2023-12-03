@@ -27,7 +27,7 @@
 
   <div class="shopping row mt-5 d-flex justify-content-around">
     <div class="col-md-4 mb-4 text-center">
-      <a class="shop-nav" href="{% url "products:all" %}">
+      <a class="shop-nav" href="{% url "products:product_list" %}">
         <img src="https://images.rtl.fr/~c/770v513/rtl/www/1071023-legumes.jpg" alt="Local Farmers" class="img-fluid">
         <p class="mt-3">Produced by Local Farmers</p>
         <a href="{% url "products:product_list" %}" class="btn btn-success">Shop Now</a>
@@ -41,7 +41,7 @@
       </a>
     </div>
     <div class="col-md-4 mb-4 text-center">
-      <a class="shop-nav" href="{% url "accounts:farmers_list" %}">
+      <a class="shop-nav" href="{% url "accounts:user_list" %}">
         <img src="https://african.land/oc-content/plugins/blog/img/blog/740.jpg" alt="Discover Your Next Farmer" class="img-fluid">
         <p class="mt-3">Discover Your Next Farmer</p>
         <a href="{% url "accounts:user_list" %}" class="btn btn-success">Discover Now</a>

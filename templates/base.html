@@ -41,17 +41,10 @@
                     <a class="nav-link" href="{% url "home" %}">Home</a>
                   </li>
                   <li class="nav-item">
-<<<<<<< HEAD
                     <a class="nav-link" href="{% url "products:product_list" %}">Shop</a>
                   </li>
                   <li class="nav-item">
                     <a class="nav-link" href="{% url "accounts:user_list" %}">Farmers</a>
-=======
-                    <a class="nav-link" href="{% url "products:all" %}">Shop</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="{% url "accounts:farmers_list" %}">Farmers</a>
->>>>>>> 9892d64c683b74af93e2589ceda42beb01beebdd
                   </li>
                   <li class="nav-item">
                     <a class="nav-link" href="{% url "about" %}">About</a>
@@ -64,10 +57,7 @@
                       <div class="dropdown-menu">
                           <a class="dropdown-item" href="{% url "accounts:user_detail" pk=user.pk %}">My Account</a>
                           <a class="dropdown-item" href="#">Fav farmers</a>
-<<<<<<< HEAD
                           {% if user.is_staff %}<a class="dropdown-item" href="#">Requests</a>{% endif %}
-=======
->>>>>>> 9892d64c683b74af93e2589ceda42beb01beebdd
                           <a class="dropdown-item" href="{% url 'accounts:logout' %}">Log Out</a>
                       </div>
                   </li>
@@ -93,7 +83,6 @@
                 </li>
                 {% endif %}
               </ul>
-<<<<<<< HEAD
         </nav>
 
         <div class="container" id="breadcrumbs">
@@ -101,12 +90,6 @@
             {% render_breadcrumbs %}
           {% endblock %}
         </div>
-=======
-      
-
-        </nav>
-
->>>>>>> 9892d64c683b74af93e2589ceda42beb01beebdd
         
         {% block content %}
 

@@ -57,7 +57,11 @@
                       <div class="dropdown-menu">
                           <a class="dropdown-item" href="{% url "accounts:user_detail" pk=user.pk %}">My Account</a>
                           <a class="dropdown-item" href="#">Fav farmers</a>
-                          {% if user.is_staff or user.is_farmer %}<a class="dropdown-item" href="{% url "products:pending" %}">Requests</a>{% endif %}
+                          {% if user.is_staff or user.is_farmer %}
+                          <a class="dropdown-item" href="{% url "products:pending" %}">
+                            Requests
+                          </a>
+                          {% endif %}
                           <a class="dropdown-item" href="{% url 'accounts:logout' %}">Log Out</a>
                       </div>
                   </li>
@@ -76,11 +80,11 @@
               </ul>
         </nav>
 
-        <div class="container" id="breadcrumbs">
           {% block breadcrumbs %}
+          <div class="container" id="breadcrumbs">
             {% render_breadcrumbs %}
+          </div>
           {% endblock %}
-        </div>
         
         {% block content %}
 

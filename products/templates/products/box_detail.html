@@ -2,11 +2,25 @@
 {% load bootstrap4 %}
 {% load static %}
 {% block box_specific %}
-<p><strong>Price:</strong> €{{ box.price }}/Piece</p>
+<p><strong>Price:</strong> €{{ box.price }}</p>
+{% if request.user == box.asker or request.user in box.farmers.all %}
+<button class="btn btn-success" data-toggle="modal" data-target="#productModal">
+    Add product
+</button>
+{% endif %}
+{% if box.status == "approved" %}
+<form method="post" action="{% url "cart:add_to_cart" pk=object.pk %}">
+    {% csrf_token %}
+    <button class="btn btn-success add_to_cart" data-product-id={{ object.pk }} data-add-url="{% url "cart:add_to_cart" pk=object.pk %}">
+        Add to Cart
+    </button>
+</form>
+{% endif %}
 {% endblock %}
 
 {% block product_info %}
 <p><strong>Farmers:</strong> 
+    <p class="card-text"> {{ box.asker.username }} </p>
     {% for farmer in box.farmers.all %}
     <p class="card-text"> {{ farmer.username }} </p>
     {% endfor %}
@@ -17,4 +31,97 @@
     <p><strong>{{ product.name }}</strong> 
     {% endfor %}
 </div>
+
+<!-- Add this modal code at the bottom of your HTML template -->
+<div class="modal" id="productModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select Products</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Display the list of products here -->
+                {% for product in farmers_products %}
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="product_{{ product.pk }}" value="{{ product.pk }}">
+                        <label class="form-check-label" for="product_{{ product.pk }}">{{ product.name }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button class="btn btn-success" id="addProductsBtn" data-box-id={{ box.pk }} data-url="{% url "products:add_to_box" pk=box.pk %}">
+                    Add Products
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static "farmfresh/js/cart_update.js" %}"></script>
+<!-- Add this script at the bottom of your HTML template or in a separate script file -->
+<script>
+    function getToken(){
+        var val = "; " + document.cookie;
+        var parts = val.split("; csrftoken=");
+        if (parts.length === 2){
+            return parts.pop().split(";").shift()
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const addProductsBtn = document.getElementById('addProductsBtn');
+        const productCheckboxes = document.querySelectorAll('.modal-body .form-check-input');
+        const productModal = document.getElementById('productModal');
+        const boxId = addProductsBtn.getAttribute("data-box-id");
+        const url = addProductsBtn.getAttribute("data-url");
+
+        addProductsBtn.addEventListener('click', function () {
+            const selectedProducts = Array.from(productCheckboxes)
+                .filter(function (checkbox) {
+                    return checkbox.checked;
+                })
+                .map(function (checkbox) {
+                    return checkbox.value;
+                });
+
+            // Update your form or perform any other actions with the selected products
+            console.log('Selected Products:', selectedProducts);
+
+            // Close the modal
+            productModal.classList.remove('show');
+            productModal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+            document.body.style.paddingRight = '0';
+            document.querySelector('.modal-backdrop').remove();
+
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getToken(),
+                },
+                body: JSON.stringify({"products": selectedProducts}),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                location.reload();
+                return response.json();
+            })
+            .then(data =>{
+                console.log(data);
+            })
+            .catch(error => {
+                console.log(error);
+            })
+        });
+    });
+</script>
+
+
 {% endblock %}

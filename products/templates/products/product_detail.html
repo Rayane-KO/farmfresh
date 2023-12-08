@@ -7,6 +7,12 @@
             {% elif product.unit == "kg" %}
                 <p><strong>Price:</strong> €{{ product.price }}/Kg</p>
             {% endif %}
+            <form method="post" action="{% url "cart:add_to_cart" pk=object.pk %}">
+                {% csrf_token %}
+                <button class="btn btn-success add_to_cart" data-product-id={{ object.pk }} data-add-url="{% url "cart:add_to_cart" pk=object.pk %}">
+                    Add to Cart
+                </button>
+            </form>
 {% endblock %}
 {% block product_info %}
 <div class="container section-btns">

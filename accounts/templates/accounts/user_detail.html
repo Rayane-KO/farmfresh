@@ -27,7 +27,14 @@
         <div class="col-md-8">
             <div class="user-info" data-user-id={{ user.pk }}>
                 <h1>Details</h1>
-                <p>Username: {{ user_detail.username }}</p>
+                <p>Username: {{ user_detail.username }} 
+                    <span class="badge">
+                        {% if user_detail.is_farmer %}
+                        <i class="fa-solid fa-wheat-awn" style="color: #0a5200;"></i>
+                        {% endif %}
+                    </span>
+
+                </p>
                 {% if user_detail.is_farmer %}
                 <p>Farmer: YES</p>
                 {% else %}

@@ -4,10 +4,14 @@ from django import forms
 from django.core.files.base import File
 from django.db.models.base import Model
 from django.forms.utils import ErrorList
-from products.models import Product, Box
+from products.models import Product, Box, Category
 from accounts.models import User
 
 class ProductCreationForm(forms.ModelForm):
+    categories = forms.MultipleChoiceField(
+        choices=[],
+        widget=forms.CheckboxSelectMultiple
+    )
 
     class Meta:
         fields = ("name", "categories", "description", "unit", "price", "available", "image")
@@ -20,11 +24,15 @@ class ProductCreationForm(forms.ModelForm):
         self.fields["description"].label = "Description of the product"
         self.fields["price"].label = "Product price"
         self.fields["unit"].label = "Price per piece/kg?"
+        self.fields["categories"].choices = [
+            (category.pk, category.name) for category in Category.objects.all()
+        ]
 
 class BoxCreationForm(forms.ModelForm):
     farmers = forms.MultipleChoiceField(
         choices=[],
-        widget=forms.CheckboxSelectMultiple
+        widget=forms.CheckboxSelectMultiple,
+        required=False
     )
     products = forms.MultipleChoiceField(
         choices=[],
@@ -32,7 +40,7 @@ class BoxCreationForm(forms.ModelForm):
     )
 
     class Meta:
-        fields = ("name", "products", "description", "farmers", "price", "image")
+        fields = ("name", "products", "description", "farmers", "image")
         model = Box
 
     def clean_products(self):

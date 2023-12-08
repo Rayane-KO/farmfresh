@@ -38,9 +38,22 @@
             </div>
         </div>
     </form>
+    <form method="get" class="mb-4">
+        <div class="form-group">
+            <label>Select a category:</label>
+            {% for category in categories %}
+            <div class="form-check">
+                <input name="category" type="checkbox" class="form-form-check-input" value="{{ category.name }}">
+                <label>{{ category.name }}</label>
+            </div>
+            {% endfor %}
+            <button class="btn btn-outline-secondary" type="submit">Filter</button>
+        </div>
+
+    </form>
     <div class="row">
-        {% if products %}
-        {% for product in products %}
+        {% if products.products %}
+        {% for product in products.products %}
         <div class="col-md-6 col-lg-4 mb-4">
             <!-- Use col-md-6 for medium screens and col-lg-4 for larger screens -->
             <div class="card h-100" data-rating={{ product.avg_rating }}>
@@ -48,7 +61,14 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ product.name }}</h5>
                     <p class="card-text"><div class="stars"></div></p>
-                    <p class="card-text"><small class="text-muted">Category: {{ product.category.name }}</small></p>
+                    <p class="card-text"><small class="text-muted">
+                        {% for category in product.categories.all %}
+                        <span class="badge badge-pill badge-success">
+                            {{ category.name }}
+                        </span>
+                        {% endfor %}
+                    </small>
+                    </p>
                     <p class="card-text">
                         {% if product.unit == "piece" %}
                             Price: €{{ product.price }}/Piece
@@ -75,10 +95,11 @@
             </div>
         </div>
     {% endfor %}
-        {% if boxes %}
-        {% for box in boxes %}
+    {% endif %}
+        {% if products.boxes %}
+        {% for box in products.boxes %}
         {% if box.status == "approved" %}
-        <div class="col-md-4 mb-4">
+        <div class="col-md-6 col-lg-4 mb-4">
             <div class="card h-100" data-rating={{ product.avg_rating }}>
                 <img src="{{ box.image.url }}" class="card-img-top" alt="{{ box.name }}">
                 <div class="card-body">
@@ -101,7 +122,7 @@
         {% endif %}
         {% endfor %}
         {% endif %}
-        {% else %}
+        {% if not products.products and not products.boxes %}
             <div class="col-md-12">
                 <p class="lead">No products available...</p>
             </div>

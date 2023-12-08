@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from .views import ProductList, ProductDetail, CreateProduct, DeleteProduct, UpdateProduct, CreateBox, BoxDetail, PendingBoxList, PendingDecision
+from .views import ProductList, ProductDetail, CreateProduct, DeleteProduct, UpdateProduct, CreateBox, BoxDetail, PendingBoxList, PendingDecision, AddProductToBox
 
 app_name = "products"
 
@@ -15,5 +15,5 @@ urlpatterns = [
     path("box/<int:pk>/", BoxDetail.as_view(), name="box_detail"),
     path("pending/", PendingBoxList.as_view(), name="pending"),
     path("decision/<int:pk>/", PendingDecision.as_view(), name="decision"),
-
+    path("<int:pk>/add_to_box/", AddProductToBox.as_view(), name="add_to_box"),
 ]

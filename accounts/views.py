@@ -54,7 +54,7 @@ class FarmerList(ListBreadcrumbMixin, ListView):
         return User.objects.filter(is_farmer=True)
     
     def post(self, request, *args, **kwargs):
-        farmers = self.get_queryset().values("username", "latitude", "longitude")
+        farmers = self.get_queryset().values("username", "pk", "latitude", "longitude")
         my_location = (self.request.user.longitude, self.request.user.latitude)
         # return a JSON response with the farmers and the user's location
         return JsonResponse({"farmers": list(farmers), "location": my_location}, safe=False)
@@ -78,7 +78,7 @@ class UpdateUser(LoginRequiredMixin, UpdateView):
     
     def dispatch(self, request, *args, **kwargs):
         # the view fetches the correct object
-        if request.user != self.object:
+        if request.user != self.get_object():
             raise Http404("You do not have the permission for this action!")
         return super().dispatch(request, *args, **kwargs)
     

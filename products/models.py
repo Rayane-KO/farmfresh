@@ -54,6 +54,7 @@ class Box(models.Model):
     name = models.CharField(max_length=200)
     products = models.ManyToManyField(Product, related_name="boxes")
     farmers = models.ManyToManyField(User, blank=True, related_name="boxes")
+    confirmed = models.ManyToManyField(User, blank=True, related_name="confirmed")
     asker = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=1.99)
@@ -62,6 +63,9 @@ class Box(models.Model):
     image = models.ImageField(upload_to="images/")
     status = models.CharField(max_length=20, choices=STATUS, default="Pending")
     avg_rating = models.DecimalField(max_digits=2, decimal_places=1, default=0)
+
+    def is_confirmed(self):
+        return self.farmers.count() == self.confirmed.count()
 
     def __str__(self):
         return self.name 

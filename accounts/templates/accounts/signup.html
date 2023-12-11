@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load bootstrap4 %}
 {% load static %}
+{% load socialaccount %}
 {% block content %}
 
 <div class="container">
@@ -19,6 +20,12 @@
         {% endfor %}
         <div><button type="submit">Sign Up</button></div>
    </form>
+   <button class="btn btn-outline-info">
+    <a href="{% provider_login_url 'google'%}">
+        <i class="fa-brands fa-google"></i>
+        Sign up with Google
+    </a>
+    </button>
 </div>
 <script src="{% static "accounts/js/signup.js" %}"></script>
 {% endblock %}

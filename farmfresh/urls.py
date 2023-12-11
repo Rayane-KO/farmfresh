@@ -23,6 +23,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", views.HomePage.as_view(), name="home"),
     path("accounts/", include("accounts.urls", namespace="accounts")),
+    path("accounts/", include("allauth.urls")),
+    path("accounts/", include("allauth.socialaccount.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     path("about/", views.AboutPage.as_view(), name="about"),
     path("test/", views.TestPage.as_view(), name="test"),

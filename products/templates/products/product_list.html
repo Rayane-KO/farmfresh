@@ -61,6 +61,7 @@
         <div class="form-group">
             <label>Sort By Price:</label>
             <select name="sort_by_price">
+                <option value="none">Choose order</option>
                 <option value="ascending" {% if request.GET.sort_by_price == 'ascending' %}selected{% endif %}>Low to High</option>
                 <option value="descending" {% if request.GET.sort_by_price == 'descending' %}selected{% endif %}>High to Low</option>
             </select>

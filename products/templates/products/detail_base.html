@@ -5,6 +5,12 @@
 
 <link rel="stylesheet" href="{% static 'products/css/products.css' %}">
 <div class="container product-info mt-5">
+    <div class="text-right mb-3">
+        {% if product.seller == request.user %}
+        <a href="{% url "products:update_product" pk=object.pk %}" class="btn btn-primary"><i class="fa-solid fa-pen"></i></a>
+        <a href="{% url "products:delete_product" pk=object.pk %}" class="btn btn-danger"><i class="fa-solid fa-trash"></i></a>
+        {% endif %}
+    </div>
     <div class="row">
         <div class="col-md-6">
             <img src="{{ object.image.url }}" class="img-fluid" alt="{{ object.name }}">

@@ -68,6 +68,13 @@
 
 <div class="container">
     <h1>Farmers</h1>
+    <div class="filter-options">
+        <form method="get">
+            <label><input type="checkbox" name="best_farmers"> Best Rated</label>
+            <label><input type="checkbox" name="closest_farmers"> Closest</label>
+            <button type="submit">Apply Filters</button>
+        </form>
+    </div>
     <div class="row">
         <div class="col-md-6 order-md-1 order-2">
             {% if farmers %}

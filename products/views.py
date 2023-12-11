@@ -45,19 +45,33 @@ class ProductList(ListBreadcrumbMixin, ListView):
         query = self.request.GET.get("q")
         farmer_id = self.kwargs.get("pk")
         category = self.request.GET.get("category")
+        sort_by_price = self.request.GET.get("sort_by_price")
         if query:
             return self.get_products_by_search(query)
         elif category:
-            return self.get_products_by_category(category)
+            queryset = self.get_products_by_category(category)
         elif farmer_id:
             return self.get_products_by_farmer(farmer_id)
         else:
-            return self.get_all_products()
+            queryset = self.get_all_products()
+
+        products = queryset.get("products")
+        boxes = queryset.get("boxes")
+        if sort_by_price == "ascending":
+            products = products.order_by("price")
+            boxes = boxes.order_by("price")
+        elif sort_by_price == "descending":
+            products = products.order_by("-price")
+            boxes = boxes.order_by("-price")
+        return {"products": products, "boxes": boxes}
+
         
     def get_products_by_farmer(self, farmer_id):
         # return the products of a specific farmer
         farmer = get_object_or_404(User, pk=farmer_id)
-        return Product.objects.filter(seller=farmer)
+        products = Product.objects.filter(seller=farmer)
+        boxes = Box.objects.filter(Q(asker=farmer) | Q(farmers=farmer))
+        return {"products": products, "boxes": boxes}
     
     def get_products_by_category(self, category):
         products = Product.objects.filter(categories__name__iexact=category)

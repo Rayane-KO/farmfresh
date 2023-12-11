@@ -36,9 +36,7 @@
 
                 </p>
                 {% if user_detail.is_farmer %}
-                <p>Farmer: YES</p>
-                {% else %}
-                <p>Farmer: NO</p>
+                <p>Rating: {{ user_detail.avg_rating }}</p>
                 {% endif %}
                 <p>First Name: {{ user_detail.first_name }}</p>
                 <p>Last Name: {{ user_detail.last_name }}</p>

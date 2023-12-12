@@ -10,6 +10,7 @@
         {% csrf_token %}
         {% bootstrap_form form%}
         <div><button type="submit">Log In</button></div>
+        <div><p>Forgot your password? <a href="{% url 'accounts:password_reset' %}">Click Here</a></p></div>
         <div><p>New to FarmFresh? <a href="{% url 'accounts:signup' %}">Create a new account</a></p></div>
    </form>
    <button class="btn btn-outline-info">

@@ -45,7 +45,7 @@ class ProductList(ListBreadcrumbMixin, ListView):
         query = self.request.GET.get("q")
         farmer_id = self.kwargs.get("pk")
         category = self.request.GET.get("category")
-        sort_by_price = self.request.GET.get("sort_by_price")
+        sort_by = self.request.GET.get("sort_by")
         if query:
             return self.get_products_by_search(query)
         elif category:
@@ -57,13 +57,17 @@ class ProductList(ListBreadcrumbMixin, ListView):
 
         products = queryset.get("products")
         boxes = queryset.get("boxes")
-        if sort_by_price == "ascending":
+        if sort_by == "ascending":
             products = products.order_by("price")
             boxes = boxes.order_by("price")
-        elif sort_by_price == "descending":
+        elif sort_by == "descending":
             products = products.order_by("-price")
             boxes = boxes.order_by("-price")
-        return {"products": products, "boxes": boxes}
+        elif sort_by == "best_rated":
+            products = products.order_by("-avg_rating")
+            boxes = boxes.order_by("-avg_rating")
+        sorted_products = {"products": products, "boxes": boxes}
+        return JsonResponse(sorted_products)
 
         
     def get_products_by_farmer(self, farmer_id):

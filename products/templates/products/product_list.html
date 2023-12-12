@@ -59,11 +59,12 @@
         </div>
 
         <div class="form-group">
-            <label>Sort By Price:</label>
-            <select name="sort_by_price">
-                <option value="none">Choose order</option>
-                <option value="ascending" {% if request.GET.sort_by_price == 'ascending' %}selected{% endif %}>Low to High</option>
-                <option value="descending" {% if request.GET.sort_by_price == 'descending' %}selected{% endif %}>High to Low</option>
+            <label>Sort By:</label>
+            <select name="sort_by">
+                <option value="default">Default</option>
+                <option value="best_rated" {% if request.GET.sort_by == 'best_rated' %}selected{% endif %}>Best rated</option>
+                <option value="ascending" {% if request.GET.sort_by == 'ascending' %}selected{% endif %}>Price (Low - High)</option>
+                <option value="descending" {% if request.GET.sort_by == 'descending' %}selected{% endif %}>Price (High to Low)</option>
             </select>
         </div>
             <button class="btn btn-outline-secondary" type="submit">Filter</button>

@@ -6,6 +6,7 @@ from .models import User
 from view_breadcrumbs import ListBreadcrumbMixin, DetailBreadcrumbMixin
 from . import forms
 from geopy.distance import great_circle
+from django.core.mail import EmailMessage
 
 # Souces: 
 # - Breadcrumbs: https://pypi.org/project/django-view-breadcrumbs/

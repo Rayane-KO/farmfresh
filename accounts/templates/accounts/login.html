@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% load bootstrap4 %}
+{% load socialaccount %}
+{% load account %}
 {% block content %}
 
 <div class="container">
@@ -10,6 +12,12 @@
         <div><button type="submit">Log In</button></div>
         <div><p>New to FarmFresh? <a href="{% url 'accounts:signup' %}">Create a new account</a></p></div>
    </form>
+   <button class="btn btn-outline-info">
+    <a href="{% provider_login_url 'google'%}">
+        <i class="fa-brands fa-google"></i>
+        Login with Google
+    </a>
+    </button>
 </div>
 
 {% endblock %}

@@ -30,6 +30,7 @@ ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = "accounts.User"
 
+SITE_ID = 1
 
 # Application definition
 
@@ -40,7 +41,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    #'dynamic_breadcrumbs',
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.facebook",
     "view_breadcrumbs",
     "bootstrap4",
     "accounts",
@@ -48,6 +53,31 @@ INSTALLED_APPS = [
     "cart",
     "reviews",
 ]
+
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": "434338650383-3rbt6oa184hq12dhialho7thog388t11.apps.googleusercontent.com",
+            "secret": "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",
+            "key": "",
+            "redirect_uris": ["http://localhost:8000/accounts/google/login/callback/"],
+        },
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        }
+    }
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -57,6 +87,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "farmfresh.urls"
@@ -72,7 +103,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                #"dynamic_breadcrumbs.context_processors.breadcrumbs",
             ],
         },
     },
@@ -144,3 +174,5 @@ LOGOUT_REDIRECT_URL = "thanks"
 # FATSECRET API info
 FATSECRET_CLIENT_ID = "212cb9126d1849aaaa9b0564f5eb8308"
 FATSECRET_CLIENT_SECRET = "fdef2f80a1264bacaed6244cf0357382"
+
+

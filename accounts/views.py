@@ -5,6 +5,7 @@ from django.http import Http404, JsonResponse
 from .models import User
 from view_breadcrumbs import ListBreadcrumbMixin, DetailBreadcrumbMixin
 from . import forms
+from geopy.distance import great_circle
 
 # Souces: 
 # - Breadcrumbs: https://pypi.org/project/django-view-breadcrumbs/
@@ -50,11 +51,31 @@ class FarmerList(ListBreadcrumbMixin, ListView):
     context_object_name = "farmers"
 
     def get_queryset(self):
-        # return only the users that are farmers
-        return User.objects.filter(is_farmer=True)
+        closest_farmers = self.request.GET.get("closest_farmers")
+        best_farmers = self.request.GET.get("best_farmers")
+        farmers = User.objects.filter(is_farmer=True)
+        if closest_farmers:
+            return self.get_closest_farmers()
+        elif best_farmers:
+            return self.get_best_farmers()
+        else: 
+            return farmers
+
+    def get_closest_farmers(self):
+        farmers = User.objects.filter(is_farmer=True).exclude(latitude__isnull=True, longitude__isnull=True)
+        my_location = (self.request.user.longitude, self.request.user.latitude)
+        farmers = sorted(
+            farmers,
+            key=lambda farmer: great_circle((farmer.longitude, farmer.latitude), my_location).miles
+        )
+        return farmers
+    
+    def get_best_farmers(self):
+        farmers = User.objects.filter(is_farmer=True)
+        return farmers.order_by("-avg_rating")
     
     def post(self, request, *args, **kwargs):
-        farmers = self.get_queryset().values("username", "latitude", "longitude")
+        farmers = self.get_queryset().values("username", "pk", "latitude", "longitude")
         my_location = (self.request.user.longitude, self.request.user.latitude)
         # return a JSON response with the farmers and the user's location
         return JsonResponse({"farmers": list(farmers), "location": my_location}, safe=False)
@@ -78,7 +99,7 @@ class UpdateUser(LoginRequiredMixin, UpdateView):
     
     def dispatch(self, request, *args, **kwargs):
         # the view fetches the correct object
-        if request.user != self.object:
+        if request.user != self.get_object():
             raise Http404("You do not have the permission for this action!")
         return super().dispatch(request, *args, **kwargs)
     

@@ -40,6 +40,7 @@ function getFarmers(){
             popupAnchor: [15, -30]
         });
         farmers.forEach(farmer => {
+            console.log(farmer)
             if (farmer.latitude !== null && farmer.longitude !== null && farmer.latitude !== latitude && farmer.longitude !== longitude){
                 var marker = L.marker([farmer.latitude, farmer.longitude], { icon: farmIcon }).addTo(map);
                 var url = "<a href=../../accounts/user/"+ farmer.pk + ">" + farmer.username + "</a>"

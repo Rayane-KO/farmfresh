@@ -18,12 +18,14 @@ from datetime import datetime, timedelta
 from django.core.cache import cache
 import base64
 import requests
+from itertools import chain
 from view_breadcrumbs import ListBreadcrumbMixin, DetailBreadcrumbMixin
 from fuzzywuzzy import fuzz
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.core.mail import send_mail
 import logging
+import json
 
 User = get_user_model()
 
@@ -42,36 +44,69 @@ class ProductList(ListBreadcrumbMixin, ListView):
     def get_queryset(self):
         query = self.request.GET.get("q")
         farmer_id = self.kwargs.get("pk")
+        category = self.request.GET.get("category")
+        sort_by_price = self.request.GET.get("sort_by_price")
         if query:
             return self.get_products_by_search(query)
+        elif category:
+            queryset = self.get_products_by_category(category)
         elif farmer_id:
             return self.get_products_by_farmer(farmer_id)
         else:
-            return self.get_all_products()
+            queryset = self.get_all_products()
+
+        products = queryset.get("products")
+        boxes = queryset.get("boxes")
+        if sort_by_price == "ascending":
+            products = products.order_by("price")
+            boxes = boxes.order_by("price")
+        elif sort_by_price == "descending":
+            products = products.order_by("-price")
+            boxes = boxes.order_by("-price")
+        return {"products": products, "boxes": boxes}
+
         
     def get_products_by_farmer(self, farmer_id):
         # return the products of a specific farmer
         farmer = get_object_or_404(User, pk=farmer_id)
-        return Product.objects.filter(seller=farmer)
+        products = Product.objects.filter(seller=farmer)
+        boxes = Box.objects.filter(Q(asker=farmer) | Q(farmers=farmer))
+        return {"products": products, "boxes": boxes}
+    
+    def get_products_by_category(self, category):
+        products = Product.objects.filter(categories__name__iexact=category)
+        boxes = Box.objects.all()
+        if category.lower() != "box":
+            return {"products": products}
+        else: 
+            return {"products": products, "boxes": Box.objects.all()}
     
     def get_products_by_search(self, search):
         products = Product.objects.all()
+        boxes = Box.objects.all()
         # use token sort because it doesn't care in what order, it accounts for similar for similar strings
-        search_result = (
+        product_search_result = (
             product for product in products
             if fuzz.token_sort_ratio(search, product.name) >= 70
                 or fuzz.token_sort_ratio(search, product.seller) >= 70
                   or fuzz.token_sort_ratio(search, product.description) >= 70
         )
-        return search_result
+        box_search_result = (
+            box for box in boxes
+            if fuzz.token_sort_ratio(search, box.name) >= 70
+                or fuzz.token_sort_ratio(search, box.asker) >= 70
+                  or fuzz.token_sort_ratio(search, box.description) >= 70
+        )
+        return {"products": product_search_result, "boxes": box_search_result}
     
     def get_all_products(self):
-        return Product.objects.all()
-        
-    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        products = Product.objects.all()
+        boxes = Box.objects.all()
+        return {"products": products, "boxes": boxes}
+    
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        boxes = Box.objects.all() 
-        context["boxes"] = boxes
+        context["categories"] = Category.objects.all()
         return context
     
     
@@ -215,6 +250,12 @@ class CreateBox(CreateView):
     
     def get_success_url(self):
         return reverse("products:product_list")
+    
+    def form_valid(self, form):
+        products = form.cleaned_data["products"]
+        price = sum(product.price for product in products)
+        form.instance.price = price
+        return super().form_valid(form)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -228,7 +269,11 @@ class BoxDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         box = self.object
-        context["products"] = box.products.all()
+        box_products = box.products.all()
+        farmers_product = Product.objects.filter(seller=self.request.user)
+        farmers_product = farmers_product.exclude(pk__in=box_products.values_list("pk", flat=True))
+        context["products"] = box_products
+        context["farmers_products"] = farmers_product
         return context
 
 class PendingBoxList(ListView):
@@ -239,7 +284,9 @@ class PendingBoxList(ListView):
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
-            return Box.objects.filter(status="pending")
+            pending_boxes = Box.objects.filter(status="pending")
+            confirmed_boxes = [box for box in pending_boxes if box.is_confirmed()]
+            return confirmed_boxes
         elif user.is_farmer:
             return Box.objects.filter(Q(asker=user) | Q(farmers__in=[user]))  
         else: return None #later Error    
@@ -248,17 +295,46 @@ class PendingDecision(View):
     def post(self, request, *args, **kwargs):
         box_id = self.kwargs.get("pk")
         action = request.POST.get("action")
-        try:
-            box = Box.objects.get(pk=box_id)
-            if action == "approve":
-                box.status = "approved"
-                box.save()
-            elif action == "reject":
-                box.status = "rejected"
-                box.save()
-        except Box.DoesNotExist:
-            pass
+        user = request.user
+
+        if user.is_staff:
+            try:
+                box = Box.objects.get(pk=box_id)
+                if action == "approve":
+                    box.status = "approved"
+                    box.save()
+                elif action == "reject":
+                    box.status = "rejected"
+                    box.save()
+            except Box.DoesNotExist:
+                pass
+        if user.is_farmer:
+            try: 
+                box = Box.objects.get(pk=box_id)
+                if action == "confirm":
+                    box.confirmed.add(user)
+                    box.save()
+            except Box.DoesNotExist:
+                pass
+
         return redirect("products:pending")
+    
+class AddProductToBox(UpdateView):
+    model = Box
+    template_name = "products/box_detail.html"
+    fields = []
+
+    def get_success_url(self):
+        return reverse_lazy("products:box_detail", kwargs={"pk": self.kwargs.get("pk")})
+    
+    def post(self, request, *args, **kwargs):
+        selected_products_pk = json.loads(request.body).get("products")
+        selected_products = Product.objects.filter(pk__in=selected_products_pk)
+        box = self.get_object()
+        box.products.add(*selected_products)
+        box.save()
+        return JsonResponse({"status": "success"})
+    
     
     
     

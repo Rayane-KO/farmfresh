@@ -5,6 +5,12 @@
 
 <link rel="stylesheet" href="{% static 'products/css/products.css' %}">
 <div class="container product-info mt-5">
+    <div class="text-right mb-3">
+        {% if product.seller == request.user %}
+        <a href="{% url "products:update_product" pk=object.pk %}" class="btn btn-primary"><i class="fa-solid fa-pen"></i></a>
+        <a href="{% url "products:delete_product" pk=object.pk %}" class="btn btn-danger"><i class="fa-solid fa-trash"></i></a>
+        {% endif %}
+    </div>
     <div class="row">
         <div class="col-md-6">
             <img src="{{ object.image.url }}" class="img-fluid" alt="{{ object.name }}">
@@ -21,12 +27,6 @@
             {% endif %}
             {% block product_specific %}{% endblock %}
             {% block box_specific %}{% endblock %}
-            <form method="post" action="{% url "cart:add_to_cart" pk=object.pk %}">
-                {% csrf_token %}
-                <button class="btn btn-success add_to_cart" data-product-id={{ object.pk }} data-add-url="{% url "cart:add_to_cart" pk=object.pk %}">
-                    Add to Cart
-                </button>
-            </form>
         </div>
     </div>
 </div>

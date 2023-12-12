@@ -5,7 +5,7 @@
 
 <style>
     .farmer_list {
-        position:relative;
+        position: relative;
         margin-left: 300px;
     }
 
@@ -26,15 +26,17 @@
     }
 
     #map-container {
-        position: fixed; /* Set map container position to fixed */
-        top: 150px; /* Adjust the top position as needed */
-        right: 20px; /* Adjust the right position as needed */
-        z-index: 1; /* Set a higher z-index to keep the map above other elements */
+        position: fixed; 
+        top: 150px; 
+        right: 20px; 
+        z-index: 1; 
     }
 
+
     #map {
-        height: 400px; 
-        width: 650px;
+        height: 600px; 
+        width: 100%;
+        max-width: 650px; 
         margin-top: 112px;
         margin-bottom: 50px;
         border: #ddd;
@@ -72,6 +74,59 @@
     .fav-button.selected .fa-regular.fa-star {
         color: #ffd43b;
     }
+
+    @media (max-width: 767px) {
+        #map-container {
+            position: static;
+        }
+
+        .farmer_list {
+            margin-left: 0;
+        }
+
+        #map {
+            width: 100%; 
+            max-width: none; 
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 1199px) {
+        #map-container {
+            position: fixed;
+            top: 150px;
+            right: 20px;
+        }
+
+        .farmer_list {
+            margin-left: 0;
+        }
+
+        #map {
+            width: 100%; 
+            max-width: 650px;
+        }
+    }
+
+    @media (min-width: 1200px) {
+    #map-container {
+        position: fixed;
+        top: 150px;
+        right: 20px;
+    }
+
+    .farmer_list {
+            margin-left:33px;
+        }
+
+    
+
+    #map {
+        width: 100%; 
+                     
+        max-width:none;
+        max-height: none;
+    }
+}
 </style>
 
 <div class="container farmer_list">
@@ -79,28 +134,28 @@
     <div class="row">
         <div class="col-md-6 order-md-1 order-2">
             {% if farmers %}
-                <ul>
-                    {% for farmer in farmers %}
-                        <li>
-                            <div class="user-info" data-user-id={{ user.pk }}>
-                                <p>Name: {{ farmer.username }}</p>
-                                <p>Farm: {{ farmer.farm_nr }}</p>
-                                <p>Address: {{ farmer.address }} </p>
-                                <a href="{% url "accounts:user_detail" pk=farmer.pk %}">View Details</a>
-                                {% if farmer != user and user.is_authenticated %}
-                                    <button class="fav-button" data-farmer-id={{ farmer.pk }} data-auth={{ user.is_authenticated }}>
-                                        <i class="fa-regular fa-star" style="color: #ffd43b;"></i>
-                                    </button>
-                                {% endif %}
-                            </div>
-                        </li>
-                    {% endfor %}
-                </ul>
+            <ul>
+                {% for farmer in farmers %}
+                <li>
+                    <div class="user-info" data-user-id={{ user.pk }}>
+                        <p>Name: {{ farmer.username }}</p>
+                        <p>Farm: {{ farmer.farm_nr }}</p>
+                        <p>Address: {{ farmer.address }} </p>
+                        <a href="{% url "accounts:user_detail" pk=farmer.pk %}">View Details</a>
+                        {% if farmer != user and user.is_authenticated %}
+                        <button class="fav-button" data-farmer-id={{ farmer.pk }} data-auth={{ user.is_authenticated }}>
+                            <i class="fa-regular fa-star" style="color: #ffd43b;"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
             {% else %}
                 <p>No products available yet...</p>
             {% endif %}
         </div>
-        <div class="col-md-6  order-md-2 order-1" id="map-container">
+        <div class="col-md-6 order-md-2 order-1" id="map-container">
             <div id="map"></div>
         </div>
     </div>
@@ -108,5 +163,33 @@
 
 <script src="{% static "farmfresh/js/fav_farmer.js" %}"></script>
 <script src="{% static "farmfresh/js/map.js" %}"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var mapContainer = document.getElementById("map-container");
+        var container = document.querySelector(".farmer_list");
+        var aboutSection = document.querySelector(".about");
+
+        function updateMapPosition() {
+            var containerRect = container.getBoundingClientRect();
+            var containerHeight = containerRect.height;
+            var mapHeight = mapContainer.clientHeight;
+            var aboutRect = aboutSection.getBoundingClientRect();
+            var aboutTop = aboutRect.top;
+
+            var scrollTop = window.scrollY;
+
+            var topPosition = Math.min(scrollTop + 150, aboutTop - mapHeight + 25);
+            mapContainer.style.top = topPosition + "px";
+        }
+
+        updateMapPosition();
+
+        setTimeout(updateMapPosition, 500);
+
+        window.addEventListener("scroll", updateMapPosition);
+        window.addEventListener("resize", updateMapPosition);
+    });
+</script>
 
 {% endblock %}

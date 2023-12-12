@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "products",
     "cart",
     "reviews",
+    "orders",
 ]
 
 SOCIALACCOUNT_LOGIN_ON_GET = True

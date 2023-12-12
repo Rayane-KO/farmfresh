@@ -3,38 +3,115 @@
 {% load bootstrap4 %}
 {% block content %}
 
-<div class="container">
-    <h1>Cart</h1>
-    {% if cart_items %}
-    <ul>
-        {% for item in cart_items %}
-        <li class="cart-item">
-            <p>Name: {{ item.product.name }}</p>
-            <p>Category: {{ item.product.category.name }}</p>
-            {% if item.product.unit == "piece" %}
-            <p>Price: €{{ item.product.price }}/Piece</p>
-            <p class="qty">Quantity: {{ item.quantity }} Pieces</p>
-            {% elif item.product.unit == "kg" %}
-            <p>Price: €{{ item.product.price }}/Kg</p>
-            <p class="qty">Quantity: {{ item.quantity }} Kg</p>
-            {% endif %}
-            {% if item.product.available %}
-            <p>Available: YES</p>
-            {% else %}
-            <p>Available: NO</p>
-            {% endif %}
-            <p>Seller: <a href="{% url "accounts:user_detail" pk=item.product.seller.pk %}">{{ item.product.seller.username }}</a></p>
-            <a href="{% url "products:product_detail" pk=item.product.pk %}">View Details</a>
-            <button class="add_to_cart" data-product-id={{ item.product.pk }} data-add-url="{% url "cart:remove_from_cart" pk=item.product.pk %}" data-unit={{ item.product.unit }} data-debug={{ item.product.pk }}>
-                Delete
-            </button>
-        </li>
-        {% endfor %}
-    </ul>
-    {% else %}
-    <p class="empty">No products available yet...</p>
-    {% endif %}
-</div>
+<link rel="stylesheet" href="{% static 'products/css/products.css' %}">
+<style>
+    .container {
+        padding-top: 50px; 
+    }
 
-<script src="{% static "farmfresh/js/cart_update.js" %}"></script>
-{% endblock %}
+    .cart-icon {
+        font-size: 24px;
+        margin-left: 5px;
+    }
+
+    .cart-item {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 20px;
+        transition: transform 0.3s;
+        min-height: 300px; 
+        position: relative; 
+    }
+
+    .cart-item:hover {
+        transform: scale(1.02);
+    }
+
+    .cart-item p {
+        margin-bottom: 10px;
+    }
+
+    .empty {
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+
+    a {
+        margin-bottom: 10px;
+    }
+
+    .btn-primary {
+        margin-top: 10px;
+    }
+
+    .btn-danger:hover {
+        background-color: #d32f2f;
+        border-color: #d32f2f;
+    }
+
+    .product-image {
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover; 
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>
+                Cart
+                <span class="cart-icon">&#128722;</span>
+            </h1>
+        </div>
+    </div>
+    {% if cart_items %}
+        <div class="row">
+            {% for item in cart_items %}
+                <div class="col-md-12 mb-4">
+                    <div class="card h-100" data-rating={{ item.product.avg_rating }}>
+                        <div class="row no-gutters">
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ item.product.name }}</h5>
+                                    <p class="card-text">
+                                        {% if item.product.unit == "piece" %}
+                                            Price: €{{ item.product.price }}/Piece
+                                        {% elif item.product.unit == "kg" %}
+                                            Price: €{{ item.product.price }}/Kg
+                                        {% endif %}
+                                    </p>
+                                    <p class="card-text qty">Quantity: {{ item.quantity }} {% if item.product.unit == "piece" %}Pieces{% elif item.product.unit == "kg" %}Kg{% endif %}</p>
+                                    <p class="card-text">
+                                        {% if item.product.available %}
+                                            <span class="text-success">Available: <i class="fa-solid fa-circle-check"></i></span>
+                                        {% else %}
+                                            <span class="text-danger">Not Available: <i class="fa-solid fa-circle-xmark"></i></span>
+                                        {% endif %}
+                                    </p>
+                                    <p class="card-text">Seller: <a href="{% url "accounts:user_detail" pk=item.product.seller.pk %}">{{ item.product.seller.username }}</a></p>
+                                    <a href="{% url "products:product_detail" pk=item.product.pk %}" class="btn btn-primary">View Details</a>
+                                    <button class="btn btn-danger add_to_cart" data-product-id={{ item.product.pk }} data-add-url="{% url "cart:remove_from_cart" pk=item.product.pk %}" data-unit={{ item.product.unit }} data-debug={{ item.product.pk }}>
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-4 ml-auto">
+                                <img src="{{ item.product.image.url }}" class="card-img product-image" alt="{{ item.product.name }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            <p class="empty">No products available yet...</p>
+        {% endif %}
+    </div>
+
+    <script src="{% static "farmfresh/js/cart_update.js" %}"></script>
+    {% endblock %}

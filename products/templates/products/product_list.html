@@ -36,6 +36,11 @@
         height: 300px;
         object-fit: cover;
     }
+
+    .text-center {
+        padding-bottom: 50px;
+    }
+    
 </style>
 
 <div class="container">
@@ -74,7 +79,6 @@
         {% if products.products %}
         {% for product in products.products %}
         <div class="col-md-6 col-lg-4 mb-4">
-            <!-- Use col-md-6 for medium screens and col-lg-4 for larger screens -->
             <div class="card h-100" data-rating={{ product.avg_rating }}>
                 <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
                 <div class="card-body">

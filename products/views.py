@@ -67,7 +67,7 @@ class ProductList(ListBreadcrumbMixin, ListView):
             products = products.order_by("-avg_rating")
             boxes = boxes.order_by("-avg_rating")
         sorted_products = {"products": products, "boxes": boxes}
-        return JsonResponse(sorted_products)
+        return sorted_products
 
         
     def get_products_by_farmer(self, farmer_id):

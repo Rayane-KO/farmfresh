@@ -109,9 +109,12 @@
                         {% endif %}
                     </p>
                     <a href="{% url "products:product_detail" pk=product.pk %}" class="btn btn-primary">View Details</a>
-                    <button class="btn btn-success add_to_cart" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk %}">
-                        Add to Cart
-                    </button>
+                    <form method="post" action="{% url "cart:add_to_cart" pk=product.pk %}">
+                        {% csrf_token %}
+                        <button class="btn btn-success add_to_cart" data-product-id={{ product.pk }} data-add-url="{% url "cart:add_to_cart" pk=product.pk %}">
+                            Add to Cart
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

@@ -6,7 +6,7 @@
 <div class="container">
     {% if pending_boxes %}
         {% for box in pending_boxes %}
-        <a href="{% url "products:box_detail" pk=box.pk %}">{{ box.name }}</a>
+        <p><a href="{% url "products:box_detail" pk=box.pk %}">{{ box.name }}</a></p>
         {% if user.is_staff %}
         <form method="post" action="{% url "products:decision" pk=box.pk %}">
             {% csrf_token %}
@@ -20,7 +20,7 @@
         <button type="submit" name="action" value="confirm">Confirm</button>
         </form>
        {% endif %}
-       {% if request.user in box.confirmed.all %}
+       {% if request.user in box.confirmed.all or request.user == box.asker %}
        <p>{{ box.status }}
        {% if box.status == "pending" %}<i class="fa-solid fa-clock" style="color: #9f6e04;"></i>
        {% elif box.status == "approved" %}<i class="fa-regular fa-circle-check" style="color: #06841b;"></i>
@@ -30,6 +30,8 @@
        {% endif %}
        {% endif %}
         {% endfor %}
+    {% else %}
+    <p>No boxes...</p>
     {% endif %}
 </div>
 

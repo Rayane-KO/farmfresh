@@ -19,20 +19,41 @@
 {% endblock %}
 
 {% block product_info %}
-<p><strong>Farmers:</strong> 
-    <p class="card-text"> {{ box.asker.username }} </p>
-    {% for farmer in box.farmers.all %}
-    <p class="card-text"> {{ farmer.username }} </p>
-    {% endfor %}
-</p>
+    <div class="container section-btns">
+        <div class="toggle-btns mt-4">
+            <button id="toggle-farmers" class="btn btn-section">Farmers</button>
+            <button id="toggle-products" class="btn btn-section">Products</button>
+            <button id="toggle-log" class="btn btn-section">Log</button>
+        </div>
+    </div>
+    <div class="container-fluid section">
+        <div class="container section-elements">
+        <div id="toggle-section" class="mt-4">
+            <div id="farmers-info" class="section-style mt-3">
+                {% for farmer in box.farmers.all %}
+                <p><strong>Farmer:</strong> {{ farmer.username }}</p>
+                <p><strong>Location:</strong> {{ farmer.address }}</p>
+                {% endfor %}
+            </div>
+    
+            <div id="products" class="section-style mt-3">
+                {% for product in products %}
+                <p><strong>{{ product.name }}</strong></p>
+                {% endfor %}
+            </div>
+            
+    
+            <div id="log" class="section-style mt-3">
+                <p>{{ box.date }}: {{ box.asker.username }} created a new box called {{ box.name }}</p>
+                {% if pending %}
+                {% for p in pending %}
+                <p>{{ p.invite_date }}: {{ p.invited_farmer.username }} was invited!</p>
+                {% endfor %}
+                {% else %}
+                <p>Nothing</p>
+                {% endif %}
+            </div> 
 
-<div class="container">
-    {% for product in products %}
-    <p><strong>{{ product.name }}</strong> 
-    {% endfor %}
-</div>
-
-<!-- Add this modal code at the bottom of your HTML template -->
 <div class="modal" id="productModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -43,6 +64,7 @@
                 </button>
             </div>
             <div class="modal-body">
+                {% if farmers_products %}
                 <!-- Display the list of products here -->
                 {% for product in farmers_products %}
                     <div class="form-check">
@@ -50,6 +72,9 @@
                         <label class="form-check-label" for="product_{{ product.pk }}">{{ product.name }}</label>
                     </div>
                 {% endfor %}
+                {% else %}
+                <p>No products available</p>
+                {% endif %}
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -59,6 +84,9 @@
             </div>
         </div>
     </div>
+</div>
+</div>
+</div>
 </div>
 
 <script src="{% static "farmfresh/js/cart_update.js" %}"></script>
@@ -78,6 +106,29 @@
         const productModal = document.getElementById('productModal');
         const boxId = addProductsBtn.getAttribute("data-box-id");
         const url = addProductsBtn.getAttribute("data-url");
+        const farmersInfo = document.getElementById("farmers-info");
+        const productsInfo = document.getElementById("products");
+        const logInfo = document.getElementById("log");
+        productsInfo.style.display = "none";
+        logInfo.style.display = "none";
+
+        document.getElementById("toggle-farmers").addEventListener("click", function () {
+            productsInfo.style.display = "none"
+            farmersInfo.style.display = "block";
+            logInfo.style.display = "none";
+        });
+
+        document.getElementById("toggle-products").addEventListener("click", function () {
+            farmersInfo.style.display = "none"
+            logInfo.style.display = "none";
+            productsInfo.style.display = "block";
+        });
+
+        document.getElementById("toggle-log").addEventListener("click", function(){
+            logInfo.style.display = "block"
+            farmersInfo.style.display = "none";
+            productsInfo.style.display = "none";
+        })
 
         addProductsBtn.addEventListener('click', function () {
             const selectedProducts = Array.from(productCheckboxes)

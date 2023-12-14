@@ -63,6 +63,7 @@
                         My products
                     </button>
                 </form>
+                <button class="btn btn-primary" data-toggle="modal" data-target="#reviewModal">Post a Review</button>
                 {% endif %}
 
 
@@ -79,24 +80,108 @@
                 <h2 class="mb-4">Reviews</h2>
                 <ul class="list-group">
                     {% for review in reviews %}
-                        <li class="list-group-item">
-                            <p>Name: {{ review.user.username }}</p>
-                            <p>Date: {{ review.date }}</p>
-                            <p>Rating: {{ review.rating }}/5</p>
-                            <p>Review: {{ review.review }}</p>
+                        <li class="section-style mb-3">
+                            <p><strong>Name:</strong> {{ review.user.username }}</p>
+                            <p><strong>Date:</strong> {{ review.date }}</p>
+                            <p><strong>Rating:</strong> {{ review.rating }}/5</p>
+                            <p><strong>Review:</strong> {{ review.review }}</p>
+                            {% if review.replies.exists %}
+                            <button type="button" class="btn btn-link" onclick="toggleReplies({{ review.id }})">
+                                See Replies
+                            </button>
+                            {% endif %}
+                            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#replyModal{{ review.id }}">
+                                Add Reply
+                            </button>
+
                         </li>
+                        <ul id="replies{{ review.id }}" class="list-unstyled" style="display: none;">
+                            {% for reply in review.replies.all %}
+                            <li>
+                                <p><strong>Replied by:</strong> {{ reply.farmer.username }}</p>
+                                <p><strong>Date:</strong> {{ reply.date }}</p>
+                                <p><strong>Reply:</strong> {{ reply.reply }}</p>
+                            </li>
+                            {% endfor %}
+                            </ul>
                     {% endfor %}
                 </ul>
                 {% else %}
                 <p class="lead mt-3 mb-3">No reviews available yet...</p>
             {% endif %}
         </div>
+        <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="reviewModalLabel">Post a Review</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Add a form for submitting the review -->
+                        <form method="post" action="{% url 'reviews:add_farmer_review' pk=object.pk %}">
+                            {% csrf_token %}
+                            <label for="rating">Rating:</label>
+                            <select id="rating" name="rating">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <br>
+                            <label for="review">Review:</label>
+                            <textarea id="review" name="review" rows="4" cols="50"></textarea>
+                            <br>
+                            <br>
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% for review in reviews %}
+        <!-- Add a modal for each review -->
+        <div class="modal fade" id="replyModal{{ review.id }}" tabindex="-1" role="dialog" aria-labelledby="replyModalLabel{{ review.id }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="replyModalLabel{{ review.id }}">Add Reply</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Add a form for submitting the reply -->
+                        <form method="post" action="{% url 'reviews:review_reply' type=review_type pk=review.id %}">
+                            {% csrf_token %}
+                            <label for="reply">Reply:</label>
+                            <textarea id="reply" name="reply" rows="4" cols="50"></textarea>
+                            <br>
+                            <br>
+                            <button type="submit" class="btn btn-primary">Submit Reply</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
     </div>
 </div>
 
 <script src="{% static "farmfresh/js/fav_farmer.js" %}"></script>
 
 <script>
+    function toggleReplies(reviewId) {
+        var replies = document.getElementById('replies' + reviewId);
+        if (replies.style.display === 'none') {
+            replies.style.display = 'block';
+        } else {
+            replies.style.display = 'none';
+        }
+    }
     document.addEventListener("DOMContentLoaded", function () {
         var userId = document.querySelector(".user-info").getAttribute("data-user-id");
         var favoritesId = "favorites_" + userId;

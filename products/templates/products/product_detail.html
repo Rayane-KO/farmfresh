@@ -7,12 +7,15 @@
             {% elif product.unit == "kg" %}
                 <p><strong>Price:</strong> €{{ product.price }}/Kg</p>
             {% endif %}
-            <form method="post" action="{% url "cart:add_to_cart" pk=object.pk %}">
+            <form method="post" action="{% url "cart:add_to_cart" pk=product.pk %}">
                 {% csrf_token %}
                 <button class="btn btn-success add_to_cart" data-product-id={{ object.pk }} data-add-url="{% url "cart:add_to_cart" pk=object.pk %}">
                     Add to Cart
                 </button>
             </form>
+            {% for c in categories_api %}
+            <p>c</p>
+            {% endfor %}
 {% endblock %}
 {% block product_info %}
 <div class="container section-btns">
@@ -32,6 +35,8 @@
 
         <div id="nutritional-info" class="section-style mt-3">
             {% if nutritional_info %}
+            <h3><strong>Serving Size:</strong> {{ serving }}</h3>
+            <p><strong>Amount Per Sering:</strong></p>
                 <table class="table">
                     <thead>
                         <tr>
@@ -43,7 +48,7 @@
                         {% for info, qty in nutritional_info.items %}
                             <tr>
                                 <td>{{ info }}</td>
-                                <td>{{ qty }}</td>
+                                <td>{{ qty }}g</td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -64,7 +69,25 @@
                             <p><strong>Date:</strong> {{ review.date }}</p>
                             <p><strong>Rating:</strong> {{ review.rating }}/5</p>
                             <p><strong>Review:</strong> {{ review.review }}</p>
+                            {% if review.replies.exists %}
+                            <button type="button" class="btn btn-link" onclick="toggleReplies({{ review.id }})">
+                                See Replies
+                            </button>
+                            {% endif %}
+                            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#replyModal{{ review.id }}">
+                                Add Reply
+                            </button>
+
                         </li>
+                        <ul id="replies{{ review.id }}" class="list-unstyled" style="display: none;">
+                            {% for reply in review.replies.all %}
+                            <li>
+                                <p><strong>Replied by:</strong> {{ reply.farmer.username }}</p>
+                                <p><strong>Date:</strong> {{ reply.date }}</p>
+                                <p><strong>Reply:</strong> {{ reply.reply }}</p>
+                            </li>
+                            {% endfor %}
+                            </ul>
                     {% endfor %}
                 </ul>
             {% else %}
@@ -83,7 +106,7 @@
                     </div>
                     <div class="modal-body">
                         <!-- Add a form for submitting the review -->
-                        <form method="post" action="{% url 'reviews:add_review' pk=object.pk %}">
+                        <form method="post" action="{% url 'reviews:add_product_review' pk=object.pk %}">
                             {% csrf_token %}
                             <label for="rating">Rating:</label>
                             <select id="rating" name="rating">
@@ -93,6 +116,7 @@
                                 <option value="4">4</option>
                                 <option value="5">5</option>
                             </select>
+                            <br>
                             <label for="review">Review:</label>
                             <textarea id="review" name="review" rows="4" cols="50"></textarea>
                             <br>
@@ -103,12 +127,47 @@
                 </div>
             </div>
         </div>
+        {% for review in reviews %}
+    <!-- Add a modal for each review -->
+    <div class="modal fade" id="replyModal{{ review.id }}" tabindex="-1" role="dialog" aria-labelledby="replyModalLabel{{ review.id }}" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="replyModalLabel{{ review.id }}">Add Reply</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Add a form for submitting the reply -->
+                    <form method="post" action="{% url 'reviews:review_reply' type=review_type pk=review.id %}">
+                        {% csrf_token %}
+                        <label for="reply">Reply:</label>
+                        <textarea id="reply" name="reply" rows="4" cols="50"></textarea>
+                        <br>
+                        <br>
+                        <button type="submit" class="btn btn-primary">Submit Reply</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
     </div>
     </div>
 </div>
 
 <script src="{% static "farmfresh/js/cart_update.js" %}"></script>
 <script>
+        function toggleReplies(reviewId) {
+            var replies = document.getElementById('replies' + reviewId);
+            if (replies.style.display === 'none') {
+                replies.style.display = 'block';
+            } else {
+                replies.style.display = 'none';
+            }
+        }
     document.addEventListener("DOMContentLoaded", function () {
         const nutritionalInfo = document.getElementById("nutritional-info");
         const reviewsSection = document.getElementById("reviews");

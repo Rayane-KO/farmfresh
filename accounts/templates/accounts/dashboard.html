@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+{% block content %}
+
+<div class="container">
+    <h1>{{ farmer.username }}'s Dashboard</h1>
+
+    <h2>Monthly Sales Chart:</h2>
+    <canvas id="monthlySalesChart" width="400" height="200"></canvas>
+    
+    <h2>Most Purchased Products:</h2>
+    <ul>
+      {% for product in top_products %}
+        <li>{{ product.name }} - Total Quantity: {{ product.total_quantity }}</li>
+      {% endfor %}
+    </ul>
+    
+    <h2>Recent Orders:</h2>
+    <ul>
+      {% for order_item in recent_orders %}
+        <li>{{ order_item.product.name }} - Quantity: {{ order_item.quantity }} - Total: {{ order_item.total }}</li>
+      {% endfor %}
+    </ul>
+    
+    <h2>Product Performance:</h2>
+    <table>
+      <tr>
+        <th>Product</th>
+        <th>Total Sales</th>
+        <th>Average Rating</th>
+        <th>Review Count</th>
+      </tr>
+      {% for product in product_performance %}
+        <tr>
+          <td>{{ product.name }}</td>
+          <td>{{ product.total_sales }}</td>
+          <td>{{ product.average_rating|default:"N/A" }}</td>
+          <td>{{ product.review_count }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+    
+    <h2>Customer Feedback:</h2>
+    <ul>
+      {% for review in customer_feedback %}
+        <li>{{ review.product.name }} - Rating: {{ review.rating }} - Comment: {{ review.review|default:"No comment" }}</li>
+      {% endfor %}
+    </ul>
+</div>
+
+<script>
+    var ctx = document.getElementById('monthlySalesChart').getContext('2d');
+    var chartData = {{ data|safe }};
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartData.labels,
+            datasets: [{
+                label: 'Monthly Sales',
+                data: chartData.data,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                fill: false
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}

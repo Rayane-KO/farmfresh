@@ -1,0 +1,22 @@
+<!-- templates/orders/payment_page.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Payment Page</h1>
+  
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <form method="post" action="{% url 'orders:payment' %}">
+    {% csrf_token %}
+    <!-- Add your payment form fields here (e.g., credit card number, expiration date, CVV) -->
+
+    <button type="submit">Submit Payment</button>
+  </form>
+{% endblock %}

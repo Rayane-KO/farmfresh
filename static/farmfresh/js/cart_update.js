@@ -9,7 +9,9 @@ function getToken(){
 function updateCartItem(button, unit){
     console.log("updating for:", button);
     var productElement = button.closest(".cart-item");
-    var quantityElement = productElement.find(".qty");
+    var quantityElement = button.closest(".qty");
+    console.log("product:", productElement);
+    console.log("qty:", quantityElement)
     var currentQty = parseInt(quantityElement.text().split(": ")[1]);
     var unitString= "";
 
@@ -27,6 +29,7 @@ function updateCartItem(button, unit){
 
 $(document).ready(function(){
     $(".add_to_cart").on("click", function(){
+        console.log("click")
         var button = $(this);
         var productId = $(this).data("product-id");
         var url = $(this).data("add-url");
@@ -40,7 +43,7 @@ $(document).ready(function(){
             dataType: "json",
             success: function(data){
                     var productElement = button.closest(".cart-item");
-                    var quantityElement = productElement.find(".qty");
+                    var quantityElement = button.closest(".qty");
                     var currentQty = parseInt(quantityElement.text().split(": ")[1]);
                     var unitString= "";
                     if (currentQty === 1){

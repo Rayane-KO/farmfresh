@@ -26,6 +26,7 @@ from django.utils.html import strip_tags
 from django.core.mail import send_mail
 import logging
 import json
+from google.cloud import vision_v1
 
 User = get_user_model()
 
@@ -45,7 +46,7 @@ class ProductList(ListBreadcrumbMixin, ListView):
         query = self.request.GET.get("q")
         farmer_id = self.kwargs.get("pk")
         category = self.request.GET.get("category")
-        sort_by_price = self.request.GET.get("sort_by_price")
+        sort_by = self.request.GET.get("sort_by")
         if query:
             return self.get_products_by_search(query)
         elif category:
@@ -57,13 +58,17 @@ class ProductList(ListBreadcrumbMixin, ListView):
 
         products = queryset.get("products")
         boxes = queryset.get("boxes")
-        if sort_by_price == "ascending":
+        if sort_by == "ascending":
             products = products.order_by("price")
             boxes = boxes.order_by("price")
-        elif sort_by_price == "descending":
+        elif sort_by == "descending":
             products = products.order_by("-price")
             boxes = boxes.order_by("-price")
-        return {"products": products, "boxes": boxes}
+        elif sort_by == "best_rated":
+            products = products.order_by("-avg_rating")
+            boxes = boxes.order_by("-avg_rating")
+        sorted_products = {"products": products, "boxes": boxes}
+        return sorted_products
 
         
     def get_products_by_farmer(self, farmer_id):
@@ -102,6 +107,22 @@ class ProductList(ListBreadcrumbMixin, ListView):
     def get_all_products(self):
         products = Product.objects.all()
         boxes = Box.objects.all()
+        """
+        user_id = self.request.user.pk
+        favorites_id = "favorites_" + str(user_id)
+        fav = self.request.session.get(favorites_id)
+        if fav:
+            try:
+                favorites = [int(pk) for pk in json.loads(fav)]
+            except (json.JSONDecodeError, ValueError):
+                favorites = []
+        else:
+            favorites = []
+        print(fav)    
+        fav_products = [product for product in products if product.seller.pk in favorites]
+        other_products = [product for product in products if product.seller.pk not in favorites]
+        products = fav_products + other_products
+        """
         return {"products": products, "boxes": boxes}
     
     def get_context_data(self, **kwargs):
@@ -147,19 +168,37 @@ class ProductDetail(DetailBreadcrumbMixin, SelectRelatedMixin, DetailView):
                 return access_token
         else: None
 
-    def get_product_id(self, name, access_token):
-        api_url = f"https://platform.fatsecret.com/rest/server.api?method=foods.search&search_expression={name}&format=json"
-        headers = {"Authorization": "Bearer " + access_token}
-        response = requests.get(api_url, headers=headers)
-        if response.ok:
-            data = response.json()
-            product_list = data.get("foods", {}).get("food", [])
-            product_id = ""
-            if product_list:
-                product_id = product_list[0].get("food_id")
-            else: product_id = None
-            return product_id
-        else: return None
+    def get_product_id(self, pk, access_token):
+        product = Product.objects.get(pk=pk)
+        if product.fatsecret_id:
+            return product.fatsecret_id
+        else:
+            api_url = f"https://platform.fatsecret.com/rest/server.api?method=foods.search&search_expression={product.name}&format=json"
+            headers = {"Authorization": "Bearer " + access_token}
+            response = requests.get(api_url, headers=headers)
+            if response.ok:
+                data = response.json()
+                product_list = data.get("foods", {}).get("food", [])
+                if product_list:
+                    product.fatsecret_id = product_list[0].get("food_id")
+                    product.save()
+                    return product.fatsecret_id
+                else: return None
+            else: return None
+
+    def process_nutritional_info(self, info):
+        processed_info = {}
+        items = info.items()
+        serving = ""
+        for key, value in items:
+            if key in ["is_default", "serving_url", "measurement_description", "metric_serving_amount", "metric_serving_unit", "serving_id"]:
+                continue
+            elif key == "serving_description":
+                serving = value
+                continue
+            label = key.replace("_", " ").capitalize()
+            processed_info[label] = value
+        return (serving, processed_info)
 
     def get_nutritional_info(self, product_id, access_token):
         api_url = f"https://platform.fatsecret.com/rest/server.api?method=food.get.v3&food_id={product_id}&format=json"
@@ -168,19 +207,21 @@ class ProductDetail(DetailBreadcrumbMixin, SelectRelatedMixin, DetailView):
         if response.ok:
             data = response.json()
             nutritional_info = data.get("food").get("servings", {}).get("serving", [])[0]
-            return nutritional_info
-        else: {}
+            return self.process_nutritional_info(nutritional_info)
+        else: ()
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         product = context["product"]
+        context["review_type"] = "product"
         context["reviews"] = product.review_set.all()
         access_token = self.get_access_token()
         if access_token:
-            product_id = self.get_product_id(product.name, access_token)
+            product_id = self.get_product_id(product.pk, access_token)
             if product_id:
                 nutritional_info = self.get_nutritional_info(product_id, access_token)
-                context["nutritional_info"] = nutritional_info  
+                context["serving"] = nutritional_info[0]
+                context["nutritional_info"] = nutritional_info[1]
         return context          
     
 class CreateProduct(SelectRelatedMixin, LoginRequiredMixin, CreateView):
@@ -197,6 +238,7 @@ class CreateProduct(SelectRelatedMixin, LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse("products:product_detail", kwargs={"pk": self.object.pk})
+    
 
 class DeleteProduct(LoginRequiredMixin, DeleteView):
     model = Product

@@ -52,11 +52,6 @@ class ProductReview(Review):
 class FarmerReview(Review):
         farmer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="farmer_reviews")
 
-        def clean(self):
-             if self.farmer and not self.farmer.is_farmer:
-                  raise ValidationError("User must be a farmer!")
-             return super().clean()
-
         def save(self, *args, **kwargs):
             super().save(*args, **kwargs)
             self.farmer.avg_rating = calc_avg_rating(self.farmer.farmer_reviews)
@@ -69,4 +64,17 @@ class FarmerReview(Review):
 
         def __str__(self):
              return super().__str__() + self.farmer.username
+        
+class FarmerReply(models.Model):
+     product_review = models.ForeignKey(ProductReview, on_delete=models.CASCADE, related_name="replies", null=True, blank=True)
+     farmer_review = models.ForeignKey(FarmerReview, on_delete=models.CASCADE, related_name="replies", null=True, blank=True)
+     farmer = models.ForeignKey(User, on_delete=models.CASCADE)
+     reply = models.TextField()
+     date = models.DateTimeField(auto_now_add=True)
+
+     def __str__(self):
+          if self.product_review:
+            return f"Reply by {self.farmer.username} on {self.product_review}"
+          elif self.farmer_review:
+            return f"Reply by {self.farmer.username} on {self.farmer_review}"
         

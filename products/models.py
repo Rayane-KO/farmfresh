@@ -40,6 +40,7 @@ class Product(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
     image = models.ImageField(upload_to="images/")
     avg_rating = models.DecimalField(max_digits=2, decimal_places=1, default=0)
+    fatsecret_id = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return self.name 

@@ -22,6 +22,13 @@ class CartItemList(SelectRelatedMixin, LoginRequiredMixin, ListView):
         user_cart, created = Cart.objects.get_or_create(user=self.request.user)
         return CartItem.objects.filter(cart=user_cart)
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_cart = Cart.objects.get(user=self.request.user)
+        context["cart"] = user_cart
+        return context
+    
+    
 class CartAddItem(LoginRequiredMixin, View):
     login_url = "accounts:login"
 
@@ -33,6 +40,7 @@ class CartAddItem(LoginRequiredMixin, View):
         if not created:
             cart_item.quantity += 1
             cart_item.save()
+            user_cart.save()
 
         return JsonResponse({"status": "success"})
     
@@ -53,8 +61,10 @@ class CartRemoveItem(LoginRequiredMixin, DeleteView):
             if cart_item.quantity > 1:
                 cart_item.quantity -= 1
                 cart_item.save()
+                user_cart.save()
             else: 
-                cart_item.delete()    
+                cart_item.delete()
+                user_cart.save()    
 
             return JsonResponse({"status": "success"})
         

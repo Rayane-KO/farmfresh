@@ -45,13 +45,13 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
-    "allauth.socialaccount.providers.facebook",
     "view_breadcrumbs",
     "bootstrap4",
     "accounts",
     "products",
     "cart",
     "reviews",
+    "orders",
 ]
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
@@ -76,7 +76,7 @@ SOCIALACCOUNT_PROVIDERS = {
         "AUTH_PARAMS": {
             "access_type": "online",
         }
-    }
+    },
 }
 
 MIDDLEWARE = [
@@ -174,5 +174,9 @@ LOGOUT_REDIRECT_URL = "thanks"
 # FATSECRET API info
 FATSECRET_CLIENT_ID = "212cb9126d1849aaaa9b0564f5eb8308"
 FATSECRET_CLIENT_SECRET = "fdef2f80a1264bacaed6244cf0357382"
+
+# Email info
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+EMAIL__FILE_PATH = BASE_DIR / "sent_emails"
 
 

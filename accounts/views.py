@@ -1,11 +1,17 @@
 from django.urls import reverse_lazy, reverse
-from django.views.generic import View, CreateView, ListView, DetailView, UpdateView, DeleteView
+from django.views.generic import View, CreateView, ListView, DetailView, UpdateView, DeleteView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, JsonResponse
 from .models import User
 from view_breadcrumbs import ListBreadcrumbMixin, DetailBreadcrumbMixin
 from . import forms
+from products.models import Product
+from orders.models import Order, OrderItem
 from geopy.distance import great_circle
+from django.core.mail import EmailMessage
+from django.db.models import Sum, Avg, Count
+from reviews.models import FarmerReview, ProductReview
+import json
 
 # Souces: 
 # - Breadcrumbs: https://pypi.org/project/django-view-breadcrumbs/
@@ -42,6 +48,7 @@ class UserDetail(DetailBreadcrumbMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         farmer = context["user_detail"]
+        context["review_type"] = "farmer"
         context["reviews"] = farmer.farmer_reviews.all()
         return context
 
@@ -53,11 +60,14 @@ class FarmerList(ListBreadcrumbMixin, ListView):
     def get_queryset(self):
         closest_farmers = self.request.GET.get("closest_farmers")
         best_farmers = self.request.GET.get("best_farmers")
+        fav_farmers = self.request.GET.get("fav_farmers")
         farmers = User.objects.filter(is_farmer=True)
         if closest_farmers:
             return self.get_closest_farmers()
         elif best_farmers:
             return self.get_best_farmers()
+        elif fav_farmers:
+            return self.get_fav_farmers()
         else: 
             return farmers
 
@@ -73,6 +83,13 @@ class FarmerList(ListBreadcrumbMixin, ListView):
     def get_best_farmers(self):
         farmers = User.objects.filter(is_farmer=True)
         return farmers.order_by("-avg_rating")
+    
+    def get_fav_farmers(self):
+        fav_ids_str = self.request.COOKIES.get("fav", "")
+        fav_ids = [int(fav_id.strip('"')) for fav_id in fav_ids_str.strip("[").strip("]").split(",")] if fav_ids_str else []
+        farmers = User.objects.filter(pk__in=fav_ids)
+        print(farmers)
+        return farmers
     
     def post(self, request, *args, **kwargs):
         farmers = self.get_queryset().values("username", "pk", "latitude", "longitude")
@@ -120,4 +137,35 @@ class CheckUsername(View):
         if username:
             available = User.objects.filter(username__iexact=username).exists()
             return JsonResponse({"available": available})
+        
+class Dashboard(TemplateView):
+    template_name = "accounts/dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        farmer = self.request.user
+        sales = OrderItem.objects.filter(
+            product__seller=farmer
+        ).values("order__order_date").annotate(total_sales=Sum("total"))
+
+        data = {
+            "labels": [sale["order__order_date"].strftime("%B %Y") for sale in sales],
+            "data": [str(sale["total_sales"]) for sale in sales],
+        }
+        most_purchased_products = Product.objects.filter(orderitem__product__seller=farmer).annotate(total_quantity=Sum('orderitem__quantity')).order_by('-total_quantity')[:5]
+        recent_orders = OrderItem.objects.filter(product__seller=farmer).order_by('-order__order_date')[:5]
+        product_performance = Product.objects.filter(seller=farmer).annotate(
+            total_sales=Sum('orderitem__quantity'),
+            average_rating=Avg('review_set__rating'),
+            review_count=Count('review_set'),
+        )
+        customer_feedback = ProductReview.objects.filter(product__seller=farmer).order_by('-date')[:5]
+        context["farmer"] = farmer
+        context["data"] = data
+        context["top_products"] = most_purchased_products
+        context["recent_orders"] = recent_orders
+        context["product_performance"] = product_performance
+        context["customer_feedback"] = customer_feedback
+        return context
+
         

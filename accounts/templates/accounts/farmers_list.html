@@ -165,6 +165,7 @@
                 <input type="radio" name="filter" value="closest" {% if request.GET.filter == 'closest' %}checked{% endif %}>
                 Closest
             </label>
+            <label><input type="checkbox" name="fav_farmers"id="fav" data-id={{ user.pk }} data-url={% url "accounts:user_list" %}> Favorites </label>
             <div class="filter-buttons">
                 <button type="submit" class="apply-button">Apply Filter</button>
                 <button type="button" id="clear-filters" class="clear-button">Clear Filters</button>
@@ -208,23 +209,43 @@
 <script src="{% static "farmfresh/js/map.js" %}"></script>
 
 <script>
+    function getToken(){
+        var val = "; " + document.cookie;
+        var parts = val.split("; csrftoken=");
+        if (parts.length === 2){
+            return parts.pop().split(";").shift()
+        }
+    }
+    function updateMapPosition() {
+        var containerRect = container.getBoundingClientRect();
+        var containerHeight = containerRect.height;
+        var mapHeight = mapContainer.clientHeight;
+        var aboutRect = aboutSection.getBoundingClientRect();
+        var aboutTop = aboutRect.top;
+
+        var scrollTop = window.scrollY;
+
+        var topPosition = Math.min(scrollTop + 150, aboutTop - mapHeight + 25);
+        mapContainer.style.top = topPosition + "px";
+    }
+
+    function setFavFarmers(userId){
+        //https"://stackoverflow.com/questions/52327176/how-do-i-access-data-from-local-storage-in-django-views
+        favId = "favorites_" + userId;
+        fav_farmers = localStorage.getItem(favId);
+        document.cookie = "fav=" + fav_farmers;
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
         var mapContainer = document.getElementById("map-container");
         var container = document.querySelector(".farmer_list");
         var aboutSection = document.querySelector(".about");
+        var favButton = document.getElementById("fav");
 
-        function updateMapPosition() {
-            var containerRect = container.getBoundingClientRect();
-            var containerHeight = containerRect.height;
-            var mapHeight = mapContainer.clientHeight;
-            var aboutRect = aboutSection.getBoundingClientRect();
-            var aboutTop = aboutRect.top;
-
-            var scrollTop = window.scrollY;
-
-            var topPosition = Math.min(scrollTop + 150, aboutTop - mapHeight + 25);
-            mapContainer.style.top = topPosition + "px";
-        }
+        favButton.addEventListener("click", function(){
+            var userId = this.dataset.id;
+            setFavFarmers(userId)
+        });
 
         updateMapPosition();
 

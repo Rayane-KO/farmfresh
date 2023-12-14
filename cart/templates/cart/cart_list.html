@@ -71,12 +71,12 @@
     </div>
     {% if cart_items %}
         <div class="row">
-            <h5>Total: {{ cart.total }}</h5>
+            <h5 id="total">Total: {{ cart.total }}</h5>
             <a class="btn btn-success" href="{% url "orders:payment" %}">Complete Order</a>
             <a href="{% url "products:product_list" %}">Continue Shopping</a>
             {% for item in cart_items %}
                 <div class="col-md-12 mb-4">
-                    <div class="card h-100" data-rating={{ item.product.avg_rating }}>
+                    <div class="card h-100" id="card-{{item.product.pk}}" data-rating={{ item.product.avg_rating }}>
                         <div class="row no-gutters">
                             <div class="col-md-8">
                                 <div class="card-body">
@@ -88,8 +88,8 @@
                                             Price: €{{ item.product.price }}/Kg
                                         {% endif %}
                                     </p>
-                                    <p class="card-text qty">Quantity: {{ item.quantity }} {% if item.product.unit == "piece" %}Pieces{% elif item.product.unit == "kg" %}Kg{% endif %}</p>
-                                    <p class="card-text qty">Total: {{ item.total }}</p>
+                                    <p class="card-text" id="qty-{{item.product.pk}}">Quantity: {{ item.quantity }}{% if item.product.unit == "piece" %}Pieces{% elif item.product.unit == "kg" %}Kg{% endif %}</p>
+                                    <p class="card-text" id="total-{{item.product.pk}}">Total: {{ item.total }}</p>
                                     <p class="card-text">
                                         {% if item.product.available %}
                                             <span class="text-success">Available: <i class="fa-solid fa-circle-check"></i></span>
@@ -99,7 +99,7 @@
                                     </p>
                                     <p class="card-text">Seller: <a href="{% url "accounts:user_detail" pk=item.product.seller.pk %}">{{ item.product.seller.username }}</a></p>
                                     <a href="{% url "products:product_detail" pk=item.product.pk %}" class="btn btn-primary">View Details</a>
-                                    <button class="btn btn-danger add_to_cart" data-product-id={{ item.product.pk }} data-add-url="{% url "cart:remove_from_cart" pk=item.product.pk %}" data-unit={{ item.product.unit }} data-debug={{ item.product.pk }}>
+                                    <button class="btn btn-danger add_to_cart" data-product-id={{ item.product.pk }} data-add-url="{% url "cart:remove_from_cart" pk=item.product.pk %}" data-unit={{ item.product.unit }} data-price={{ item.product.price }}>
                                         Delete
                                     </button>
                                 </div>

@@ -13,23 +13,34 @@
             <button type="submit" name="action" value="approve">Approve</button>
             <button type="submit" name="action" value="reject">Reject</button>
        </form>
-       {% elif user.is_farmer %}
-       {% if box.status == "pending" and request.user not in box.confirmed.all %}
-       <form method="post" action="{% url "products:decision" pk=box.pk %}">
-        {% csrf_token %}
-        <button type="submit" name="action" value="confirm">Confirm</button>
-        </form>
        {% endif %}
-       {% if request.user in box.confirmed.all or request.user == box.asker %}
-       <p>{{ box.status }}
-       {% if box.status == "pending" %}<i class="fa-solid fa-clock" style="color: #9f6e04;"></i>
-       {% elif box.status == "approved" %}<i class="fa-regular fa-circle-check" style="color: #06841b;"></i>
-       {% elif box.status == "rejected" %}<i class="fa-regular fa-circle-xmark" style="color: #e00000;"></i>
-       {% endif %}
-        </p>
-       {% endif %}
-       {% endif %}
+       {% endfor %}
+    {% elif user.is_farmer %}
+        {% if invitations %}
+        {% for data in invitations %}
+        <p><a href="{% url "products:box_detail" pk=data.box.pk %}">{{ data.box.name }}</a></p>
+            {% if data.invitation.status == "Pending" %}
+                <form method="post" action="{% url "products:decision" pk=data.box.pk %}">
+                {% csrf_token %}
+                <button type="submit" name="action" value="accept">Accept</button>
+                <button type="submit" name="action" value="reject">Reject</button>
+                </form>
+            {% elif data.box.status == "Pending" and request.user not in data.box.confirmed.all %}
+                <form method="post" action="{% url "products:decision" pk=data.box.pk %}">
+                {% csrf_token %}
+                <button type="submit" name="action" value="confirm">Confirm</button>
+                </form>
+            {% endif %}
+            {% if request.user in data.box.confirmed.all or request.user == data.box.asker %}
+                <p>{{ data.box.status }}
+                {% if data.box.status == "pending" %}<i class="fa-solid fa-clock" style="color: #9f6e04;"></i>
+                {% elif data.box.status == "approved" %}<i class="fa-regular fa-circle-check" style="color: #06841b;"></i>
+                {% elif data.box.status == "rejected" %}<i class="fa-regular fa-circle-xmark" style="color: #e00000;"></i>
+                {% endif %}
+                </p>
+            {% endif %}
         {% endfor %}
+        {% endif %}
     {% else %}
     <p>No boxes...</p>
     {% endif %}

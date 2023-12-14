@@ -1,4 +1,29 @@
 {% extends "base.html" %}
 {% block content %}
-<h1> Come back soon! </h1>
-{% endblock  %}
+
+<style>
+    .containerGoodbye {
+        margin-top: 10%;
+        text-align: center;
+        background-color: #ffffff; 
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+        margin-bottom: 30%;
+    }
+
+    h1 {
+        color: #007bff; 
+    }
+
+    .home-button {
+        margin-top: 20px;
+    }
+</style>
+
+<div class="container containerGoodbye">
+    <h1>Come back soon!</h1>
+    <a href="{% url 'home' %}" class="btn btn-primary home-button">Go to Home</a>
+</div>
+
+{% endblock %}

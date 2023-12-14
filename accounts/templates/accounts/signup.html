@@ -4,27 +4,62 @@
 {% load socialaccount %}
 {% block content %}
 
-<div class="container">
+<style>
+    .containerSignup {
+        margin-top: 3%;
+        text-align: center;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 4%;
+        padding-bottom: 70px;
+    }
+
+    h1 {
+        color: #007bff;
+    }
+
+
+    .btn-outline-info {
+        border-color: #17a2b8;
+        color: #17a2b8;
+        margin-top: 10px;
+        text-align: left;
+        width:fit-content; 
+    }
+    
+    form {
+        margin-top: 20px;
+        text-align: left; 
+    }
+    
+    .btn-outline-info:hover {
+        background-color: #17a2b8;
+        color: #ffffff;
+    }
+</style>
+
+<div class="container containerSignup">
     <h1>Sign Up</h1>
     <form method="post">
         {% csrf_token %}
         {% for field in form %}
-        {% if field.name == "farm_nr" %}
-        <div id="farm_nr" style="display: none"> {% bootstrap_field field %} </div>
-        {% elif field.name == "username" %}
-        <input type="text" required name="username" id="username" autofocus="">
-        <span id="username_check"></span>
-        {% else %}
-        {% bootstrap_field field %}
-        {% endif %}
+            {% if field.name == "farm_nr" %}
+                <div id="farm_nr" style="display: none">{% bootstrap_field field %}</div>
+            {% elif field.name == "username" %}
+            {% else %}
+                {% bootstrap_field field %}
+            {% endif %}
         {% endfor %}
-        <div><button type="submit">Sign Up</button></div>
-   </form>
-   <button class="btn btn-outline-info">
-    <a href="{% provider_login_url 'google'%}">
-        <i class="fa-brands fa-google"></i>
-        Sign up with Google
-    </a>
+        <div><button type="submit" class="btn btn-primary">Sign Up</button></div>
+    </form>
+    <button class="btn btn-outline-info float-left">
+        <a href="{% provider_login_url 'google' %}">
+            <i class="fa-brands fa-google"></i>
+            Sign up with Google
+        </a>
     </button>
+</div>
 <script src="{% static "accounts/js/signup.js" %}"></script>
 {% endblock %}

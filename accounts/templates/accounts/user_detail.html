@@ -14,101 +14,178 @@
         padding: 20px;
         border-radius: 5px;
         background-color: #fff;
+        position: relative;
+    }
+
+    .user-info h1 {
+        font-size: 28px;
+        margin-bottom: 20px;
+        color: #333;
+        font-weight: bold; /* Make username bold */
+    }
+
+    .user-info p {
+        font-size: 16px;
+        margin-bottom: 10px;
+        color: #555;
+    }
+
+    .user-info h6.homeAddress {
+        color: #888; /* Change email color to gray */
+    }
+
+    .user-info img {
+        max-width: 100%;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    .btn-container {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: flex;
+        align-items: center;
+    }
+
+    .btn-container a.btn {
+        margin-right: 10px;
+        max-width: fit-content;
     }
 
     .fav-button:hover {
-    background-color: #f0bf0d; 
-}
-       
+        background-color: #f0bf0d; 
+    }
+
+    .reviews-container {
+        margin-top: 20px;
+    }
+
+    .review-item {
+        margin-bottom: 15px;
+    }
+
+    .image-and-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .image-and-button img {
+        width: 100%;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    .image-and-button .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
 </style>
 
 <div class="container">
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-12">
             <div class="user-info" data-user-id={{ user.pk }}>
-                <h1>Details</h1>
-                <p>Username: {{ user_detail.username }} 
-                    <span class="badge">
-                        {% if user_detail.is_farmer %}
-                        <i class="fa-solid fa-wheat-awn" style="color: #0a5200;"></i>
+                <div class="btn-container">
+                    {% if request.user == object %}
+                    <a href="{% url "accounts:update_user" pk=object.pk %}" class="btn btn-primary"><i class="fa-solid fa-pen"></i></a>
+                    <a href="{% url "accounts:delete_user" pk=object.pk %}" class="btn btn-danger"><i class="fa-solid fa-trash"></i></a>
+                    {% endif %}
+                </div>
+                <div class="row">
+                    <div class="col-md-4 image-and-button">
+                        {% if user_detail.profile_pic %}
+                            <img src="{{ user_detail.profile_pic.url }}" class="img-fluid" alt="{{ user_detail.username }} Profile Picture">
                         {% endif %}
-                    </span>
-                </p>
-                {% if user_detail.is_farmer %}
-                <p>Rating: {{ user_detail.avg_rating }}</p>
-                {% endif %}
-                <p>First Name: {{ user_detail.first_name }}</p>
-                <p>Last Name: {{ user_detail.last_name }}</p>
-                <p>Email: {{ user_detail.email }}</p>
-                <p>Address: {{ user_detail.address }}, {{ user_detail.city }}, {{ user_detail.country.name }}</p>
-                <p>About me:</p>
-                <p>{{ user_detail.bio }}</p>
+                        {% if user_detail.is_farmer %}
+                            <form method="get" action="{% url "products:farmer_products" pk=user_detail.pk %}">
+                                <button type="submit" class="btn btn-success">
+                                    My products
+                                </button>
+                            </form>
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#reviewModal">Post a Review</button>
 
-                {% if user_detail.profile_pic %}
-                <img src="{{ user_detail.profile_pic.url }}" class="img-fluid">
-                {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <h2 class="username">   {{ user_detail.username }} 
+                            <span class="badge">
+                                {% if user_detail.is_farmer %}
+                                    <i class="fa-solid fa-wheat-awn" style="color: #0a5200;"></i>
+                                {% endif %}
+                            </span>
+                        </h2>
+                        <h6 class="homeAddress">Address: {{ user_detail.address }}, {{ user_detail.city }}, {{ user_detail.country.name }}</h6>
+                        <p class="small-text">First Name: {{ user_detail.first_name }}</p>
+                        <p class="small-text">Last Name: {{ user_detail.last_name }}</p>
+                        <p class="email">Email: {{ user_detail.email }}</p>
+                        {% if user_detail.is_farmer %}
+                            <div class="rate" data-rating={{ user_detail.avg_rating }}>
+                                 <p class="card-text"><div class="stars"></div></p>
+                                <p class="card-text">
+                                </div>
+                        {% endif %}  
+                        
+                        
+                        <br>
+                        <p>{{ user_detail.bio }}</p>
 
-                {% if request.user == object %}
-                <a href="{% url "accounts:update_user" pk=object.pk %}" class="btn btn-primary">
-                    Update profile
-                </a>
-                <a href="{% url "accounts:delete_user" pk=object.pk %}" class="btn btn-danger">
-                    Delete profile
-                </a>
-                {% endif %}
-
-                {% if user_detail.is_farmer %}
-                <form method="get" action="{% url "products:farmer_products" pk=user_detail.pk %}">
-                    <button type="submit" class="btn btn-success mt-3 mb-3">
-                        My products
-                    </button>
-                </form>
-                <button class="btn btn-primary" data-toggle="modal" data-target="#reviewModal">Post a Review</button>
-                {% endif %}
-
-
-                {% if user_detail != user and user.is_authenticated %}
-                <button class="btn btn-warning fav-button mt-3 mb-3" data-farmer-id={{ farmer.pk }} data-auth={{ user.is_authenticated }}>
-                    <i class="fa-regular fa-star" style="color: #ffd43b;"></i> Add to Favorites
-                </button>
-                {% endif %}
+                        {% if user_detail != user and user.is_authenticated %}
+                        <button class="btn btn-warning fav-button mt-3" data-farmer-id={{ farmer.pk }} data-auth={{ user.is_authenticated }}>
+                            <i class="fa-regular fa-star" style="color: #ffd43b;"></i>
+                            <span class="button-text">
+                                {% if farmer.pk in favorites %}
+                                    Delete farmer from favorite
+                                {% else %}
+                                    Add farmer to favorite
+                                {% endif %}
+                            </span>
+                        </button>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            {% if reviews %}
-                <h2 class="mb-4">Reviews</h2>
-                <ul class="list-group">
-                    {% for review in reviews %}
-                        <li class="section-style mb-3">
-                            <p><strong>Name:</strong> {{ review.user.username }}</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="reviews-container">
+                {% if reviews %}
+                    <h2 class="mb-4">Reviews</h2>
+                    <ul class="list-group">
+                        {% for review in reviews %}
+                            <li class="list-group-item review-item">
+                                <p><strong>Name:</strong> {{ review.user.username }}</p>
                             <p><strong>Date:</strong> {{ review.date }}</p>
                             <p><strong>Rating:</strong> {{ review.rating }}/5</p>
                             <p><strong>Review:</strong> {{ review.review }}</p>
-                            {% if review.replies.exists %}
-                            <button type="button" class="btn btn-link" onclick="toggleReplies({{ review.id }})">
-                                See Replies
-                            </button>
-                            {% endif %}
-                            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#replyModal{{ review.id }}">
-                                Add Reply
-                            </button>
-
-                        </li>
-                        <ul id="replies{{ review.id }}" class="list-unstyled" style="display: none;">
-                            {% for reply in review.replies.all %}
-                            <li>
-                                <p><strong>Replied by:</strong> {{ reply.farmer.username }}</p>
-                                <p><strong>Date:</strong> {{ reply.date }}</p>
-                                <p><strong>Reply:</strong> {{ reply.reply }}</p>
+                                {% if review.replies.exists %}
+                                <button type="button" class="btn btn-link" onclick="toggleReplies({{ review.id }})">
+                                    See Replies
+                                </button>
+                                {% endif %}
+                                <button type="button" class="btn btn-link" data-toggle="modal" data-target="#replyModal{{ review.id }}">
+                                    Add Reply
+                                </button>
+    
                             </li>
-                            {% endfor %}
+                            <ul id="replies{{ review.id }}" class="list-unstyled" style="display: none;">
+                                {% for reply in review.replies.all %}
+                                <li>
+                                    <p><strong>Replied by:</strong> {{ reply.farmer.username }}</p>
+                                    <p><strong>Date:</strong> {{ reply.date }}</p>
+                                    <p><strong>Reply:</strong> {{ reply.reply }}</p>
+                                </li>
+                                {% endfor %}
                             </ul>
-                    {% endfor %}
-                </ul>
+                        {% endfor %}
+                    </ul>
                 {% else %}
-                <p class="lead mt-3 mb-3">No reviews available yet...</p>
-            {% endif %}
+                    <p class="lead mt-3">No reviews available yet...</p>
+                {% endif %}
+            </div>
         </div>
         <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -183,6 +260,36 @@
         }
     }
     document.addEventListener("DOMContentLoaded", function () {
+        const products = document.querySelectorAll('.rate');
+
+        products.forEach(product => {
+            const rating = parseFloat(product.getAttribute('data-rating'));
+            const stars = getStars(rating);
+            const starContainer = product.querySelector('.stars');
+            starContainer.innerHTML = stars + " " + rating.toFixed(1) + " out of 5";
+        });
+
+        function getStars(rating) {
+        const fullStars = Math.floor(rating);
+        const halfStar = rating % 1 !== 0;
+        const emptyStars = Math.ceil(5 - fullStars - halfStar)
+        const stars = [];
+
+        for (let i = 0; i < fullStars; i++) {
+            stars.push('<i class="fa-solid fa-star" style="color: #f8d544;"></i>');
+        }
+
+        if (halfStar) {
+            stars.push('<i class="fa-solid fa-star-half-stroke" style="color: #f8d544;"></i>');
+        }
+
+        for (let i = 0; i < emptyStars; i++) {
+            stars.push('<i class="fa-regular fa-star" style="color: #f8d544;"></i>');
+        }
+
+        return stars.join('');
+    }
+        
         var userId = document.querySelector(".user-info").getAttribute("data-user-id");
         var favoritesId = "favorites_" + userId;
         var favorites = JSON.parse(localStorage.getItem(favoritesId)) || [];
@@ -190,6 +297,10 @@
             var farmerId = button.getAttribute("data-farmer-id");
             var isAuthenticated = button.getAttribute("data-auth");
             var star = button.querySelector(".fa-star");
+            var buttonText = button.querySelector(".button-text");
+
+            updateButtonText(button, buttonText, favorites.includes(farmerId));
+            
             if (favorites.includes(farmerId)) {
                 star.classList.add("fa-solid");
             }
@@ -200,15 +311,27 @@
                 if (idx === -1) {
                     favorites.push(farmerId);
                     star.classList.add("fa-solid");
+                    
                 } else {
                     favorites.splice(idx, 1);
                     star.classList.remove("fa-solid");
                 }
 
                 localStorage.setItem(favoritesId, JSON.stringify(favorites));
+                updateButtonText(button, buttonText, favorites.includes(farmerId));
                 button.blur();
             });
         });
+
+        function updateButtonText(button, buttonTextElement, isFarmerInFavorites) {
+            if (isFarmerInFavorites) {
+                buttonTextElement.textContent = "Delete farmer from favorite";
+                button.querySelector(".fa-star").classList.add("fa-solid");
+            } else {
+                buttonTextElement.textContent = "Add farmer to favorite";
+                button.querySelector(".fa-star").classList.remove("fa-solid");
+            }
+        }
     });
 </script>
 {% endblock %}

@@ -2,20 +2,44 @@
 {% load bootstrap4 %}
 {% block content %}
 
+<style>
+    .product-btn {
+        background-color: #007bff; /* Bootstrap primary button color */
+        color: #fff; /* Button text color */
+        padding: 10px 20px; /* Adjust padding as needed */
+        border: none; /* Remove default button border */
+        border-radius: 5px; /* Optional: Add some border-radius for rounded corners */
+        cursor: pointer;
+        margin-bottom: 50px;
+    }
+
+    .product-btn:hover {
+        background-color: #0056b3; /* Change color on hover */
+    }
+    .container {
+        margin-top: -10px;
+    }
+
+    h1 {
+        color: #007bff; 
+        margin-bottom: 30px;
+    }
+</style>
+
 <div class="container">
     {% if is_update %}
-    <h1>Update product</h1>
+    <h1>Update Product</h1>
     {% else %}
-    <h1>Add new product</h1>
+    <h1>Add New Product</h1>
     {% endif %}
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {% bootstrap_form form %}
 
         {% if is_update %}
-        <div><button type="submit">Update Product</button></div>
+        <div><button type="submit" class="product-btn">Update Product</button></div>
         {% else %}
-        <div><button type="submit">Add Product</button></div>
+        <div><button type="submit" class="product-btn">Add Product</button></div>
         {% endif %}
    </form>
 </div>

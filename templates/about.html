@@ -1,65 +1,91 @@
 {% extends "base.html" %}
 {% block content %}
 <style>
-  body {
-      font-family: 'Arial', sans-serif;
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-  }
+    body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        background-color: #f8f9fa; /* Light gray background */
+        color: #343a40; /* Dark text color */
+    }
 
-  .container {
-      width: 80%;
-      margin: 0 auto;
-  }
+    .containerAbout {
+        width: 80%;
+        margin: 0 auto;
+        background-color: #ffffff; /* White container background */
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle box shadow */
+        margin-top: 30px;
+        border-radius: 8px; /* Rounded corners */
+    }
 
-  header {
-      text-align: center;
-      margin-bottom: 30px;
-  }
+    header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
 
-  h1 {
-      font-size: 2em;
-  }
+    h1 {
+        font-size: 2.5em;
+        color: #007bff; /* Primary color for heading */
+        margin-bottom: 10px;
+    }
 
-  p {
-      font-size: 1.1em;
-      line-height: 1.6;
-      margin-bottom: 15px;
-  }
+    p {
+        font-size: 1.3em;
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
 
-  video {
-      width: 100%;
-      height: auto;
-      margin-bottom: 20px;
-  }
+    video {
+        width: 100%;
+        height: auto;
+        margin-bottom: 20px;
+        border-radius: 8px; /* Rounded corners for video */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle box shadow */
+    }
 
-  @media only screen and (min-width: 768px) {
-      /* Adjust styles for larger screens if needed */
-      h1 {
-          font-size: 3em;
-      }
+    section {
+        margin-top: 20px;
+    }
 
-      p {
-          font-size: 1.3em;
-      }
-  }
+    .highlight {
+        color: #007bff; /* Highlight color */
+        font-weight: bold;
+    }
+
+    .icon {
+        font-size: 1.5em;
+        margin-right: 5px;
+    }
+
+    @media only screen and (min-width: 768px) {
+        /* Adjust styles for larger screens if needed */
+        h1 {
+            font-size: 3em;
+        }
+
+        p {
+            font-size: 1.4em;
+        }
+    }
 </style>
-<div class="container">
-        <header>
-            <h1>FarmFresh</h1>
-            <p>Fresh Products Near You</p>
-        </header>
 
-        <video width="500" height="300" autoplay muted>
-            <source src="../media/video/about_us.mp4" type="video/mp4">
-        </video>
+<div class="container containerAbout">
+    <header>
+        <h1><span>About Us: FarmFresh <span class="icon">🌱</span>  </span></h1>
+        <p>Fresh Products Near You</p>
+    </header>
 
-        <section>
-            <p>Welcome to FarmFresh, where we bridge the gap between farmers and customers, cultivating a community that celebrates the abundance of fresh, locally sourced produce. Our mission is to create a sustainable and direct connection between those who cultivate the land and those who appreciate the fruits of their labor.</p>
-            <p>At FarmFresh, we believe in the power of supporting local farmers and fostering a vibrant agricultural ecosystem. We provide a platform that enables farmers to showcase their products directly to customers, ensuring a transparent and ethical exchange. By eliminating unnecessary intermediaries, we empower farmers to reach a broader audience, while customers gain access to a diverse range of high-quality, farm-fresh goods.</p>
-            <p>Our commitment to sustainability goes beyond just providing a marketplace. We strive to promote environmentally friendly farming practices and contribute to the well-being of local communities. When you choose FarmFresh, you're not just getting fresh and wholesome produce; you're supporting a network of dedicated farmers who are passionate about delivering the best to your table.</p>
-            <p>Whether you're a farmer looking to share your harvest or a customer seeking the freshest and finest produce, FarmFresh is your go-to destination. Join us in cultivating a healthier, more connected world—one harvest at a time. Thank you for being a part of the FarmFresh family!</p>
-        </section>
-    </div>
+    <video width="500" height="300" autoplay muted>
+        <source src="../media/video/about_us.mp4" type="video/mp4">
+    </video>
+
+    <section>
+        <p>Welcome to <span class="highlight">FarmFresh</span>, where we bridge the gap between farmers and customers, cultivating a community that celebrates the abundance of fresh, locally sourced produce. Our mission is to create a sustainable and direct connection between those who cultivate the land and those who appreciate the fruits of their labor. <span class="icon">🌾</span></p>
+        <p>At <span class="highlight">FarmFresh</span>, we believe in the power of supporting local farmers and fostering a vibrant agricultural ecosystem. We provide a platform that enables farmers to showcase their products directly to customers, ensuring a transparent and ethical exchange. <span class="icon">🌽</span> By eliminating unnecessary intermediaries, we empower farmers to reach a broader audience, while customers gain access to a diverse range of high-quality, farm-fresh goods.</p>
+        <p>Our commitment to sustainability goes beyond just providing a marketplace. <span class="icon">🍎</span> We strive to promote environmentally friendly farming practices and contribute to the well-being of local communities. When you choose <span class="highlight">FarmFresh</span>, you're not just getting fresh and wholesome produce; you're supporting a network of dedicated farmers who are passionate about delivering the best to your table.</p>
+        <p>Whether you're a farmer looking to share your harvest or a customer seeking the freshest and finest produce, <span class="highlight">FarmFresh</span> is your go-to destination.  <span class="icon">🍏</span> Join us in cultivating a healthier, more connected world—one harvest at a time. Thank you for being a part of the <span class="highlight">FarmFresh</span> family! <span class="icon">🌱</span> </p>
+    </section>
+</div>
 {% endblock %}

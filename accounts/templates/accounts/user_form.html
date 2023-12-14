@@ -2,8 +2,28 @@
 {% load bootstrap4 %}
 {% block content %}
 
+<style>
+    .update-profile-btn {
+        background-color: #007bff; /* Bootstrap primary button color */
+        color: #fff; /* Button text color */
+        padding: 10px 20px; /* Adjust padding as needed */
+        border: none; /* Remove default button border */
+        border-radius: 5px; /* Optional: Add some border-radius for rounded corners */
+        cursor: pointer;
+        margin-bottom: 30px;
+    }
+
+    .update-profile-btn:hover {
+        background-color: #0056b3; /* Change color on hover */
+    }
+    .container{
+        margin-top: -10px;
+    }
+</style>
+
 <div class="container">
     <h1>Update Profile</h1>
+    <br>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {% for field in form %}
@@ -15,7 +35,7 @@
         {% bootstrap_field field %}
         {% endif %}
         {% endfor %}
-        <div><button type="submit">Update Profile</button></div>
+        <div><button type="submit" class="update-profile-btn">Update Profile</button></div>
     </form>
 </div>
 

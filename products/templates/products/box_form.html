@@ -1,8 +1,62 @@
 {% extends "base.html" %}
 {% load bootstrap4 %}
 {% block content %}
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        background-color: #f8f9fa; /* Light gray background */
+        color: #343a40; /* Dark text color */
+    }
 
-<div class="container">
+    .containerBox {
+        width: 80%;
+        margin: 0 auto;
+        background-color: #ffffff; /* White container background */
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle box shadow */
+        margin-top: 30px;
+        border-radius: 8px; /* Rounded corners */
+    }
+
+    form {
+        margin-top: 20px;
+    }
+
+    button {
+        background-color: #007bff; /* Primary color for button */
+        color: #ffffff; /* Text color for button */
+        padding: 10px 20px;
+        font-size: 1.2em;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #0056b3; /* Darker shade on hover */
+    }
+
+    @media only screen and (min-width: 768px) {
+        /* Adjust styles for larger screens if needed */
+        h1 {
+            font-size: 3em;
+        }
+
+        p {
+            font-size: 1.3em;
+        }
+
+        button {
+            padding: 12px 25px;
+        }
+    }
+</style>
+
+<div class="container containerBox">
+    <h1>Add Box</h1>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {% bootstrap_form form %}

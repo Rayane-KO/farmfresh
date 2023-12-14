@@ -4,6 +4,10 @@
 {% block content %}
 
 <style>
+    ul {
+        list-style: none;
+        padding: 0;
+    }
     .farmer_list {
         position: relative;
         margin-left: 300px;
@@ -19,11 +23,23 @@
         padding: 10px;
         border-radius: 5px;
         margin-top: 30px;
+        position: relative; /* Add this line to the user-info class */
     }
 
     h1 {
         margin-top: -50px;
     }
+   
+
+    .user-info img {
+    width: 150px; /* Set the width as per your design */
+    height: 150px; /* Set the height as per your design */
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 20px; /* Adjust the right position as needed */
+}
 
     #map-container {
         position: fixed; 
@@ -32,47 +48,13 @@
         z-index: 1; 
     }
 
-
     #map {
         height: 600px; 
         width: 100%;
-        max-width: 650px; 
+        max-width: 650px;
         margin-top: 112px;
         margin-bottom: 50px;
         border: #ddd;
-    }
-
-    ul {
-        list-style: none;
-        padding: 0;
-    }
-
-    li {
-        margin-bottom: 20px;
-    }
-
-    a {
-        text-decoration: none;
-        color: #3498db; 
-    }
-
-    a:hover {
-        text-decoration: underline;
-        color: aquamarine;
-    }
-
-    .fav-button {
-        background-color: transparent;
-        border: none;
-        cursor: pointer;
-    }
-
-    .fa-regular.fa-star {
-        color: #ddd;
-    }
-
-    .fav-button.selected .fa-regular.fa-star {
-        color: #ffd43b;
     }
 
     @media (max-width: 767px) {
@@ -108,36 +90,88 @@
     }
 
     @media (min-width: 1200px) {
-    #map-container {
-        position: fixed;
-        top: 150px;
-        right: 20px;
-    }
-
-    .farmer_list {
-            margin-left:33px;
+        #map-container {
+            position: fixed;
+            top: 150px;
+            right: 20px;
         }
 
+        .farmer_list {
+            margin-left: 33px;
+        }
+
+        #map {
+            width: 100%; 
+            max-width: none;
+            max-height: none;
+        }
+    }
     
 
-    #map {
-        width: 100%; 
-                     
-        max-width:none;
-        max-height: none;
-    }
+.filter-options {
+    margin-top: 20px;
+    background-color: #f0f0f0; 
+    padding: 10px;
+    border-radius: 5px;
+    width:fit-content;
 }
+
+.filter-options form {
+    display: flex;
+    flex-direction: column;
+}
+
+.clear-button {
+    background-color: #e74c3c; 
+    border-radius: 10px;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.clear-button:hover {
+    background-color: #c0392b; 
+}
+
+.apply-button {
+    background-color: #3498db;
+    border-radius: 10px;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.apply-button:hover {
+    background-color: #2980b9;
+}
+
+ 
+
+
 </style>
 
 <div class="container farmer_list">
     <h1>Farmers</h1>
     <div class="filter-options">
+        <h5>Filter farmers</h5>
         <form method="get">
-            <label><input type="checkbox" name="best_farmers"> Best Rated</label>
-            <label><input type="checkbox" name="closest_farmers"> Closest</label>
-            <button type="submit">Apply Filters</button>
+            <label>
+                <input type="radio" name="filter" value="best" {% if request.GET.filter == 'best' %}checked{% endif %}>
+                Best Rated
+            </label>
+            <label>
+                <input type="radio" name="filter" value="closest" {% if request.GET.filter == 'closest' %}checked{% endif %}>
+                Closest
+            </label>
+            <div class="filter-buttons">
+                <button type="submit" class="apply-button">Apply Filter</button>
+                <button type="button" id="clear-filters" class="clear-button">Clear Filters</button>
+            </div>
         </form>
     </div>
+    
     <div class="row">
         <div class="col-md-6 order-md-1 order-2">
             {% if farmers %}
@@ -145,9 +179,11 @@
                 {% for farmer in farmers %}
                 <li>
                     <div class="user-info" data-user-id={{ user.pk }}>
+                        <img src="{{ farmer.profile_pic.url }}" alt="{{ farmer.username }} Profile Picture">
                         <p>Name: {{ farmer.username }}</p>
                         <p>Farm: {{ farmer.farm_nr }}</p>
-                        <p>Address: {{ farmer.address }} </p>
+                        <p>Address: {{ farmer.address }} </p>      
+                        
                         <a href="{% url "accounts:user_detail" pk=farmer.pk %}">View Details</a>
                         {% if farmer != user and user.is_authenticated %}
                         <button class="fav-button" data-farmer-id={{ farmer.pk }} data-auth={{ user.is_authenticated }}>
@@ -159,7 +195,7 @@
                 {% endfor %}
             </ul>
             {% else %}
-                <p>No products available yet...</p>
+                <p>No farmers available yet...</p>
             {% endif %}
         </div>
         <div class="col-md-6 order-md-2 order-1" id="map-container">
@@ -197,6 +233,20 @@
         window.addEventListener("scroll", updateMapPosition);
         window.addEventListener("resize", updateMapPosition);
     });
+
+
+   
+    document.addEventListener("DOMContentLoaded", function () {
+        var clearFiltersButton = document.getElementById("clear-filters");
+        var filterRadios = document.querySelectorAll('.filter-options input[type="radio"]');
+
+        clearFiltersButton.addEventListener("click", function () {
+            filterRadios.forEach(function (radio) {
+                radio.checked = false;
+            });
+        });
+    });
+
 </script>
 
 {% endblock %}

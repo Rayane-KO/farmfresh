@@ -59,7 +59,7 @@ class Box(models.Model):
     asker = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=1.99)
-    available = available = models.BooleanField(default=True)
+    available = models.BooleanField(default=True)
     date = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to="images/")
     status = models.CharField(max_length=20, choices=STATUS, default="Pending")
@@ -70,3 +70,20 @@ class Box(models.Model):
 
     def __str__(self):
         return self.name 
+    
+class Invitation(models.Model):
+    STATUS = [
+        ("pending", "Pending"),
+        ("accepted", "Accepted"),
+        ("rejected", "Rejected"),
+    ]
+
+    inviting_farmer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent")
+    invited_farmer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received")
+    box = models.ForeignKey(Box, on_delete=models.CASCADE, related_name="invite")
+    status = models.CharField(max_length=20, choices=STATUS, default="Pending")
+    invite_date = models.DateTimeField(auto_now_add=True)
+    decision_date = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.inviting_farmer.username} invited {self.invited_farmer.username} for {self.box.name}"

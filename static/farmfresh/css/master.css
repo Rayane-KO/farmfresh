@@ -175,3 +175,8 @@ footer {
     margin-bottom: 0px;
 }
 
+.btn-discover{
+    background-color: rgb(255, 230, 0);
+    color:rgb(0, 95, 0);
+    border-color: rgb(0, 95, 0);;
+}

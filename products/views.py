@@ -1,7 +1,7 @@
 from typing import Any
 from django import http
 from django.shortcuts import render, redirect
-from products.models import Category, Product, Box
+from products.models import Category, Product, Box, Invitation
 from django.views.generic import View, ListView, DetailView, CreateView, DeleteView, UpdateView
 from django.contrib.auth import get_user_model
 from braces.views import SelectRelatedMixin
@@ -26,6 +26,7 @@ from django.utils.html import strip_tags
 from django.core.mail import send_mail
 import logging
 import json
+
 
 User = get_user_model()
 
@@ -294,14 +295,25 @@ class CreateBox(CreateView):
     
     def form_valid(self, form):
         products = form.cleaned_data["products"]
+        invited_farmers_pk = form.cleaned_data["farmers"]
+        invited_farmers = User.objects.filter(pk__in=invited_farmers_pk)
         price = sum(product.price for product in products)
         form.instance.price = price
+        form.instance.asker = self.request.user
+        form.instance.save()
+        for farmer in invited_farmers:
+            Invitation.objects.create(
+                inviting_farmer = self.request.user,
+                invited_farmer = farmer,
+                box = form.instance
+            )
         return super().form_valid(form)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
         return kwargs
+
 
 class BoxDetail(DetailView):
     model = Box
@@ -313,8 +325,10 @@ class BoxDetail(DetailView):
         box_products = box.products.all()
         farmers_product = Product.objects.filter(seller=self.request.user)
         farmers_product = farmers_product.exclude(pk__in=box_products.values_list("pk", flat=True))
+        invitations = Invitation.objects.filter(box=box)
         context["products"] = box_products
         context["farmers_products"] = farmers_product
+        context["pending"] = invitations
         return context
 
 class PendingBoxList(ListView):
@@ -352,7 +366,16 @@ class PendingDecision(View):
         if user.is_farmer:
             try: 
                 box = Box.objects.get(pk=box_id)
-                if action == "confirm":
+                invitation = Invitation.objects.get(invited_farmer=user, box=box)
+                if action == "accept":
+                    invitation.status = "accepted"
+                    invitation.save()
+                elif action == "reject":
+                    invitation.status = "rejected"
+                    box.farmers.remove(user)
+                    box.save()
+                    invitation.save() 
+                elif action == "confirm":
                     box.confirmed.add(user)
                     box.save()
             except Box.DoesNotExist:

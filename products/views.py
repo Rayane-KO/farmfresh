@@ -26,7 +26,6 @@ from django.utils.html import strip_tags
 from django.core.mail import send_mail
 import logging
 import json
-from google.cloud import vision_v1
 
 User = get_user_model()
 

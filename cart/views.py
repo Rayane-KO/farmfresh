@@ -33,7 +33,6 @@ class CartAddItem(LoginRequiredMixin, View):
     login_url = "accounts:login"
 
     def post(self, request, *args, **kwargs):
-        print("post")
         user_cart, created = Cart.objects.get_or_create(user=request.user)
         product_type = kwargs.get("type")
         if product_type == "product":
@@ -44,7 +43,11 @@ class CartAddItem(LoginRequiredMixin, View):
                 cart_item.quantity += 1
                 cart_item.save()
                 user_cart.save()
-                return JsonResponse({"status": "success"})
+                return JsonResponse({"status": "success"})    
+            else:
+                cart = Cart.objects.get(user=request.user)
+                cart_count = CartItem.objects.filter(cart=cart).count()
+                return JsonResponse({"cart_count": cart_count})    
             
         elif product_type == "box":
             cart_product = Box.objects.get(pk=kwargs.get("pk")) 
@@ -55,12 +58,11 @@ class CartAddItem(LoginRequiredMixin, View):
                     cart_item.quantity += 1
                     cart_item.save()
                     user_cart.save()
+                else:
+                    cart = Cart.objects.get(user=request.user)
+                    cart_count = CartItem.objects.filter(cart=cart).count()
+                    return JsonResponse({"cart_count": cart_count})      
             return JsonResponse({"status": "success"})
-
-    
-    def get(self, request, *args, **kwargs):
-        cart_product = Product.objects.get(pk=kwargs.get("pk"))
-        return render(request, "index.html")
     
 class CartRemoveItem(LoginRequiredMixin, DeleteView):
     def post(self, request, *args, **kwargs):
@@ -81,11 +83,19 @@ class CartRemoveItem(LoginRequiredMixin, DeleteView):
                 cart_item.quantity -= 1
                 cart_item.save()
                 user_cart.save()
+                return JsonResponse({"status": "success"})
             else: 
                 cart_item.delete()
                 user_cart.save() 
+                cart_count = CartItem.objects.filter(cart=user_cart).count()
+                return JsonResponse({"cart_count": cart_count})  
 
-            return JsonResponse({"status": "success"})
         
         except CartItem.DoesNotExist:
             return JsonResponse({"status": "does not exist"})
+    
+class CartCount(View):
+    def get(self, request, *args, **kwargs):
+        cart = Cart.objects.get(user=request.user)
+        cart_count = CartItem.objects.filter(cart=cart).count()
+        return JsonResponse({"cart_count": cart_count})

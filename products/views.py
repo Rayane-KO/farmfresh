@@ -353,10 +353,15 @@ class PendingBoxList(ListView):
             boxes = Box.objects.filter(Q(asker=user) | Q(farmers__in=[user]))  
             invitations = []
             for box in boxes:
-                invitation = Invitation.objects.get(invited_farmer=user, box=box)
-                data = [{"box": box, "invitation": invitation}]
-                invitations.extend(data) 
-                context["invitations"] = invitations  
+                if user == box.asker:
+                    data = [{"box": box, "invitation": []}]
+                    invitations.extend(data) 
+                    context["invitations"] = invitations 
+                elif user.is_farmer:
+                    invitation = Invitation.objects.get(invited_farmer=user, box=box)
+                    data = [{"box": box, "invitation": invitation}]
+                    invitations.extend(data) 
+                    context["invitations"] = invitations  
         return context  
 
 class PendingDecision(View):

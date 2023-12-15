@@ -73,7 +73,10 @@
                   </li>
                   <li class="">
                     <a href="{% url "cart:cart_items" %}" class="nav-link">
+                      <div class="cart-counter">
                         <i class="fa-solid fa-basket-shopping fa-xl" style="color: #0a5200; margin-right: 10px;"></i>
+                        <span class="badge badge-warning" id="cart-badge" data-url="{% url "cart:count" %}"">0</span>
+                      </div>
                     </a>
                 </li>
                   {% else %}
@@ -106,5 +109,7 @@
           <footer>
             <small>Copyright © 2023 freshfarm.com All rights reserved.</small>
           </footer>
+
+          <script src="{% static "farmfresh/js/cart_update.js" %}"></script>
     </body>
 </html>

@@ -179,7 +179,7 @@
             <ul>
                 {% for farmer in farmers %}
                 <li>
-                    <div class="user-info" data-user-id={{ user.pk }}>
+                    <div class="user-info" data-id={{ farmer.pk }} data-latitude={{ farmer.latitude }} data-longitude={{ farmer.longitude }} data-username={{ farmer.username }}>
                         <img src="{{ farmer.profile_pic.url }}" alt="{{ farmer.username }} Profile Picture">
                         <p>Name: {{ farmer.username }}</p>
                         <p>Farm: {{ farmer.farm_nr }}</p>

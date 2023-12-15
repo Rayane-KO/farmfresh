@@ -34,7 +34,7 @@
         <tr>
           <td>{{ product.name }}</td>
           <td>{{ product.total_sales }}</td>
-          <td>{{ product.average_rating|default:"N/A" }}</td>
+          <td>{{ product.average_rating|floatformat:1|default:"N/A" }}</td>
           <td>{{ product.review_count }}</td>
         </tr>
       {% endfor %}

@@ -1,7 +1,7 @@
 from typing import Any
 from django import http
 from django.shortcuts import render, redirect
-from products.models import Category, Product
+from products.models import Category, Product, Box
 from cart.models import CartItem, Cart
 from django.views.generic import View, ListView, DetailView, CreateView, DeleteView, UpdateView
 from django.contrib.auth import get_user_model
@@ -33,16 +33,30 @@ class CartAddItem(LoginRequiredMixin, View):
     login_url = "accounts:login"
 
     def post(self, request, *args, **kwargs):
+        print("post")
         user_cart, created = Cart.objects.get_or_create(user=request.user)
-        cart_product = Product.objects.get(pk=kwargs.get("pk"))
-        cart_item, created = CartItem.objects.get_or_create(cart=user_cart, product=cart_product)
+        product_type = kwargs.get("type")
+        if product_type == "product":
+            cart_product = Product.objects.get(pk=kwargs.get("pk"))
+            cart_item, created = CartItem.objects.get_or_create(cart=user_cart, product=cart_product)
 
-        if not created:
-            cart_item.quantity += 1
-            cart_item.save()
-            user_cart.save()
+            if not created:
+                cart_item.quantity += 1
+                cart_item.save()
+                user_cart.save()
+                return JsonResponse({"status": "success"})
+            
+        elif product_type == "box":
+            cart_product = Box.objects.get(pk=kwargs.get("pk")) 
+            for product in cart_product.products.all():
+                cart_item, created = CartItem.objects.get_or_create(cart=user_cart, product=product)
 
-        return JsonResponse({"status": "success"})
+                if not created:
+                    cart_item.quantity += 1
+                    cart_item.save()
+                    user_cart.save()
+            return JsonResponse({"status": "success"})
+
     
     def get(self, request, *args, **kwargs):
         cart_product = Product.objects.get(pk=kwargs.get("pk"))
@@ -51,7 +65,12 @@ class CartAddItem(LoginRequiredMixin, View):
 class CartRemoveItem(LoginRequiredMixin, DeleteView):
     def post(self, request, *args, **kwargs):
         user_cart, created = Cart.objects.get_or_create(user=request.user)
-        cart_product = Product.objects.get(pk=kwargs.get("pk"))
+        product_type = kwargs.get("type")
+        cart_product = []
+        if product_type == "product":
+            cart_product = Product.objects.get(pk=kwargs.get("pk"))
+        elif product_type == "box":
+            cart_product = Box.objects.get(pk=kwargs.get("pk"))    
 
         if not request.user.is_authenticated:
             return JsonResponse({"status": "not logged in"})
@@ -64,7 +83,7 @@ class CartRemoveItem(LoginRequiredMixin, DeleteView):
                 user_cart.save()
             else: 
                 cart_item.delete()
-                user_cart.save()    
+                user_cart.save() 
 
             return JsonResponse({"status": "success"})
         

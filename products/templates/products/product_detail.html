@@ -7,12 +7,9 @@
             {% elif product.unit == "kg" %}
                 <p><strong>Price:</strong> €{{ product.price }}/Kg</p>
             {% endif %}
-            <form method="post" action="{% url "cart:add_to_cart" pk=product.pk %}">
-                {% csrf_token %}
-                <button class="btn btn-success add_to_cart" data-product-id={{ object.pk }} data-add-url="{% url "cart:add_to_cart" pk=object.pk %}">
-                    Add to Cart
-                </button>
-            </form>
+            <button class="btn btn-success add_to_cart" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk type="product" %}">
+                Add to Cart
+            </button>
             {% for c in categories_api %}
             <p>c</p>
             {% endfor %}
@@ -64,21 +61,42 @@
             {% if reviews %}
                 <ul class="list-unstyled">
                     {% for review in reviews %}
-                        <li class="section-style mb-3">
-                            <p><strong>Name:</strong> {{ review.user.username }}</p>
-                            <p><strong>Date:</strong> {{ review.date }}</p>
-                            <p><strong>Rating:</strong> {{ review.rating }}/5</p>
-                            <p><strong>Review:</strong> {{ review.review }}</p>
-                            {% if review.replies.exists %}
-                            <button type="button" class="btn btn-link" onclick="toggleReplies({{ review.id }})">
-                                See Replies
-                            </button>
-                            {% endif %}
-                            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#replyModal{{ review.id }}">
-                                Add Reply
-                            </button>
-
-                        </li>
+                    <li class="section-style card mb-3" data-rating={{ review.rating }}>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <img src="{{ review.user.profile_pic.url }}" class="img-fluid rounded" alt="{{ review.user.username }}" style="max-width: 100%;">
+                            </div>
+                            <div class="col-md-9">
+                                <div>
+                                    <p>
+                                        <strong>{{ review.user.username }}</strong>
+                                        <span class="badge">
+                                            {% if review.user.is_farmer %}
+                                                <i class="fa-solid fa-wheat-awn" style="color: #0a5200;"></i>
+                                            {% endif %}
+                                        </span>
+                                    </p>
+                                    <p><strong>Date:</strong> {{ review.date }}</p>
+                                    <div class="stars"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <p>{{ review.review }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-link" data-toggle="modal" data-target="#replyModal{{ review.id }}">
+                                    Add Reply
+                                </button>
+                                {% if review.replies.exists %}
+                                    <button type="button" class="btn btn-link" onclick="toggleReplies({{ review.id }})">
+                                        See Replies
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </li>
+                    
+                    
                         <ul id="replies{{ review.id }}" class="list-unstyled" style="display: none;">
                             {% for reply in review.replies.all %}
                             <li>
@@ -93,6 +111,44 @@
             {% else %}
                 <p>No reviews available yet...</p>
             {% endif %}
+                <!-- https://getbootstrap.com/docs/4.0/components/pagination/ -->
+                <nav aria-label="Review navigation">
+                    <ul class="pagination justify-content-center">
+                      {% if reviews.has_previous %}
+                      <li class="page-item">
+                        <a class="page-link" href="?page=1" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{reviews.previous_page_number}}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                      {% endif %}
+            
+                    <li class="page-item">
+                        <span class="page-link">
+                            {{ reviews.number }} of {{ reviews.paginator.num_pages }}
+                        </span>
+                    </li>
+            
+                    {% if reviews.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{reviews.next_page_number}}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{reviews.paginator.num_pages}}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                      {% endif %}
+            
+            
+                    </ul>
+                  </nav>
         </div>
 
         <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
@@ -154,12 +210,45 @@
     </div>
 {% endfor %}
 
+
     </div>
     </div>
 </div>
 
 <script src="{% static "farmfresh/js/cart_update.js" %}"></script>
 <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const products = document.querySelectorAll('.card');
+    
+            products.forEach(product => {
+                const rating = parseFloat(product.getAttribute('data-rating'));
+                const stars = getStars(rating);
+                const starContainer = product.querySelector('.stars');
+                starContainer.innerHTML = stars + " " + rating.toFixed(1) + " out of 5";
+            });
+        });
+    
+        function getStars(rating) {
+            const fullStars = Math.floor(rating);
+            const halfStar = rating % 1 !== 0;
+            const emptyStars = Math.ceil(5 - fullStars - halfStar)
+            const stars = [];
+    
+            for (let i = 0; i < fullStars; i++) {
+                stars.push('<i class="fa-solid fa-star" style="color: #f8d544;"></i>');
+            }
+    
+            if (halfStar) {
+                stars.push('<i class="fa-solid fa-star-half-stroke" style="color: #f8d544;"></i>');
+            }
+    
+            for (let i = 0; i < emptyStars; i++) {
+                stars.push('<i class="fa-regular fa-star" style="color: #f8d544;"></i>');
+            }
+    
+            return stars.join('');
+        }
+
         function toggleReplies(reviewId) {
             var replies = document.getElementById('replies' + reviewId);
             if (replies.style.display === 'none') {
@@ -168,28 +257,49 @@
                 replies.style.display = 'none';
             }
         }
+
+        function saveCurrentToggle(toggle){
+            localStorage.setItem("toggle", toggle);
+        }
+
+        function getCurrentToggle(){
+            return localStorage.getItem("toggle");
+        }
+
     document.addEventListener("DOMContentLoaded", function () {
         const nutritionalInfo = document.getElementById("nutritional-info");
         const reviewsSection = document.getElementById("reviews");
         const farmerInfo = document.getElementById("farmer-info");
 
+        function toggleSections(nutritional, reviews, farmer){
+            farmerInfo.style.display = farmer ? "block" : "none";
+            nutritionalInfo.style.display = nutritional ? "block" : "none";
+            reviewsSection.style.display = reviews ? "block" : "none";
+        }
+
         document.getElementById("toggle-nutrition").addEventListener("click", function () {
-            farmerInfo.style.display = "none"
-            nutritionalInfo.style.display = "block";
-            reviewsSection.style.display = "none";
+            saveCurrentToggle("nutritional");
+            toggleSections(true, false, false);
         });
 
         document.getElementById("toggle-reviews").addEventListener("click", function () {
-            farmerInfo.style.display = "none"
-            nutritionalInfo.style.display = "none";
-            reviewsSection.style.display = "block";
+            saveCurrentToggle("reviews");
+            toggleSections(false, true, false);
         });
 
         document.getElementById("toggle-farmer").addEventListener("click", function(){
-            farmerInfo.style.display = "block"
-            nutritionalInfo.style.display = "none";
-            reviewsSection.style.display = "none";
-        })
+            saveCurrentToggle("farmer_info");
+            toggleSections(false, false, true);
+        });
+
+        var currentState = getCurrentToggle();
+        if (currentState){
+            toggleSections(
+                currentState === "nutritional",
+                currentState === "reviews",
+                currentState === "farmer",
+            );
+        };
     });
 </script>
 {% endblock %}

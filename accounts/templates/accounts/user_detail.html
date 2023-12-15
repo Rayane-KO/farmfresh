@@ -81,6 +81,12 @@
         width: 100%;
         margin-bottom: 10px;
     }
+
+    .section-style{
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+    }
 </style>
 
 <div class="container">
@@ -132,7 +138,7 @@
                         <p>{{ user_detail.bio }}</p>
 
                         {% if user_detail != user and user.is_authenticated %}
-                        <button class="btn btn-warning fav-button mt-3" data-farmer-id={{ farmer.pk }} data-auth={{ user.is_authenticated }}>
+                        <button class="btn btn-warning fav-button mt-3" data-farmer-id={{ user_detail.pk }} data-auth={{ user.is_authenticated }}>
                             <i class="fa-regular fa-star" style="color: #ffd43b;"></i>
                             <span class="button-text">
                                 {% if farmer.pk in favorites %}
@@ -156,21 +162,40 @@
                     <h2 class="mb-4">Reviews</h2>
                     <ul class="list-group">
                         {% for review in reviews %}
-                            <li class="list-group-item review-item">
-                                <p><strong>Name:</strong> {{ review.user.username }}</p>
-                            <p><strong>Date:</strong> {{ review.date }}</p>
-                            <p><strong>Rating:</strong> {{ review.rating }}/5</p>
-                            <p><strong>Review:</strong> {{ review.review }}</p>
-                                {% if review.replies.exists %}
-                                <button type="button" class="btn btn-link" onclick="toggleReplies({{ review.id }})">
-                                    See Replies
-                                </button>
-                                {% endif %}
-                                <button type="button" class="btn btn-link" data-toggle="modal" data-target="#replyModal{{ review.id }}">
-                                    Add Reply
-                                </button>
-    
-                            </li>
+                        <li class="section-style card mb-3" data-rating={{ review.rating }}>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <img src="{{ review.user.profile_pic.url }}" class="img-fluid rounded" alt="{{ review.user.username }}" style="max-width: 100%;">
+                                </div>
+                                <div class="col-md-9">
+                                    <div>
+                                        <p>
+                                            <strong>{{ review.user.username }}</strong>
+                                            <span class="badge">
+                                                {% if review.user.is_farmer %}
+                                                    <i class="fa-solid fa-wheat-awn" style="color: #0a5200;"></i>
+                                                {% endif %}
+                                            </span>
+                                        </p>
+                                        <p><strong>Date:</strong> {{ review.date }}</p>
+                                        <div class="stars"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <p>{{ review.review }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <button type="button" class="btn btn-link" data-toggle="modal" data-target="#replyModal{{ review.id }}">
+                                        Add Reply
+                                    </button>
+                                    {% if review.replies.exists %}
+                                        <button type="button" class="btn btn-link" onclick="toggleReplies({{ review.id }})">
+                                            See Replies
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </li>
                             <ul id="replies{{ review.id }}" class="list-unstyled" style="display: none;">
                                 {% for reply in review.replies.all %}
                                 <li>
@@ -181,6 +206,43 @@
                                 {% endfor %}
                             </ul>
                         {% endfor %}
+                        <nav aria-label="Review navigation">
+                            <ul class="pagination justify-content-center">
+                              {% if reviews.has_previous %}
+                              <li class="page-item">
+                                <a class="page-link" href="?page=1" aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{reviews.previous_page_number}}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                              {% endif %}
+                    
+                            <li class="page-item">
+                                <span class="page-link">
+                                    {{ reviews.number }} of {{ reviews.paginator.num_pages }}
+                                </span>
+                            </li>
+                    
+                            {% if reviews.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{reviews.next_page_number}}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{reviews.paginator.num_pages}}" aria-label="Last">
+                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                </a>
+                            </li>
+                              {% endif %}
+                    
+                    
+                            </ul>
+                          </nav>
                     </ul>
                 {% else %}
                     <p class="lead mt-3">No reviews available yet...</p>

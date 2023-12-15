@@ -11,12 +11,9 @@
 {% endif %}
 {% endif %}
 {% if box.status == "approved" %}
-<form method="post" action="{% url "cart:add_to_cart" pk=object.pk %}">
-    {% csrf_token %}
-    <button class="btn btn-success add_to_cart" data-product-id={{ object.pk }} data-add-url="{% url "cart:add_to_cart" pk=object.pk %}">
-        Add to Cart
-    </button>
-</form>
+<button class="btn btn-success add_to_cart" data-product-id="{{ box.pk }}" data-add-url="{% url "cart:add_to_cart" pk=box.pk type="box" %}">
+    Add to Cart
+</button>
 {% endif %}
 {% endblock %}
 

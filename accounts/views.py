@@ -12,6 +12,7 @@ from django.core.mail import EmailMessage
 from django.db.models import Sum, Avg, Count
 from reviews.models import FarmerReview, ProductReview
 import json
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Souces: 
 # - Breadcrumbs: https://pypi.org/project/django-view-breadcrumbs/
@@ -49,8 +50,17 @@ class UserDetail(DetailBreadcrumbMixin, DetailView):
         context = super().get_context_data(**kwargs)
         farmer = context["user_detail"]
         context["review_type"] = "farmer"
-        context["reviews"] = farmer.farmer_reviews.all()
-        return context
+        reviews = farmer.farmer_reviews.all()
+        paginator = Paginator(reviews, 5)   
+        page = self.request.GET.get("page")  
+        try:
+            paginated_reviews = paginator.page(page)
+        except PageNotAnInteger:
+            paginated_reviews = paginator.page(1)
+        except EmptyPage:
+            paginated_reviews = paginator.page(paginator.num_pages)
+        context["reviews"] = paginated_reviews       
+        return context  
 
 class FarmerList(ListBreadcrumbMixin, ListView):
     model = User

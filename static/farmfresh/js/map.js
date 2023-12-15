@@ -20,6 +20,18 @@ var options = {
     }
 }
 
+function addMarker(latitude, longitude, pk, username){
+    var farmIcon = L.icon({
+        iconUrl: "/media/icon/marker.png",
+        iconSize: [50, 50],
+        iconAnchor: [10, 30],
+        popupAnchor: [15, -30]
+    });
+    var marker = L.marker([latitude, longitude], { icon: farmIcon }).addTo(map);
+    var url = "<a href=../../accounts/user/"+ pk + ">" + username + "</a>"
+    marker.bindPopup(url);
+}
+
 function getFarmers(){
     fetch("/accounts/farmers/", options)
     .then(response => {
@@ -33,22 +45,15 @@ function getFarmers(){
         var location = data.location;
         var longitude = location[0];
         var latitude = location[1];
-        var farmIcon = L.icon({
-            iconUrl: "/media/icon/marker.png",
-            iconSize: [50, 50],
-            iconAnchor: [10, 30],
-            popupAnchor: [15, -30]
-        });
         farmers.forEach(farmer => {
             console.log(farmer)
             if (farmer.latitude !== null && farmer.longitude !== null && farmer.latitude !== latitude && farmer.longitude !== longitude){
-                var marker = L.marker([farmer.latitude, farmer.longitude], { icon: farmIcon }).addTo(map);
-                var url = "<a href=../../accounts/user/"+ farmer.pk + ">" + farmer.username + "</a>"
-                marker.bindPopup(url);
+                addMarker(farmer.latitude, farmer.longitude, farmer.pk, farmer.username);
             }
         });
         if (latitude !== null && longitude !== null){
-            L.marker([latitude, longitude]).addTo(map);
+            marker = L.marker([latitude, longitude]).addTo(map);
+            marker.bindPopup("You");
         }
     })
     .catch(error => console.error(error.message));
@@ -113,4 +118,31 @@ fetch("/static/farmfresh/js/belgium.geojson")
     });
 });
 
-document.addEventListener("DOMContentLoaded", getFarmers);
+document.addEventListener("DOMContentLoaded", function(){
+    var container = document.querySelector(".farmer_list");
+    var called = false;
+    container.addEventListener("mouseover", function (event) {
+        // Check if the event target is a farmer element
+        var farmerElement = event.target.closest('.user-info');
+        if (farmerElement) {
+            var latitude = farmerElement.dataset.latitude;
+            var longitude = farmerElement.dataset.longitude;
+            var userId = farmerElement.dataset.id;
+
+            // Remove all existing markers from the map
+            map.eachLayer(function (layer) {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
+            });
+            addMarker(parseFloat(latitude), parseFloat(longitude), userId, "farmer");
+            called = false;
+        }
+        else{
+            if (!called){
+                getFarmers();
+                called = true;
+            }
+        }
+    });
+});

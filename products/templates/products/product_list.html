@@ -75,7 +75,7 @@
             <button class="btn btn-outline-secondary" type="submit">Filter</button>
 
     </form>
-    <div class="row">
+    <div class="row" data-id={{ user.pk }}>
         {% if products.products %}
         {% for product in products.products %}
         <div class="col-md-6 col-lg-4 mb-4">
@@ -109,12 +109,9 @@
                         {% endif %}
                     </p>
                     <a href="{% url "products:product_detail" pk=product.pk %}" class="btn btn-primary">View Details</a>
-                    <form method="post" action="{% url "cart:add_to_cart" pk=product.pk %}">
-                        {% csrf_token %}
-                        <button class="btn btn-success add_to_cart" data-product-id={{ object.pk }} data-add-url="{% url "cart:add_to_cart" pk=product.pk %}">
+                        <button class="btn btn-success add_to_cart" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk type="product" %}">
                             Add to Cart
                         </button>
-                    </form>
                 </div>
             </div>
         </div>
@@ -141,9 +138,9 @@
                         {% endif %}
                     </p>
                     <a href="{% url "products:box_detail" pk=box.pk %}" class="btn btn-primary">Look inside</a>
-                    <button class="btn btn-success add_to_cart" data-product-id="{{ box.pk }}" data-add-url="{% url "cart:add_to_cart" pk=box.pk %}">
-                        Add to Cart
-                    </button>
+                        <button class="btn btn-success add_to_cart" data-product-id="{{ box.pk }}" data-add-url="{% url "cart:add_to_cart" pk=box.pk type="box" %}">
+                            Add to Cart
+                        </button>
                 </div>
             </div>
         </div>
@@ -163,10 +160,19 @@
     </div>
     {% endif %}
 </div>
-
+<script src="{% static "farmfresh/js/cart_update.js" %}"></script>
 <script>
+    function setFavFarmers(userId){
+        //https"://stackoverflow.com/questions/52327176/how-do-i-access-data-from-local-storage-in-django-views
+        favId = "favorites_" + userId;
+        fav_farmers = localStorage.getItem(favId);
+        document.cookie = "fav=" + fav_farmers;
+    }
     document.addEventListener('DOMContentLoaded', function () {
         const products = document.querySelectorAll('.card');
+        const userId = document.querySelector(".row").getAttribute("data-id");
+
+        setFavFarmers(userId);
 
         products.forEach(product => {
             const rating = parseFloat(product.getAttribute('data-rating'));

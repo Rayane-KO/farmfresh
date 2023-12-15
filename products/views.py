@@ -26,6 +26,7 @@ from django.utils.html import strip_tags
 from django.core.mail import send_mail
 import logging
 import json
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 User = get_user_model()
 
@@ -106,22 +107,15 @@ class ProductList(ListBreadcrumbMixin, ListView):
     def get_all_products(self):
         products = Product.objects.all()
         boxes = Box.objects.all()
-        """
-        user_id = self.request.user.pk
-        favorites_id = "favorites_" + str(user_id)
-        fav = self.request.session.get(favorites_id)
-        if fav:
-            try:
-                favorites = [int(pk) for pk in json.loads(fav)]
-            except (json.JSONDecodeError, ValueError):
-                favorites = []
-        else:
-            favorites = []
-        print(fav)    
-        fav_products = [product for product in products if product.seller.pk in favorites]
-        other_products = [product for product in products if product.seller.pk not in favorites]
+        fav_ids_str = self.request.COOKIES.get("fav", "")
+        fav_ids = [int(fav_id.strip('"')) for fav_id in fav_ids_str.strip("[").strip("]").split(",")] if fav_ids_str else []
+        fav_products = [product for product in products if product.seller.pk in fav_ids]
+        other_products = [product for product in products if product.seller.pk not in fav_ids]
         products = fav_products + other_products
-        """
+        fav_boxes = [box for box in boxes if box.asker.pk in fav_ids]
+        other_boxes = [box for box in boxes if box.asker.pk not in fav_ids]
+        products = fav_products + other_products
+        boxes = fav_boxes + other_boxes
         return {"products": products, "boxes": boxes}
     
     def get_context_data(self, **kwargs):
@@ -131,7 +125,7 @@ class ProductList(ListBreadcrumbMixin, ListView):
     
     
     
-class ProductDetail(DetailBreadcrumbMixin, SelectRelatedMixin, DetailView):
+class ProductDetail(SelectRelatedMixin, DetailView):
     model = Product
     select_related = ("seller",)
     template_name = "products/product_detail.html"
@@ -213,7 +207,6 @@ class ProductDetail(DetailBreadcrumbMixin, SelectRelatedMixin, DetailView):
         context = super().get_context_data(**kwargs)
         product = context["product"]
         context["review_type"] = "product"
-        context["reviews"] = product.review_set.all()
         access_token = self.get_access_token()
         if access_token:
             product_id = self.get_product_id(product.pk, access_token)
@@ -221,6 +214,16 @@ class ProductDetail(DetailBreadcrumbMixin, SelectRelatedMixin, DetailView):
                 nutritional_info = self.get_nutritional_info(product_id, access_token)
                 context["serving"] = nutritional_info[0]
                 context["nutritional_info"] = nutritional_info[1]
+        reviews = product.review_set.all()  
+        paginator = Paginator(reviews, 5)   
+        page = self.request.GET.get("page")  
+        try:
+            paginated_reviews = paginator.page(page)
+        except PageNotAnInteger:
+            paginated_reviews = paginator.page(1)
+        except EmptyPage:
+            paginated_reviews = paginator.page(paginator.num_pages)
+        context["reviews"] = paginated_reviews       
         return context          
     
 class CreateProduct(SelectRelatedMixin, LoginRequiredMixin, CreateView):
@@ -346,13 +349,14 @@ class PendingBoxList(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        boxes = Box.objects.filter(Q(asker=user) | Q(farmers__in=[user]))  
-        invitations = []
-        for box in boxes:
-            invitation = Invitation.objects.get(invited_farmer=user, box=box)
-            data = [{"box": box, "invitation": invitation}]
-            invitations.extend(data) 
-        context["invitations"] = invitations  
+        if not user.is_staff:
+            boxes = Box.objects.filter(Q(asker=user) | Q(farmers__in=[user]))  
+            invitations = []
+            for box in boxes:
+                invitation = Invitation.objects.get(invited_farmer=user, box=box)
+                data = [{"box": box, "invitation": invitation}]
+                invitations.extend(data) 
+                context["invitations"] = invitations  
         return context  
 
 class PendingDecision(View):

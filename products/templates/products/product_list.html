@@ -40,11 +40,75 @@
     .text-center {
         padding-bottom: 50px;
     }
-    
+
+    /* CSS FOR THE FILTER */
+    .filter-form {
+        background-color: #f0f0f0;
+        padding: 20px;
+        border-radius: 5px;
+        margin-top: -20px;
+    }
+
+    .search-form {
+        background-color: #f0f0f0;
+        padding: 20px;
+        border-radius: 5px;
+        margin-top: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .form-check {
+        margin-right: 20px;
+    }
+
+    .form-check label {
+        margin-left: 5px;
+    }
+
+    .btn-filter {
+        background-color: #3498db;
+        color: #fff;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+
+    .btn-filter:hover {
+        background-color: #2980b9;
+    }
+
+    .category-checkboxes {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 5px;
+        /* Adjust the margin as needed */
+    }
+
+    .form-check {
+        margin-right: 20px;
+    }
+
+    .clear-filters {
+        margin-top: 0px;
+        background-color: #e74c3c;
+        color: #fff;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+
+    .clear-filters:hover {
+        background-color: #c0392b;
+    }
 </style>
 
 <div class="container">
-    <form method="get" class="mb-4">
+    <form method="get" class="mb-4 search-form">
         <div class="input-group">
             <input name="q" type="text" class="form-control" placeholder="Search">
             <div class="input-group-append">
@@ -52,28 +116,31 @@
             </div>
         </div>
     </form>
-    <form method="get" class="mb-4">
+    <form method="get" class="mb-4 filter-form" id="filter-form">
         <div class="form-group">
-            <label>Select a category:</label>
-            {% for category in categories %}
-            <div class="form-check">
-                <input name="category" type="checkbox" class="form-form-check-input" value="{{ category.name }}">
-                <label>{{ category.name }}</label>
+            <label><Strong>Select a category:</Strong></label>
+            <div class="category-checkboxes">
+                {% for category in categories %}
+                <div class="form-check">
+                    <input name="category" type="checkbox" class="form-check-input" value="{{ category.name }}">
+                    <label class="form-check-label">{{ category.name }}</label>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
 
         <div class="form-group">
             <label>Sort By:</label>
-            <select name="sort_by">
+            <select name="sort_by" class="form-control">
                 <option value="default">Default</option>
                 <option value="best_rated" {% if request.GET.sort_by == 'best_rated' %}selected{% endif %}>Best rated</option>
                 <option value="ascending" {% if request.GET.sort_by == 'ascending' %}selected{% endif %}>Price (Low - High)</option>
                 <option value="descending" {% if request.GET.sort_by == 'descending' %}selected{% endif %}>Price (High to Low)</option>
             </select>
         </div>
-            <button class="btn btn-outline-secondary" type="submit">Filter</button>
 
+        <button class="btn btn-filter" type="submit">Filter</button>
+        <button type="button" class="btn btn-outline-secondary clear-filters">Clear Filters</button>
     </form>
     <div class="row" data-id={{ user.pk }}>
         {% if products.products %}
@@ -169,6 +236,30 @@
         document.cookie = "fav=" + fav_farmers;
     }
     document.addEventListener('DOMContentLoaded', function () {
+
+        const clearFiltersButton = document.querySelector('.clear-filters');
+        if (clearFiltersButton) {
+            clearFiltersButton.addEventListener("click", function () {
+                // Reset all form elements
+                const filterForm = document.getElementById('filter-form');
+                if (filterForm) {
+                    const checkboxes = filterForm.querySelectorAll('input[type="checkbox"]');
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+
+                    const selects = filterForm.querySelectorAll('select');
+                    selects.forEach(select => {
+                        select.selectedIndex = 0;
+                    });
+
+                    // You may need to adjust this line based on your form structure
+                    // It clears any additional input fields or custom logic
+                    filterForm.reset();
+                }
+            });
+        }
+
         const products = document.querySelectorAll('.card');
         const userId = document.querySelector(".row").getAttribute("data-id");
 
@@ -202,6 +293,7 @@
 
         return stars.join('');
     }
+
 </script>
 
 {% endblock %}

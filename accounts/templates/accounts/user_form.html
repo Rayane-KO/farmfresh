@@ -3,28 +3,41 @@
 {% block content %}
 
 <style>
-    .update-profile-btn {
-        background-color: #007bff; /* Bootstrap primary button color */
-        color: #fff; /* Button text color */
-        padding: 10px 20px; /* Adjust padding as needed */
-        border: none; /* Remove default button border */
-        border-radius: 5px; /* Optional: Add some border-radius for rounded corners */
-        cursor: pointer;
-        margin-bottom: 30px;
+
+    .container {
+        margin-bottom: 50px;
     }
 
-    .update-profile-btn:hover {
-        background-color: #0056b3; /* Change color on hover */
+.containerProfile {
+    margin-top: 10%;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+    margin-bottom:2%;
     }
-    .container{
-        margin-top: -10px;
-    }
-    h1 {
-        color: #007bff; 
-    }
+.update-profile-btn {
+    background-color: #007bff; /* Bootstrap primary button color */
+    color: #fff; /* Button text color */
+    padding: 10px 20px; /* Adjust padding as needed */
+    border: none; /* Remove default button border */
+    border-radius: 5px; /* Optional: Add some border-radius for rounded corners */
+    cursor: pointer;
+    margin-bottom: 30px;
+}
+
+.update-profile-btn:hover {
+    background-color: #0056b3; /* Change color on hover */
+}
+.container{
+    margin-top: -10px;
+}
+h1 {
+    color: #007bff; 
+}
 </style>
 
-<div class="container">
+<div class="container containerProfile">
     <h1>Update Profile</h1>
     <br>
     <form method="post" enctype="multipart/form-data">

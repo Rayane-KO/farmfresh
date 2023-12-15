@@ -5,8 +5,25 @@
 
 <link rel="stylesheet" href="{% static 'products/css/products.css' %}">
 <style>
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    .fixed-bar {
+        background-color: #f8f9fa;
+        padding: 10px;
+        position: fixed;
+        bottom: 0; /* Changed top to bottom */
+        right: 0;
+        width: 100%;
+        box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* Changed shadow to be at the top */
+        z-index: 1000;
+    }
+
     .container {
-        padding-top: 50px; 
+        margin-top: -30px;
+        padding-bottom: 90px; /* Adjusted padding for the content */
     }
 
     .cart-icon {
@@ -57,6 +74,28 @@
         position: absolute;
         top: 0;
         left: 0;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+        margin-right: 10px;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+
+    .btn-continue-shopping {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: #fff;
+    }
+
+    .btn-continue-shopping:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
     }
 </style>
 
@@ -115,6 +154,12 @@
         {% else %}
             <p class="empty">No products available yet...</p>
         {% endif %}
+    </div>
+
+    <div class="fixed-bar">
+        <h5>Total: {{ cart.total }}</h5>
+        <a class="btn btn-success" href="{% url "orders:payment" %}">Complete Order</a>
+        <a href="{% url "products:product_list" %}" class="btn btn-continue-shopping">Continue Shopping</a>
     </div>
 
     <script src="{% static "farmfresh/js/cart_update.js" %}"></script>

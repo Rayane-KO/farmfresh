@@ -27,8 +27,56 @@ function updateCartItem(button, unit){
     }
 }
 
+function changeCartBadge(count){
+    const badge = $("#cart-badge");
+    badge.text(count)
+    if (count = 0){
+        badge.hide();
+    } 
+    else {
+        badge.show();
+    }
+}
+
+function updateCartBadge(){
+    var token = getToken();
+    var url = $("#cart-badge").data("url")
+    $.ajax({
+        type: "get",
+        url: url,
+        data: { csrfmiddlewaretoken: token },
+        dataType: "json",
+        success: function(data){
+            changeCartBadge(data.cart_count);
+        },
+        error: function(error){
+            console.log(error);
+        },
+    });
+}
+
 $(document).ready(function(){
+    updateCartBadge();
     $(".add_to_cart").on("click", function(){
+        var productId = $(this).data("product-id");
+        var url = $(this).data("add-url");
+        var token = getToken();
+        console.log(productId)
+        $.ajax({
+            type: "post",
+            url: url,
+            data: { pk: productId, csrfmiddlewaretoken: token },
+            dataType: "json",
+            success: function(data){
+                    changeCartBadge(data.cart_count);
+            },
+            error: function(error){
+                console.log(error);
+            },
+        });
+    });
+
+    $(".remove_from_cart").on("click", function(){
         var button = $(this);
         var productId = $(this).data("product-id");
         var url = $(this).data("add-url");
@@ -41,6 +89,7 @@ $(document).ready(function(){
             data: { pk: productId, csrfmiddlewaretoken: token },
             dataType: "json",
             success: function(data){
+                changeCartBadge(data.cart_count);
                     var quantityElement = $("#qty-" + productId);
                     var productTotalElement = $("#total-" + productId);
                     var totalElement = $("#total");
@@ -49,7 +98,7 @@ $(document).ready(function(){
                     var currentTotal = parseFloat(productTotalElement.text().split(": ")[1]).toFixed(2);
                     var total = parseFloat(totalElement.text().split(": ")[1]).toFixed(2);
                     var unitString= "";
-                    console.log(price)
+                    console.log(data)
                     if (currentQty === 1){
                         card.remove()
                     }

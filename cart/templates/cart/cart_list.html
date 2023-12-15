@@ -135,7 +135,7 @@
                                     </p>
                                     <p class="card-text">Seller: <a href="{% url "accounts:user_detail" pk=item.product.seller.pk %}">{{ item.product.seller.username }}</a></p>
                                     <a href="{% url "products:product_detail" pk=item.product.pk %}" class="btn btn-primary">View Details</a>
-                                    <button class="btn btn-danger add_to_cart" data-product-id={{ item.product.pk }} data-add-url="{% url "cart:remove_from_cart" pk=item.product.pk %}" data-unit={{ item.product.unit }} data-price={{ item.product.price }}>
+                                    <button class="btn btn-danger remove_from_cart" data-product-id={{ item.product.pk }} data-add-url="{% url "cart:remove_from_cart" pk=item.product.pk type="product"%}" data-unit={{ item.product.unit }} data-price={{ item.product.price }}>
                                         Delete
                                     </button>
                                 </div>
@@ -159,5 +159,4 @@
         <a href="{% url "products:product_list" %}" class="btn btn-continue-shopping">Continue Shopping</a>
     </div>
 
-    <script src="{% static "farmfresh/js/cart_update.js" %}"></script>
     {% endblock %}

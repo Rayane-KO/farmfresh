@@ -110,9 +110,6 @@
     </div>
     {% if cart_items %}
         <div class="row">
-            <h5 id="total">Total: {{ cart.total }}</h5>
-            <a class="btn btn-success" href="{% url "orders:payment" %}">Complete Order</a>
-            <a href="{% url "products:product_list" %}">Continue Shopping</a>
             {% for item in cart_items %}
                 <div class="col-md-12 mb-4">
                     <div class="card h-100" id="card-{{item.product.pk}}" data-rating={{ item.product.avg_rating }}>

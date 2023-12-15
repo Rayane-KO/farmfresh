@@ -3,46 +3,141 @@
 {% load static %}
 {% block content %}
 
-<div class="container">
+<style>
+    .containerBoxes {
+        margin-top: 3%;
+        text-align: left;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 4%;
+        padding-bottom: 70px;
+    }
+
+    h2 {
+        color: #007bff;
+    }
+
+    .box-link {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .box-link:hover {
+        text-decoration: underline;
+    }
+
+    .box-buttons {
+        margin-top: 10px;
+    }
+
+    .btn-decision {
+        margin-right: 5px;
+    }
+
+    .box-status {
+        margin-top: 10px;
+    }
+
+    .fa-icon {
+        font-size: 16px;
+        margin-right: 5px;
+    }
+
+    .box-details {
+        margin-top: 15px;
+    }
+
+    .box-details p {
+        margin-bottom: 5px;
+    }
+
+    .box-wait-text {
+        margin-top: 10px;
+        color: #9f6e04;
+    }
+
+    .btn-to-shop,
+    .btn-more-details {
+        margin-top: 30px;
+        margin-bottom: -30px;
+        text-align: center;
+    }
+</style>
+
+<div class="container containerBoxes">
     {% if pending_boxes %}
         {% for box in pending_boxes %}
-        <p><a href="{% url "products:box_detail" pk=box.pk %}">{{ box.name }}</a></p>
-        {% if user.is_staff %}
-        <form method="post" action="{% url "products:decision" pk=box.pk %}">
-            {% csrf_token %}
-            <button type="submit" name="action" value="approve">Approve</button>
-            <button type="submit" name="action" value="reject">Reject</button>
-       </form>
-       {% endif %}
-       {% endfor %}
-    {% elif user.is_farmer %}
-        {% if invitations %}
-        {% for data in invitations %}
-        <p><a href="{% url "products:box_detail" pk=data.box.pk %}">{{ data.box.name }}</a></p>
-            {% if data.invitation.status == "Pending" %}
-                <form method="post" action="{% url "products:decision" pk=data.box.pk %}">
-                {% csrf_token %}
-                <button type="submit" name="action" value="accept">Accept</button>
-                <button type="submit" name="action" value="reject">Reject</button>
+            <h2><strong>{{ box.name }}</strong></h2>
+            <div class="box-details">
+                <p><strong>Description:</strong> {{ box.description }}</p>
+                <p><strong>Price:</strong> ${{ box.price }}</p>
+                <p><strong>Availability:</strong> {% if box.available %}Available{% else %}Not Available{% endif %}</p>
+                <p><strong>Date:</strong> {{ box.date }}</p>
+                <p><strong>Status:</strong> <span class="box-status">{{ box.status }}
+                    {% if box.status == "Pending" %}
+                        <i class="fa-solid fa-clock fa-icon" style="color: #9f6e04;"></i>
+                        <span class="box-wait-text">Please wait for our team to accept the box.</span>
+                    {% elif box.status == "Approved" %}
+                        <i class="fa-regular fa-circle-check fa-icon" style="color: #06841b;"></i>
+                    {% elif box.status == "Rejected" %}
+                        <i class="fa-regular fa-circle-xmark fa-icon" style="color: #e00000;"></i>
+                    {% endif %}
+                </span></p>
+                <div class="box-buttons">
+                    <a href="{% url "products:box_detail" pk=box.pk %}" class="btn btn-primary btn-more-details">More Details</a>
+                    <a href="{% url "products:product_list" %}" class="btn btn-primary btn-to-shop">Go to Shop</a>
+                </div>
+            </div>
+            {% if user.is_staff %}
+                <form method="post" action="{% url "products:decision" pk=box.pk %}" class="box-buttons">
+                    {% csrf_token %}
+                    <button type="submit" name="action" value="approve" class="btn btn-success btn-decision">Approve</button>
+                    <button type="submit" name="action" value="reject" class="btn btn-danger btn-decision">Reject</button>
                 </form>
-            {% elif data.box.status == "Pending" and request.user not in data.box.confirmed.all %}
-                <form method="post" action="{% url "products:decision" pk=data.box.pk %}">
-                {% csrf_token %}
-                <button type="submit" name="action" value="confirm">Confirm</button>
-                </form>
-            {% endif %}
-            {% if request.user in data.box.confirmed.all or request.user == data.box.asker %}
-                <p>{{ data.box.status }}
-                {% if data.box.status == "pending" %}<i class="fa-solid fa-clock" style="color: #9f6e04;"></i>
-                {% elif data.box.status == "approved" %}<i class="fa-regular fa-circle-check" style="color: #06841b;"></i>
-                {% elif data.box.status == "rejected" %}<i class="fa-regular fa-circle-xmark" style="color: #e00000;"></i>
-                {% endif %}
-                </p>
             {% endif %}
         {% endfor %}
+    {% elif user.is_farmer %}
+        {% if invitations %}
+            {% for data in invitations %}
+                <h2><strong>{{ data.box.name }}</strong></h2>
+                <div class="box-details">
+                    <p><strong>Description:</strong> {{ data.box.description }}</p>
+                    <p><strong>Price:</strong> ${{ data.box.price }}</p>
+                    <p><strong>Availability:</strong> {% if data.box.available %}Available{% else %}Not Available{% endif %}</p>
+                    <p><strong>Date:</strong> {{ data.box.date }}</p>
+                    <p><strong>Status:</strong> <span class="box-status">{{ data.box.status }}
+                        {% if data.box.status == "Pending" %}
+                            <i class="fa-solid fa-clock fa-icon" style="color: #9f6e04;"></i>
+                            <span class="box-wait-text">Please wait for our team to accept the box.</span>
+                        {% elif data.box.status == "Approved" %}
+                            <i class="fa-regular fa-circle-check fa-icon" style="color: #06841b;"></i>
+                        {% elif data.box.status == "Rejected" %}
+                            <i class="fa-regular fa-circle-xmark fa-icon" style="color: #e00000;"></i>
+                        {% endif %}
+                    </span></p>
+                    <div class="box-buttons">
+                        <a href="{% url "products:box_detail" pk=data.box.pk %}" class="btn btn-primary btn-more-details">More Details</a>
+                        <a href="{% url "products:product_list" %}" class="btn btn-primary btn-to-shop">Go to Shop</a>
+                    </div>
+                    {% if data.invitation.status == "Pending" %}
+                        <form method="post" action="{% url "products:decision" pk=data.box.pk %}" class="box-buttons">
+                            {% csrf_token %}
+                            <button type="submit" name="action" value="accept" class="btn btn-success btn-decision">Accept</button>
+                            <button type="submit" name="action" value="reject" class="btn btn-danger btn-decision">Reject</button>
+                        </form>
+                    {% elif data.box.status == "Pending" and request.user not in data.box.confirmed.all %}
+                        <form method="post" action="{% url "products:decision" pk=data.box.pk %}" class="box-buttons">
+                            {% csrf_token %}
+                            <button type="submit" name="action" value="confirm" class="btn btn-primary btn-decision">Confirm</button>
+                        </form>
+                    {% endif %}
+                </div>
+            {% endfor %}
         {% endif %}
     {% else %}
-    <p>No boxes...</p>
+        <p>No boxes...</p>
     {% endif %}
 </div>
 

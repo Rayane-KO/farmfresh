@@ -16,7 +16,7 @@
         background-color: #fff;
         position: relative;
     }
-
+  
     .user-info h1 {
         font-size: 28px;
         margin-bottom: 20px;
@@ -46,11 +46,12 @@
         right: 10px;
         display: flex;
         align-items: center;
+        
     }
 
     .btn-container a.btn {
         margin-right: 10px;
-        max-width: fit-content;
+        
     }
 
     .fav-button:hover {
@@ -78,15 +79,19 @@
     }
 
     .image-and-button .btn {
-        width: 100%;
+        width: 100%;        
         margin-bottom: 10px;
     }
+    form {
+        width: 100%;
+    }
+
 </style>
 
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <div class="user-info" data-user-id={{ user.pk }}>
+            <div class="user-info" data-user-id="{{ user.pk }}">
                 <div class="btn-container">
                     {% if request.user == object %}
                     <a href="{% url "accounts:update_user" pk=object.pk %}" class="btn btn-primary"><i class="fa-solid fa-pen"></i></a>
@@ -106,6 +111,7 @@
                             </form>
                             <button class="btn btn-primary" data-toggle="modal" data-target="#reviewModal">Post a Review</button>
 
+
                         {% endif %}
                     </div>
                     <div class="col-md-8">
@@ -121,7 +127,7 @@
                         <p class="small-text">Last Name: {{ user_detail.last_name }}</p>
                         <p class="email">Email: {{ user_detail.email }}</p>
                         {% if user_detail.is_farmer %}
-                            <div class="rate" data-rating={{ user_detail.avg_rating }}>
+                            <div class="rate" data-rating="{{ user_detail.avg_rating }}">
                                  <p class="card-text"><div class="stars"></div></p>
                                 <p class="card-text">
                                 </div>
@@ -132,7 +138,7 @@
                         <p>{{ user_detail.bio }}</p>
 
                         {% if user_detail != user and user.is_authenticated %}
-                        <button class="btn btn-warning fav-button mt-3" data-farmer-id={{ farmer.pk }} data-auth={{ user.is_authenticated }}>
+                        <button class="btn btn-warning fav-button mt-3" data-farmer-id="{{ farmer.pk }}" data-auth="{{ user.is_authenticated }}">
                             <i class="fa-regular fa-star" style="color: #ffd43b;"></i>
                             <span class="button-text">
                                 {% if farmer.pk in favorites %}

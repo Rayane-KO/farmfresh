@@ -8,8 +8,60 @@
     <form method="post" action="{% url "accounts:delete_user" pk=object.pk %}">
         {% csrf_token %}
         <button type="submit" class="btn btn-danger">Delete</button>
-        <a href="{% url "products:all" %}">Cancel</a>
+        <a href="{% url "accounts:all" %}">Cancel</a>
    </form>
 </div>
 
 {% endblock %}
+
+<!-- 
+{% extends "base.html" %}
+{% load bootstrap4 %}
+{% block content %}
+
+<style>
+    .containerDelete {
+        margin-top: 3%;
+        text-align: center;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 4%;
+        padding-bottom: 70px;
+    }
+
+    h1 {
+        color: #e74c3c;
+    }
+
+    .btn-danger,
+    .btn-cancel {
+        margin-top: 10px;
+    }
+
+    .btn-cancel {
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+
+    .btn-cancel:hover {
+        background-color: #2980b9;
+    }
+</style>
+
+<div class="container containerDelete">
+    <h1>Delete account</h1>
+    <p>Are you sure you want to delete your account?</p>
+    <form method="post" action="{% url "accounts:delete_user" pk=object.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a href="{% url "products:all" %}" class="btn btn-cancel">Cancel</a>
+   </form>
+</div>
+
+{% endblock %} -->

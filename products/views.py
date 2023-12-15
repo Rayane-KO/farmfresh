@@ -27,7 +27,6 @@ from django.core.mail import send_mail
 import logging
 import json
 
-
 User = get_user_model()
 
 # Sources:
@@ -342,9 +341,19 @@ class PendingBoxList(ListView):
             pending_boxes = Box.objects.filter(status="pending")
             confirmed_boxes = [box for box in pending_boxes if box.is_confirmed()]
             return confirmed_boxes
-        elif user.is_farmer:
-            return Box.objects.filter(Q(asker=user) | Q(farmers__in=[user]))  
         else: return None #later Error    
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        boxes = Box.objects.filter(Q(asker=user) | Q(farmers__in=[user]))  
+        invitations = []
+        for box in boxes:
+            invitation = Invitation.objects.get(invited_farmer=user, box=box)
+            data = [{"box": box, "invitation": invitation}]
+            invitations.extend(data) 
+        context["invitations"] = invitations  
+        return context  
 
 class PendingDecision(View):
     def post(self, request, *args, **kwargs):
@@ -382,6 +391,7 @@ class PendingDecision(View):
                 pass
 
         return redirect("products:pending")
+    
     
 class AddProductToBox(UpdateView):
     model = Box

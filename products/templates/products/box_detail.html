@@ -4,9 +4,11 @@
 {% block box_specific %}
 <p><strong>Price:</strong> €{{ box.price }}</p>
 {% if request.user == box.asker or request.user in box.farmers.all %}
+{% if box.status == "Pending" %}
 <button class="btn btn-success" data-toggle="modal" data-target="#productModal">
     Add product
 </button>
+{% endif %}
 {% endif %}
 {% if box.status == "approved" %}
 <form method="post" action="{% url "cart:add_to_cart" pk=object.pk %}">

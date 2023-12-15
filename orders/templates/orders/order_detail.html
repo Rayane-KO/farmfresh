@@ -1,6 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container">
-<h1>Order Detail</h1>
+    <h1>Order Detail</h1>
+    <p>Order ID: {{ order.id }}</p>
+    <p>Total Price: {{ order.total }}</p>
+
+    <h2>Ordered Products:</h2>
+    <ul>
+        {% for order_item in order.orderitem_set.all %}
+            <li>
+                Product: {{ order_item.product.name }}<br>
+                Quantity: {{ order_item.quantity }}<br>
+                Unit Price: {{ order_item.product.price }}<br>
+                Subtotal: {{ order_item.total }}
+            </li>
+        {% endfor %}
+    </ul>
 </div>
 {% endblock %}

@@ -414,12 +414,11 @@ class PendingBoxList(ListView):
                 if user == box.asker:
                     data = [{"box": box, "invitation": []}]
                     invitations.extend(data) 
-                    context["invitations"] = invitations 
                 elif user.is_farmer:
                     invitation = Invitation.objects.get(invited_farmer=user, box=box)
                     data = [{"box": box, "invitation": invitation}]
                     invitations.extend(data) 
-                    context["invitations"] = invitations  
+            context["invitations"] = invitations        
         return context  
 
 class PendingDecision(View):

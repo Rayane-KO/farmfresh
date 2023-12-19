@@ -168,7 +168,7 @@ class Dashboard(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         farmer = self.request.user
-        
+
         product_items = OrderItem.objects.filter(
             content_type__model='product',
             object_id__in=Product.objects.filter(seller=farmer).values('pk')
@@ -209,3 +209,12 @@ class Dashboard(TemplateView):
 
         return context
 
+"""
+    Serializer View
+"""   
+from rest_framework import viewsets
+from .serializers import FarmerSerializer
+
+class FarmerViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.filter(is_farmer=True)
+    serializer_class = FarmerSerializer    

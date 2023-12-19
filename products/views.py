@@ -25,6 +25,7 @@ import json
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from itertools import zip_longest
 from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -388,7 +389,7 @@ class BoxDetail(DetailView):
         invitations = Invitation.objects.filter(box=box)
         context["products"] = box_items
         context["farmers_products"] = farmers_product
-        context["pending"] = invitations
+        context["invitations"] = invitations
         return context
 
 class PendingBoxList(ListView):
@@ -410,7 +411,6 @@ class PendingBoxList(ListView):
         if not user.is_staff:
             boxes = Box.objects.filter(Q(asker=user) | Q(farmers__in=[user]))  
             invitations = []
-            print(boxes)
             for box in boxes:
                 if user == box.asker:
                     data = [{"box": box, "invitation": []}]
@@ -446,9 +446,11 @@ class PendingDecision(View):
                     invitation = Invitation.objects.get(invited_farmer=user, box=box)
                 if action == "accept":
                     invitation.status = "accepted"
+                    invitation.decision_date = timezone.now()
                     invitation.save()
                 elif action == "reject":
                     invitation.status = "rejected"
+                    invitation.decision_date = timezone.now()
                     box.farmers.remove(user)
                     box.save()
                     invitation.save() 
@@ -520,8 +522,19 @@ class DiseaseInfo(TemplateView):
         data = json.loads(data_json)
         return render(request, self.template_name, {"data": data})
     
-    
-    
+"""
+    Serializer View
+"""   
+from rest_framework import viewsets
+from .serializers import ProductSerializer, BoxSerializer
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer    
+
+class BoxViewSet(viewsets.ModelViewSet):
+    queryset = Box.objects.all()
+    serializer_class = BoxSerializer  
     
 
     

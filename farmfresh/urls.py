@@ -16,8 +16,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from . import views
+from products.views import ProductViewSet, BoxViewSet
+from accounts.views import FarmerViewSet
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework import routers
+
+router = routers.DefaultRouter()
+router.register(r"products", ProductViewSet)
+router.register(r"boxes", BoxViewSet)
+router.register(r"farmers", FarmerViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -33,6 +41,7 @@ urlpatterns = [
     path("cart/", include("cart.urls", namespace="cart")),
     path("reviews/", include("reviews.urls", namespace="reviews")),
     path("orders/", include("orders.urls", namespace="orders")),
+    path("api/", include(router.urls)),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

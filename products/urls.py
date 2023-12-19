@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
-from .views import ProductList, ProductDetail, CreateProduct, DeleteProduct, UpdateProduct, CreateBox, BoxDetail, PendingBoxList, PendingDecision, AddProductToBox, IdentifyDisease, DiseaseInfo
+from .views import *
+
 
 app_name = "products"
 

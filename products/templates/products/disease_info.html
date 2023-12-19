@@ -2,38 +2,79 @@
 {% load bootstrap4 %}
 {% load static %}
 {% block content %}
+<style>
+    .container-result {
+        margin-top: 50px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+    }
 
-<div class="container mt-5">
+    .result-heading {
+        color: #12972f;
+        margin-top: 20px;
+    }
+
+    .result-section {
+        margin-top: 20px;
+    }
+
+    .probability-info {
+        margin-bottom: 10px;
+    }
+
+    .suggestions-section {
+        margin-top: 20px;
+    }
+
+    .suggestion-item {
+        margin-top: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+    }
+
+    .treatment-list {
+        margin-top: 10px;
+    }
+
+    .similar-images-section {
+        margin-top: 20px;
+    }
+
+    .similar-image-item {
+        margin-top: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+    }
+
+    .img-fluid {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+
+<div class="container container-result">
     {% if message %}
         <h2 class="alert alert-info">{{ message }}</h2>
     {% endif %}
 
     {% if data %}
-        <h2 class="mt-4">Plant Health Assessment Result</h2>
-        <div class="row">
+        <h2 class="result-heading mt-4">Plant Health Assessment Result</h2>
+        <div class="row result-section">
             <div class="col-md-4">
-                <p><strong>Model Version:</strong> {{ data.model_version }}</p>
                 <p><strong>Result Status:</strong> {{ data.status }}</p>
-
-                {% if data.result.is_plant %}
-                    <p><strong>Is Plant Probability:</strong> {{ data.result.is_plant.probability }}</p>
-                    <p><strong>Is Plant Binary:</strong> {{ data.result.is_plant.binary }}</p>
-                    <p><strong>Is Plant Threshold:</strong> {{ data.result.is_plant.threshold }}</p>
-                {% endif %}
-
-                {% if data.result.is_healthy %}
-                    <p><strong>Is Healthy Probability:</strong> {{ data.result.is_healthy.probability }}</p>
-                    <p><strong>Is Healthy Binary:</strong> {{ data.result.is_healthy.binary }}</p>
-                    <p><strong>Is Healthy Threshold:</strong> {{ data.result.is_healthy.threshold }}</p>
-                {% endif %}
             </div>
 
             <div class="col-md-8">
                 {% if data.result.disease.suggestions %}
-                    <h3 class="mt-4">Diseases Suggestions:</h3>
-                    <ul class="list-group">
+                    <h3 class="result-heading mt-4">Diseases Suggestions:</h3>
+                    <ul class="list-group suggestions-section">
                         {% for suggestion in data.result.disease.suggestions %}
-                            <li class="list-group-item">
+                            <li class="list-group-item suggestion-item">
                                 <p><strong>Name:</strong> {{ suggestion.name }}</p>
                                 <p><strong>Probability:</strong> {{ suggestion.probability }}</p>
                                 <p><strong>Local Name:</strong> {{ suggestion.details.local_name }}</p>
@@ -41,7 +82,7 @@
 
                                 {% if suggestion.details.treatment %}
                                     <h4>Treatment:</h4>
-                                    <ul>
+                                    <ul class="treatment-list">
                                         {% for treatment in suggestion.details.treatment.chemical %}
                                             <li>Chemical: {{ treatment }}</li>
                                         {% endfor %}
@@ -55,10 +96,11 @@
                                 {% endif %}
 
                                 {% if suggestion.similar_images %}
+                                <br>
                                     <h4>Similar Images:</h4>
-                                    <ul class="list-group">
+                                    <ul class="list-group similar-images-section">
                                         {% for similar_image in suggestion.similar_images %}
-                                            <li class="list-group-item">
+                                            <li class="list-group-item similar-image-item">
                                                 <p><strong>Similarity:</strong> {{ similar_image.similarity }}</p>
                                                 <img src="{{ similar_image.url_small }}" alt="Similar Image" class="img-fluid">
                                             </li>

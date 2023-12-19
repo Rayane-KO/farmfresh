@@ -2,75 +2,159 @@
 {% block content %}
 
 <style>
+    .mt-3 {
+        text-align: center;
+        padding-left: 70px;
+    }
 
-  .mt-3 {
-    text-align: center;
-    padding-left: 70px;
-  }
+    .container {
+        padding-top: 0px;
+    }
 
-  .container {
-    padding-top: 0px;
-  }
+    .main h1 {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
 
-  .main h1 {
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); 
-  }
+    .tool {
+        background-color: green;
+        padding: 20px;
+        text-align: center;
+        margin: 20px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-  .tool {
-    background-color: green;
-  }
+    .tool-content {
+        flex: 1;
+        text-align: center;
+        color: white; /* Adjust text color as needed */
+    }
 
+    .tool h5 {
+        margin-bottom: 20px;
+    }
+
+    .tool img {
+        width: 100%;
+        max-width: 400px; /* Adjust the max-width as needed */
+        height: auto;
+        margin: 20px auto; /* Center the image horizontally */
+        display: block;
+    }
+
+    .tool .btn-success {
+        margin-top: 20px;
+        color: green;
+        background-color: white;
+        border: 1px solid white;
+    }
+
+    .tool .btn-success:hover {
+        background-color: #ccc; /* Gray color on hover */
+        border: 1px solid #ccc;
+    }
+
+    .work {
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .work video {
+        width: 100%;
+        max-width: 500px; /* Adjust the max-width as needed */
+        height: auto;
+    }
+
+    .work h3 {
+        margin-top: 20px;
+    }
+
+    .work ol {
+        padding-left: 20px;
+    }
+
+    .text-left {
+      padding-left: 30px;
+    }
+
+    @media (max-width: 767px) {
+        .tool h5 {
+            font-size: 1.2rem;
+        }
+
+        .tool img {
+            max-width: 100%;
+        }
+
+        .work video {
+            max-width: 100%;
+        }
+    }
 </style>
 
 <div class="main text-center">
-  <h1>Fresh Products Near You</h1>
-  <a href="{% url "products:product_list" %}" class="btn btn-discover btn-lg">Discover</a>
+    <h1>Fresh Products Near You</h1>
+    <a href="{% url "products:product_list" %}" class="btn btn-discover btn-lg">Discover</a>
 </div>
 
 <div class="container mt-5">
-  <h3 id="slogan" class="text-center mt-3">From the farm straight to your plate.</h3>
+    <h3 id="slogan" class="text-center mt-3">From the farm straight to your plate.</h3>
 
-  <div class="shopping row mt-5 d-flex justify-content-around">
-    <div class="col-lg-6 col-md-12 col-sm-12 mb-4 text-center">
-      <a class="shop-nav" href="{% url "products:product_list" %}">
-        <img src="https://images.rtl.fr/~c/770v513/rtl/www/1071023-legumes.jpg" alt="Local Farmers" class="img-fluid">
-        <p class="mt-3">Produced by Local Farmers</p>
-        <a href="{% url "products:product_list" %}" class="btn btn-success">Shop Now</a>
-      </a>
+    <div class="shopping row mt-5 d-flex justify-content-around">
+        <div class="col-lg-6 col-md-12 col-sm-12 mb-4 text-center">
+            <a class="shop-nav" href="{% url "products:product_list" %}">
+                <img src="https://images.rtl.fr/~c/770v513/rtl/www/1071023-legumes.jpg" alt="Local Farmers"
+                    class="img-fluid">
+                <p class="mt-3">Produced by Local Farmers</p>
+                <a href="{% url "products:product_list" %}" class="btn btn-success">Shop Now</a>
+            </a>
+        </div>
+        <div class="col-lg-6 col-md-12 col-sm-12 mb-4 text-center">
+            <a class="shop-nav" href="#">
+                <img
+                    src="https://img.freepik.com/photos-gratuite/legumes-automne-planche-bois-au-milieu_23-2147714800.jpg?w=1380&t=st=1699556004~exp=1699556604~hmac=7d1cdb06373859ab063ff7df8231ce223844bd2ce0b9d5af752185c6b21d04e0"
+                    alt="Seasonal Boxes" class="img-fluid">
+                <p class="mt-3">Seasonal Boxes</p>
+                <a href="#" class="btn btn-success">Shop Now</a>
+            </a>
+        </div>
+        <div class="col-lg-6 col-md-12  col-sm-12 mb-4 text-center">
+            <a class="shop-nav" href="{% url "accounts:user_list" %}">
+                <img
+                    src="https://media.istockphoto.com/id/1353457944/photo/farmers-and-sales-representative-checking-soybean-crop-quality.jpg?s=612x612&w=0&k=20&c=6awsoXBsTilb1opV4Fp75_iorwRJW6l6uzJJpIJlKRU="
+                    alt="Discover Your Next Farmer" class="img-fluid">
+                <p class="mt-3">Discover Your Next Farmer</p>
+                <a href="{% url "accounts:user_list" %}" class="btn btn-success">Discover Now</a>
+            </a>
+        </div>
     </div>
-    <div class="col-lg-6 col-md-12 col-sm-12 mb-4 text-center">
-      <a class="shop-nav" href="#">
-        <img src="https://img.freepik.com/photos-gratuite/legumes-automne-planche-bois-au-milieu_23-2147714800.jpg?w=1380&t=st=1699556004~exp=1699556604~hmac=7d1cdb06373859ab063ff7df8231ce223844bd2ce0b9d5af752185c6b21d04e0" alt="Seasonal Boxes" class="img-fluid">
-        <p class="mt-3">Seasonal Boxes</p>
-        <a href="#" class="btn btn-success">Shop Now</a>
-      </a>
-    </div>
-    <div class="col-lg-6 col-md-12  col-sm-12 mb-4 text-center">
-      <a class="shop-nav" href="{% url "accounts:user_list" %}">
-        <img src="https://media.istockphoto.com/id/1353457944/photo/farmers-and-sales-representative-checking-soybean-crop-quality.jpg?s=612x612&w=0&k=20&c=6awsoXBsTilb1opV4Fp75_iorwRJW6l6uzJJpIJlKRU=" alt="Discover Your Next Farmer" class="img-fluid">
-        <p class="mt-3">Discover Your Next Farmer</p>
-        <a href="{% url "accounts:user_list" %}" class="btn btn-success">Discover Now</a>
-      </a>
-    </div>
-  </div>
 </div>
+
 <div class="tool">
-  <h5>Try out the new plant disease identifier!</h3>
-    <img src="https://storage.googleapis.com/gweb-uniblog-publish-prod/images/Screen_Shot_2018-06-11_at_1.5.max-1890x1890.format-webp.webp" alt="Disease Identifier" class="img-fluid">
-    <a href="{% url "products:disease" %}" class="btn btn-success">Try Out</a>
+    <div class="container">
+        <div class="tool-content">
+          <img
+            src="https://storage.googleapis.com/gweb-uniblog-publish-prod/images/Screen_Shot_2018-06-11_at_1.5.max-1890x1890.format-webp.webp"
+            alt="Disease Identifier" class="img-fluid">
+            <h4>Try out the new plant disease identifier!</h4>
+            <a href="{% url "products:disease" %}" class="btn btn-success"><strong>Try Out</strong></a>
+        </div>
+    </div>
 </div>
+
 <div class="work">
-  <video width="500" height="300" controls>
-    <source src="media/video/WIN_20231017_10_57_16_Pro.mp4" type="video/mp4">
-  </video>
-  <div class="text-left">
-    <h3>How it works?</h3>
-    <ol>
-      <li>Choose a product</li>
-      <li>Add it to your cart</li>
-      <li>Have it delivered to your door</li>
-    </ol>
-  </div>
+    <video width="500" height="300" controls>
+        <source src="media/video/WIN_20231017_10_57_16_Pro.mp4" type="video/mp4">
+    </video>
+    <div class="text-left">
+        <h3>How it works?</h3>
+        <ol>
+            <li>Choose a product</li>
+            <li>Add it to your cart</li>
+            <li>Have it delivered to your door</li>
+        </ol>
+    </div>
 </div>
 
 <div class="about"></div>

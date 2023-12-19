@@ -202,15 +202,22 @@
                                 </div>
                             </div>
                         </li>
-                            <ul id="replies{{ review.id }}" class="list-unstyled" style="display: none;">
+                            <ul id="replies{{ review.id }}" class="list-unstyled" style="display: none; padding-left: 20px; border-left: 2px solid #ddd; margin-top: 10px;">
                                 {% for reply in review.replies.all %}
-                                <li>
-                                    <p><strong>Replied by:</strong> {{ reply.farmer.username }}</p>
-                                    <p><strong>Date:</strong> {{ reply.date }}</p>
-                                    <p><strong>Reply:</strong> {{ reply.reply }}</p>
+                                <li style="margin-bottom: 15px;">
+                                    <div style="margin-bottom: 5px;">
+                                        <strong>Replied by:</strong> {{ reply.farmer.username }}
+                                    </div>
+                                    <div style="margin-bottom: 5px;">
+                                        <strong>Date:</strong> {{ reply.date }}
+                                    </div>
+                                    <div>
+                                        <strong>Reply:</strong> {{ reply.reply }}
+                                    </div>
                                 </li>
                                 {% endfor %}
                             </ul>
+
                         {% endfor %}
                         <nav aria-label="Review navigation">
                             <ul class="pagination justify-content-center">

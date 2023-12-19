@@ -2,7 +2,62 @@
 {% load bootstrap4 %}
 {% load static %}
 {% block content %}
-<div class="container mt-5">
+<style>
+    .containerDisease {
+        max-width: 600px;
+        padding-top: 50px; /* Increased padding for more space */
+        padding-bottom: 50px; /* Increased padding for more space */      
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+        margin-top: 50px;
+        text-align: center; /* Center text */
+    }
+
+    h2 {
+        color: #12972f;
+        margin-bottom: 20px; /* Added margin for vertical space */
+    }
+
+    p {
+        color: #555;
+        margin-bottom: 20px; /* Added margin for vertical space */
+    }
+
+    form {
+        margin-top: 20px;
+    }
+
+    label {
+        font-weight: bold;
+        margin-bottom: 10px; /* Added margin for vertical space */
+        color: #333;
+        display: block; /* Ensure label takes full width */
+    }
+
+    input[type="file"] {
+        margin-bottom: 20px; /* Added margin for vertical space */
+        display: block; /* Ensure input takes full width */
+        width: 100%; /* Make input full width */
+    }
+
+    button {
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        padding: 15px 30px; /* Adjusted padding for more space */
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #218838;
+    }
+    
+    
+</style>
+
+<div class="container containerDisease">
     <h2>Welcome to the Plant Health Identification Tool!</h2>
     <p>Use the form below to upload an image of your plant. The tool will analyze the image and provide information about the plant's health, including any potential diseases and treatments.</p>
 

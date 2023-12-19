@@ -1,20 +1,76 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container">
-    <h1>Order Detail</h1>
-    <p>Order ID: {{ order.id }}</p>
+<style>
+
+.containerOrder {
+        margin-top: 50px;
+        text-align: left;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+        margin-bottom:20%;
+}
+
+h1 {
+    color: #007bff; 
+}
+
+.container.order-detail {
+    padding: 20px;
+}
+
+.order-detail h1 {
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.order-detail .lead {
+    font-size: 18px;
+}
+
+.order-detail h2 {
+    font-size: 24px;
+    margin-top: 20px;
+}
+
+.order-detail .list-group-item {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.order-detail .list-group-item h4 {
+    color: #333;
+    font-weight: bold;
+}
+
+.order-detail .list-group-item p {
+    margin-bottom: 5px;
+}
+
+.order-detail .list-group-item.mb-3 {
+    margin-bottom: 20px;
+}
+
+</style>
+
+<div class="container containerOrder">
+<div class="container order-detail">
+    <h1 class="mb-4">Order Detail</h1>
+    <p class="lead">Order ID: {{ order.id }}</p>
     <p>Total Price: {{ order.total }}</p>
 
-    <h2>Ordered Products:</h2>
-    <ul>
+    <h2 class="mt-4">Ordered Products:</h2>
+    <ul class="list-group">
         {% for order_item in order.orderitem_set.all %}
-            <li>
-                Product: {{ order_item.item.name }}<br>
-                Quantity: {{ order_item.quantity }}<br>
-                Unit Price: {{ order_item.item.price }}<br>
-                Subtotal: {{ order_item.total }}
+            <li class="list-group-item mb-3">
+                <h4 class="mb-2">Product: {{ order_item.item.name }}</h4>
+                <p>Quantity: {{ order_item.quantity }}</p>
+                <p>Unit Price: {{ order_item.item.price }}</p>
+                <p class="mb-0">Subtotal: {{ order_item.total }}</p>
             </li>
         {% endfor %}
     </ul>
+</div>
 </div>
 {% endblock %}

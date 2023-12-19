@@ -17,7 +17,13 @@
         </div>
         <div class="col-md-6">
             <h2>{{ object.name }}</h2>
-            <p><strong>Category:</strong> {{ object.category.name }}</p>
+            <p class="card-text">
+                {% for category in product.categories.all %}
+                <span class="badge badge-pill badge-success">
+                    {{ category.name }}
+                </span>
+                {% endfor %}
+            </p>
             <p><strong>Description:</strong> {{ object.description }}</p>
             <p><strong>Rating:</strong> {{ object.avg_rating }}</p>
             {% if object.available %}

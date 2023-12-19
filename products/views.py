@@ -262,6 +262,7 @@ class CreateProduct(SelectRelatedMixin, LoginRequiredMixin, CreateView):
         user_instance = User.objects.get(pk=self.request.user.pk)
         self.object.seller = user_instance
         self.object.save()
+        messages.success(self.request, 'Product created successfully!')
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -270,7 +271,7 @@ class CreateProduct(SelectRelatedMixin, LoginRequiredMixin, CreateView):
 
 class DeleteProduct(LoginRequiredMixin, DeleteView):
     model = Product
-    success_url = reverse_lazy("products:all")
+    success_url = reverse_lazy("products:product_list")
     template_name = "products/confirm_delete.html"
 
     def get_queryset(self):
@@ -351,7 +352,7 @@ class CreateBox(CreateView):
             self.object.asker = self.request.user
             self.object.save()
             self.object.farmers.set(form.cleaned_data.get('farmers', []))
-            
+
             formset.instance = self.object
 
             # Loop through forms in the formset to create BoxItem instances
@@ -381,11 +382,11 @@ class BoxDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         box = self.object
-        box_products = box.products.all()
+        box_items = box.items.all()
         farmers_product = Product.objects.filter(seller=self.request.user)
-        farmers_product = farmers_product.exclude(pk__in=box_products.values_list("pk", flat=True))
+        farmers_product = farmers_product.exclude(pk__in=box_items.values_list("product__pk", flat=True))
         invitations = Invitation.objects.filter(box=box)
-        context["products"] = box_products
+        context["products"] = box_items
         context["farmers_products"] = farmers_product
         context["pending"] = invitations
         return context

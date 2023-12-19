@@ -30,6 +30,7 @@ class Product(models.Model):
     UNIT_CHOICES = [
         ("kg", "Kilogram"),
         ("piece", "Piece"),
+        ("liter", "Liter"),
     ]
 
     name = models.CharField(max_length=200)

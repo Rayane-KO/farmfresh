@@ -92,6 +92,10 @@
         width: 100%;
     }
 
+    .comment{
+        font-size: 17px;
+    }
+
 </style>
 
 <div class="container">
@@ -115,8 +119,9 @@
                                     My products
                                 </button>
                             </form>
+                            {% if request.user != user_detail %}
                             <button class="btn btn-primary" data-toggle="modal" data-target="#reviewModal">Post a Review</button>
-
+                            {% endif %}
 
                         {% endif %}
                     </div>
@@ -175,25 +180,30 @@
                                 </div>
                                 <div class="col-md-9">
                                     <div>
-                                        <p>
-                                            <strong>{{ review.user.username }}</strong>
-                                            <span class="badge">
-                                                {% if review.user.is_farmer %}
-                                                    <i class="fa-solid fa-wheat-awn" style="color: #0a5200;"></i>
-                                                {% endif %}
-                                            </span>
-                                        </p>
-                                        <p><strong>Date:</strong> {{ review.date }}</p>
-                                        <div class="stars"></div>
+                                            <h4>
+                                                {{ review.user.username }}
+                                                <span class="badge">
+                                                    {% if review.user.is_farmer %}
+                                                        <i class="fa-solid fa-wheat-awn" style="color: #0a5200;"></i>
+                                                    {% endif %}
+                                                </span>
+                                            </h4>
+                                        <p class="text-muted">{{ review.date }}</p>
+                                        <div class="rate" data-rating="{{ review.rating }}">
+                                            <p class="card-text"><div class="stars"></div></p>
+                                           <p class="card-text">
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
-                                    <p>{{ review.review }}</p>
+                                    <p class="comment">{{ review.review }}</p>
                                 </div>
                                 <div class="col-md-6">
+                                    {% if user == user_detail %}
                                     <button type="button" class="btn btn-link" data-toggle="modal" data-target="#replyModal{{ review.id }}">
                                         Add Reply
                                     </button>
+                                    {% endif %}
                                     {% if review.replies.exists %}
                                         <button type="button" class="btn btn-link" onclick="toggleReplies({{ review.id }})">
                                             See Replies
@@ -205,8 +215,15 @@
                             <ul id="replies{{ review.id }}" class="list-unstyled" style="display: none;">
                                 {% for reply in review.replies.all %}
                                 <li>
-                                    <p><strong>Replied by:</strong> {{ reply.farmer.username }}</p>
-                                    <p><strong>Date:</strong> {{ reply.date }}</p>
+                                    <p><strong>Replied by:</strong> 
+                                        {{ reply.farmer.username }}
+                                        <span class="badge">
+                                            {% if user_detail.is_farmer %}
+                                                <i class="fa-solid fa-wheat-awn" style="color: #0a5200;"></i>
+                                            {% endif %}
+                                        </span>
+                                    </p>
+                                    <p class="text-muted">{{ reply.date }}</p>
                                     <p><strong>Reply:</strong> {{ reply.reply }}</p>
                                 </li>
                                 {% endfor %}

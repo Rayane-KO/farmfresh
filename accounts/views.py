@@ -65,6 +65,7 @@ class UserDetail(DetailBreadcrumbMixin, DetailView):
         context["reviews"] = paginated_reviews       
         return context  
 
+# use LoginRequiredMixin to ensure that only logged-in users can access the page
 class FarmerList(LoginRequiredMixin, ListBreadcrumbMixin, ListView):
     model = User
     template_name = "accounts/farmers_list.html"
@@ -122,7 +123,6 @@ class FarmerList(LoginRequiredMixin, ListBreadcrumbMixin, ListView):
         # return a JSON response with the farmers and the user's location
         return JsonResponse({"farmers": list(farmers), "location": my_location}, safe=False)
     
-#use LoginRequiredMixin to ensure that only authenticated users can access this view
 class UpdateUser(LoginRequiredMixin, UpdateView):
     model = User
     form_class = forms.UserUpdateForm
@@ -151,7 +151,7 @@ class DeleteUser(LoginRequiredMixin, DeleteView):
     def dispatch(self, request, *args, **kwargs):
         # if the user is not allowed to delete raise an error
         if request.user != self.get_object():
-            raise Http404("You don't have the permission to do that!")
+            raise Http404("You don't have the permission for this action!")
         return super().dispatch(request, *args, **kwargs)
     
 class CheckUsername(View):
@@ -168,8 +168,7 @@ class Dashboard(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         farmer = self.request.user
-
-        # Fetching product items related to the farmer
+        
         product_items = OrderItem.objects.filter(
             content_type__model='product',
             object_id__in=Product.objects.filter(seller=farmer).values('pk')
@@ -177,9 +176,11 @@ class Dashboard(TemplateView):
 
         # Fetching box items related to the farmer
         box_items = OrderItem.objects.filter(
-            content_type__model__in=['box'],
+            content_type__model='box',
             object_id__in=Box.objects.filter(asker=farmer).values('pk')
         )
+
+        product_items = product_items | box_items
 
         sales = product_items.values("order__order_date").annotate(total_sales=Sum("total"))
 

@@ -105,6 +105,7 @@
     .clear-filters:hover {
         background-color: #c0392b;
     }
+
 </style>
 
 <div class="container">
@@ -144,7 +145,7 @@
     </form>
     <div class="row" data-id={{ user.pk }}>
         {% if products.products %}
-        {% for product in products.products %}
+        {% for product, quantity in products.products %}
         <div class="col-md-6 col-lg-4 mb-4">
             <div class="card h-100" data-rating={{ product.avg_rating }}>
                 <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
@@ -163,9 +164,9 @@
                     </p>
                     <p class="card-text">
                         {% if product.unit == "piece" %}
-                            Price: €{{ product.price }}/Piece
+                            €{{ product.price }}/Piece
                         {% elif product.unit == "kg" %}
-                            Price: €{{ product.price }}/Kg
+                            €{{ product.price }}/Kg
                         {% endif %}
                     </p>
                     <p class="card-text">
@@ -176,9 +177,35 @@
                         {% endif %}
                     </p>
                     <a href="{% url "products:product_detail" pk=product.pk %}" class="btn btn-primary">View Details</a>
-                        <button class="btn btn-success add_to_cart" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk type="product" %}">
+                    <div class="cart-actions">
+                        {% if quantity == 0 %}
+                        <button class="btn btn-success add_to_cart update" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk type="product" %}">
                             Add to Cart
                         </button>
+                        <div class="quantity-input" aria-disabled="true" style="display: none;">
+                            <button class="btn btn-success remove_from_cart decrement" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:remove_from_cart" pk=product.pk type="product"%}" data-unit="{{ product.unit }}" data-price={{ product.price }} data-remove="false">
+                                -
+                            </button>
+                            <input class="quantity form-control" type="text" value={{quantity}} min="1" readonly>
+                            <button class="btn btn-success increment add_to_cart" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk type="product" %}">
+                                +
+                            </button>
+                        </div>  
+                        {% else %}
+                        <button class="btn btn-success add_to_cart update" style="display:none;" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk type="product" %}">
+                            Add to Cart
+                        </button>
+                        <div class="quantity-input" aria-disabled="true">
+                            <button class="btn btn-success remove_from_cart decrement" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:remove_from_cart" pk=product.pk type="product"%}" data-unit="{{ product.unit }}" data-price={{ product.price }} data-remove="false">
+                                -
+                            </button>
+                            <input class="quantity form-control" type="text" value={{quantity}} min="1" readonly>
+                            <button class="btn btn-success increment add_to_cart" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk type="product" %}">
+                                +
+                            </button>
+                        </div>   
+                        {% endif %}                     
+                    </div>
                 </div>
             </div>
         </div>

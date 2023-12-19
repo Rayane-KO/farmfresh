@@ -2,6 +2,13 @@
 {% load bootstrap4 %}
 {% load static %}
 {% block box_specific %}
+<style>
+    .nav-tabs .nav-item .nav-link.active {
+        background-color: rgba(7, 199, 0, 0.096);
+    }
+</style>
+
+
 <p><strong>Price:</strong> €{{ box.price }}</p>
 {% if request.user == box.asker or request.user in box.farmers.all %}
 {% if box.status == "Pending" %}
@@ -19,20 +26,29 @@
 
 {% block product_info %}
     <div class="container section-btns">
-        <div class="toggle-btns mt-4">
-            <button id="toggle-farmers" class="btn btn-section">Farmers</button>
-            <button id="toggle-products" class="btn btn-section">Products</button>
-            <button id="toggle-log" class="btn btn-section">Log</button>
-        </div>
+        <ul class="nav nav-tabs mt-4">
+            <li class="nav-item">
+                <a class="nav-link" id="toggle-farmers">Farmers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="toggle-products">Products</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="toggle-log">Log</a>
+            </li>
+        </ul>
     </div>
     <div class="container-fluid section">
         <div class="container section-elements">
         <div id="toggle-section" class="mt-4">
             <div id="farmers-info" class="section-style mt-3">
+                <p><strong>Farmers:</strong>
+                    {{ box.asker.username }}
+                    JonesFarm
                 {% for farmer in box.farmers.all %}
-                <p><strong>Farmer:</strong> {{ farmer.username }}</p>
-                <p><strong>Location:</strong> {{ farmer.address }}</p>
+                    {{ farmer.username}}
                 {% endfor %}
+                </p>
             </div>
     
             <div id="products" class="section-style mt-3">
@@ -88,8 +104,24 @@
 </div>
 </div>
 
-<!-- Add this script at the bottom of your HTML template or in a separate script file -->
 <script>
+    function toggleReplies(reviewId) {
+        var replies = document.getElementById('replies' + reviewId);
+        if (replies.style.display === 'none') {
+            replies.style.display = 'block';
+        } else {
+            replies.style.display = 'none';
+        }
+    }
+
+    function saveCurrentToggle(toggle){
+        localStorage.setItem("toggle", toggle);
+    }
+
+    function getCurrentToggle(){
+        return localStorage.getItem("toggle");
+    }
+    
     function getToken(){
         var val = "; " + document.cookie;
         var parts = val.split("; csrftoken=");
@@ -137,10 +169,6 @@
                     return checkbox.value;
                 });
 
-            // Update your form or perform any other actions with the selected products
-            console.log('Selected Products:', selectedProducts);
-
-            // Close the modal
             productModal.classList.remove('show');
             productModal.style.display = 'none';
             document.body.classList.remove('modal-open');

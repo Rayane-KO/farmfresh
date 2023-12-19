@@ -4,8 +4,9 @@ from django import forms
 from django.core.files.base import File
 from django.db.models.base import Model
 from django.forms.utils import ErrorList
-from products.models import Product, Box, Category
+from products.models import Product, Box, BoxItem, Category
 from accounts.models import User
+from django.forms import inlineformset_factory
 
 class ProductCreationForm(forms.ModelForm):
     categories = forms.MultipleChoiceField(
@@ -34,24 +35,20 @@ class BoxCreationForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
-    products = forms.MultipleChoiceField(
-        choices=[],
-        widget=forms.CheckboxSelectMultiple
-    )
 
     class Meta:
-        fields = ("name", "products", "description", "farmers", "image")
+        fields = ("name", "description", "farmers", "image")
         model = Box
-
-    def clean_products(self):
-        products = self.cleaned_data.get("products")
-        return Product.objects.filter(pk__in=products)
 
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["products"].choices = [
-            (product.pk, product.name) for product in Product.objects.filter(seller=user)
-        ]
         self.fields["farmers"].choices = [
             (farmer.pk, farmer.username) for farmer in User.objects.filter(is_farmer = True).exclude(pk=user.pk)
         ]
+
+class BoxItemForm(forms.ModelForm):
+    class Meta:
+        fields = ("product", "quantity",)
+        model = BoxItem
+
+BoxItemFormSet = inlineformset_factory(Box, BoxItem, form=BoxItemForm, extra=1, can_delete=False)

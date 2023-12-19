@@ -5,14 +5,15 @@ from django.http import Http404, JsonResponse
 from .models import User
 from view_breadcrumbs import ListBreadcrumbMixin, DetailBreadcrumbMixin
 from . import forms
-from products.models import Product
+from products.models import Product, Box
 from orders.models import Order, OrderItem
 from geopy.distance import great_circle
 from django.core.mail import EmailMessage
-from django.db.models import Sum, Avg, Count
+from django.db.models import Sum, Avg, Count, Q
 from reviews.models import FarmerReview, ProductReview
 import json
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.shortcuts import redirect
 
 # Souces: 
 # - Breadcrumbs: https://pypi.org/project/django-view-breadcrumbs/
@@ -51,6 +52,7 @@ class UserDetail(DetailBreadcrumbMixin, DetailView):
         farmer = context["user_detail"]
         context["review_type"] = "farmer"
         reviews = farmer.farmer_reviews.all()
+        # paginate the reviews with 5 reviews per page
         paginator = Paginator(reviews, 5)   
         page = self.request.GET.get("page")  
         try:
@@ -59,19 +61,24 @@ class UserDetail(DetailBreadcrumbMixin, DetailView):
             paginated_reviews = paginator.page(1)
         except EmptyPage:
             paginated_reviews = paginator.page(paginator.num_pages)
+        # add the reviews to the context
         context["reviews"] = paginated_reviews       
         return context  
 
-class FarmerList(ListBreadcrumbMixin, ListView):
+class FarmerList(LoginRequiredMixin, ListBreadcrumbMixin, ListView):
     model = User
     template_name = "accounts/farmers_list.html"
     context_object_name = "farmers"
+    login_url="accounts:login"
 
     def get_queryset(self):
+        # get the query parameters
         closest_farmers = self.request.GET.get("closest_farmers")
         best_farmers = self.request.GET.get("best_farmers")
         fav_farmers = self.request.GET.get("fav_farmers")
+        # get all farmers
         farmers = User.objects.filter(is_farmer=True)
+        # depending on the query parameters apply filtering
         if closest_farmers:
             return self.get_closest_farmers()
         elif best_farmers:
@@ -82,7 +89,9 @@ class FarmerList(ListBreadcrumbMixin, ListView):
             return farmers
 
     def get_closest_farmers(self):
+        # get all farmers that have a location
         farmers = User.objects.filter(is_farmer=True).exclude(latitude__isnull=True, longitude__isnull=True)
+        # get the location of the authenticated user
         my_location = (self.request.user.longitude, self.request.user.latitude)
         farmers = sorted(
             farmers,
@@ -92,18 +101,24 @@ class FarmerList(ListBreadcrumbMixin, ListView):
     
     def get_best_farmers(self):
         farmers = User.objects.filter(is_farmer=True)
+        # get the farmers with best avg_rating
         return farmers.order_by("-avg_rating")
     
     def get_fav_farmers(self):
         fav_ids_str = self.request.COOKIES.get("fav", "")
         fav_ids = [int(fav_id.strip('"')) for fav_id in fav_ids_str.strip("[").strip("]").split(",")] if fav_ids_str else []
-        farmers = User.objects.filter(pk__in=fav_ids)
-        print(farmers)
+        farmers = User.objects.filter(pk__in=fav_ids) if fav_ids else User.objects.all()
         return farmers
     
     def post(self, request, *args, **kwargs):
         farmers = self.get_queryset().values("username", "pk", "latitude", "longitude")
-        my_location = (self.request.user.longitude, self.request.user.latitude)
+        longitude = request.user.longitude
+        latitude = request.user.latitude
+        if latitude is None or longitude is None:
+            # if location is not available ask user to fill the rest of the form
+            redirect(reverse("accounts:user_detail", kwargs={"pk": request.user.pk}))
+        else:
+            my_location = (self.request.user.longitude, self.request.user.latitude)
         # return a JSON response with the farmers and the user's location
         return JsonResponse({"farmers": list(farmers), "location": my_location}, safe=False)
     
@@ -114,10 +129,8 @@ class UpdateUser(LoginRequiredMixin, UpdateView):
     template_name = "accounts/user_form.html"
     
     def form_valid(self, form):
-        # save the form to the object without updating the database
-        self.object = form.save(commit=False)
         # save the object to the database
-        self.object.save()
+        self.object = form.save()
         return super().form_valid(form)
     
     # after successfully updating redirect to user detail page
@@ -145,37 +158,53 @@ class CheckUsername(View):
     def get(self, request, *args, **kwargs):
         username = self.request.GET.get("username")
         if username:
-            available = User.objects.filter(username__iexact=username).exists()
+            # check if the username is available by checking if there exist a user with the username
+            available = not User.objects.filter(username__iexact=username).exists()
             return JsonResponse({"available": available})
-        
+
 class Dashboard(TemplateView):
     template_name = "accounts/dashboard.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         farmer = self.request.user
-        sales = OrderItem.objects.filter(
-            product__seller=farmer
-        ).values("order__order_date").annotate(total_sales=Sum("total"))
+
+        # Fetching product items related to the farmer
+        product_items = OrderItem.objects.filter(
+            content_type__model='product',
+            object_id__in=Product.objects.filter(seller=farmer).values('pk')
+        )
+
+        # Fetching box items related to the farmer
+        box_items = OrderItem.objects.filter(
+            content_type__model__in=['box'],
+            object_id__in=Box.objects.filter(asker=farmer).values('pk')
+        )
+
+        sales = product_items.values("order__order_date").annotate(total_sales=Sum("total"))
 
         data = {
             "labels": [sale["order__order_date"].strftime("%B %Y") for sale in sales],
             "data": [str(sale["total_sales"]) for sale in sales],
         }
-        most_purchased_products = Product.objects.filter(orderitem__product__seller=farmer).annotate(total_quantity=Sum('orderitem__quantity')).order_by('-total_quantity')[:5]
-        recent_orders = OrderItem.objects.filter(product__seller=farmer).order_by('-order__order_date')[:5]
+
+        most_purchased_products = Product.objects.filter(seller=farmer).annotate(total_quantity=Sum('order_items__quantity')).order_by('-total_quantity')[:5]
+        recent_orders = product_items.order_by('-order__order_date')[:5]
+
         product_performance = Product.objects.filter(seller=farmer).annotate(
-            total_sales=Sum('orderitem__quantity'),
+            total_sales=Sum('order_items__quantity'),
             average_rating=Avg('review_set__rating'),
             review_count=Count('review_set'),
         )
+
         customer_feedback = ProductReview.objects.filter(product__seller=farmer).order_by('-date')[:5]
+
         context["farmer"] = farmer
         context["data"] = data
         context["top_products"] = most_purchased_products
         context["recent_orders"] = recent_orders
         context["product_performance"] = product_performance
         context["customer_feedback"] = customer_feedback
+
         return context
 
-        

@@ -9,9 +9,9 @@
     <ul>
         {% for order_item in order.orderitem_set.all %}
             <li>
-                Product: {{ order_item.product.name }}<br>
+                Product: {{ order_item.item.name }}<br>
                 Quantity: {{ order_item.quantity }}<br>
-                Unit Price: {{ order_item.product.price }}<br>
+                Unit Price: {{ order_item.item.price }}<br>
                 Subtotal: {{ order_item.total }}
             </li>
         {% endfor %}

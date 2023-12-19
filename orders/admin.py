@@ -12,9 +12,9 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ('id', 'order', 'product', 'quantity', 'total')
-    list_filter = ('product__seller', 'order__status')
-    search_fields = ('product__name', 'order__user__username')
+    list_display = ('id', 'order', 'item', 'quantity', 'total')
+    list_filter = ('order__status',)
+    search_fields = ('order__user__username',)
 
 
 

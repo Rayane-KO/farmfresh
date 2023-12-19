@@ -3,6 +3,8 @@ from django.contrib import auth
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
 import requests
+from django.conf import settings
+import logging
 
 # Sources: 
 # - Calculating lat & long: https://www.geoapify.com/tutorial/geocoding-python
@@ -19,6 +21,7 @@ A custom user model that has next attributes:
     - avg_rating: this field is only for the farmers, it's their average rating
     - bio: the biography of the user
 """
+
 class User(auth.models.AbstractUser):
     username = models.CharField(max_length=50, unique=True)
     is_farmer = models.BooleanField(default=False)
@@ -38,11 +41,11 @@ class User(auth.models.AbstractUser):
     def __str__(self):
         return "@{}".format(self.username)
     
-    # translate_address takes an address like (147, Grote Veldstraat, Staden, Roeselare 8840)
+    # translate_address takes an address such as (147, Grote Veldstraat, Staden, Roeselare 8840)
     # and translates it to latitude and longitude
     def translate_address(self, address):
         # the API-key to access Geoapify API
-        API_KEY = "dc6022f53f114e3982208865dcc884a4"
+        API_KEY = settings.GEOAPIFY_API_KEY
         # then build the API url for the request
         url = f"https://api.geoapify.com/v1/geocode/search?text={address}&apiKey={API_KEY}"
         # send the API request and get the response
@@ -52,11 +55,13 @@ class User(auth.models.AbstractUser):
         if response.status_code == 200:
             data = response.json() # parse the JSON data
             result = data["features"][0]
-            return (result["geometry"]["coordinates"][1], result["geometry"]["coordinates"][0])
-
+            return (result["geometry"]["coordinates"][1], result["geometry"]["coordinates"][0]) # extract the lat and long
         else:
-            print(f"Request failed: {response.status_code}")
+            # if not successfull log an error message
+            logging.error(f"Error: {response.status_code}")
             return None
+        
+
 
     # use translate_address to get the latitude and longitude
     def save(self, *args, **kwargs):
@@ -65,8 +70,8 @@ class User(auth.models.AbstractUser):
             coordinates = self.translate_address(address)
             if coordinates:
                 self.latitude, self.longitude = coordinates
-
         return super().save(*args, **kwargs)
     
     class Meta:
+        # used for the breadcrumbs
         verbose_name = "Farmer"

@@ -46,7 +46,6 @@ function getFarmers(){
         var longitude = location[0];
         var latitude = location[1];
         farmers.forEach(farmer => {
-            console.log(farmer)
             if (farmer.latitude !== null && farmer.longitude !== null && farmer.latitude !== latitude && farmer.longitude !== longitude){
                 addMarker(farmer.latitude, farmer.longitude, farmer.pk, farmer.username);
             }

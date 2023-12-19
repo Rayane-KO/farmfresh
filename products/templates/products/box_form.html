@@ -60,12 +60,53 @@
 </style>
 
 <div class="container containerBox">
-    <h1>Add Box</h1>
-    <form method="post" enctype="multipart/form-data">
+  <h1>Add a new box</h1>
+    <form id="form-container" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        {% bootstrap_form form %}
-        <button type="submit">Add Product</button>
-   </form>
-</div>
+        <div class="box-form">
+            {% bootstrap_form form %}
+        </div>
 
+        <h3>Box Items</h3>
+        <div id="formset-container">
+            {{ formset.management_form }}
+            {% for form in formset %}
+            <div class="box-item-form" data-formset-prefix="{{ formset.prefix }}">
+                {% bootstrap_form form %}
+                <button type="button" class="btn btn-danger delete-form">Delete</button>
+            </div>
+            {% endfor %}
+        </div>
+        <button type="button" id="add-form" class="btn btn-primary">Add Product</button>
+        <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+          const formsetContainer = document.getElementById('formset-container');
+          const boxForm = document.querySelectorAll(".box-item-form");
+          const addButton = document.getElementById('add-form');
+          const totalForms = document.querySelector("#id_form-TOTAL-FORMS");
+          
+          var formNum = boxForm.length-1;
+          addButton.addEventListener('click', addForm);
+  
+          function addForm(e) {
+            e.preventDefault();
+
+            console.log(boxForm);
+            const newForm = boxForm[0].cloneNode(true);
+            const formRegex = RegExp(`form-(\\d){1}-`,'g');
+            formNum++;
+            newForm.innerHTML = newForm.innerHTML.replace(formRegex, `form-${formNum}-`);
+            formsetContainer.appendChild(newForm);
+
+            totalForms.setAttribute("value", `${formNum+1}`);
+          }
+      });
+  </script>
+  
+  
+
+</div>
 {% endblock %}

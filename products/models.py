@@ -2,6 +2,8 @@ from collections.abc import Iterable
 from django.db import models
 from django.db.models import Avg
 from accounts.models import User
+from orders.models import OrderItem
+from django.contrib.contenttypes.fields import GenericRelation
 
 """
     Category: represents a product category
@@ -41,6 +43,7 @@ class Product(models.Model):
     image = models.ImageField(upload_to="images/")
     avg_rating = models.DecimalField(max_digits=2, decimal_places=1, default=0)
     fatsecret_id = models.IntegerField(blank=True, null=True)
+    order_items = GenericRelation(OrderItem)
 
     def __str__(self):
         return self.name 
@@ -53,7 +56,6 @@ class Box(models.Model):
     ]
 
     name = models.CharField(max_length=200)
-    products = models.ManyToManyField(Product, related_name="boxes")
     farmers = models.ManyToManyField(User, blank=True, related_name="boxes")
     confirmed = models.ManyToManyField(User, blank=True, related_name="confirmed")
     asker = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
@@ -64,12 +66,24 @@ class Box(models.Model):
     image = models.ImageField(upload_to="images/")
     status = models.CharField(max_length=20, choices=STATUS, default="Pending")
     avg_rating = models.DecimalField(max_digits=2, decimal_places=1, default=0)
+    order_items = GenericRelation(OrderItem)
+    
 
     def is_confirmed(self):
         return self.farmers.count() == self.confirmed.count()
 
     def __str__(self):
         return self.name 
+    
+class BoxItem(models.Model):
+    box = models.ForeignKey(Box, on_delete=models.CASCADE, related_name="items")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=1.99)
+
+    def __str__(self):
+        return f"{self.quantity} {self.product.name} in {self.box.name}"
+
     
 class Invitation(models.Model):
     STATUS = [

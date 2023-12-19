@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "view_breadcrumbs",
+    "widget_tweaks",
     "bootstrap4",
     "accounts",
     "products",
@@ -168,12 +169,19 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "test"
 LOGOUT_REDIRECT_URL = "thanks"
 
 # FATSECRET API info
 FATSECRET_CLIENT_ID = "212cb9126d1849aaaa9b0564f5eb8308"
 FATSECRET_CLIENT_SECRET = "fdef2f80a1264bacaed6244cf0357382"
+
+# PLANT.ID API info
+PLANT_ID_API_KEY = "YAPJN3uyePcCIzkOGI6tmnXwJxgpFftdwC2ty0gtSuHMF2nPKn"
+
+#GEOAPIFY API info
+GEOAPIFY_API_KEY = "dc6022f53f114e3982208865dcc884a4"
 
 # Email info
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

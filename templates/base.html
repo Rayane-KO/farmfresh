@@ -2,6 +2,7 @@
 {% load static %}
 {% load bootstrap4 %}
 {% load view_breadcrumbs %}
+{% load widget_tweaks %}
 <html>
     <head>
         <meta charset="utf-8">
@@ -64,6 +65,9 @@
                           <a class="dropdown-item" href="{% url "products:pending" %}">
                             Requests
                           </a>
+                          <a class="dropdown-item" href="{% url "products:disease" %}">
+                            Identify Disease
+                          </a>
                           {% endif %}
                           <form method="post" action="{% url 'accounts:logout' %}">
                             {% csrf_token %}
@@ -74,8 +78,8 @@
                   <li class="">
                     <a href="{% url "cart:cart_items" %}" class="nav-link">
                       <div class="cart-counter">
-                        <i class="fa-solid fa-basket-shopping fa-xl" style="color: #0a5200; margin-right: 10px;"></i>
-                        <span class="badge badge-warning" id="cart-badge" data-url="{% url "cart:count" %}"">0</span>
+                        <i class="fa-solid fa-basket-shopping fa-xl" id="basket" style="color: #0a5200; margin-right: 10px;"></i>
+                        <span class="badge badge-warning" id="cart-badge" data-url="{% url "cart:count" %}">0</span>
                       </div>
                     </a>
                 </li>

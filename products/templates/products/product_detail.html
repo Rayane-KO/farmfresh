@@ -2,25 +2,62 @@
 {% load bootstrap4 %}
 {% load static %}
 {% block product_specific %}
+<style>
+    .quantity{
+        max-width: 15%;
+        margin: 0 5px;
+    }
+
+    .nav-tabs .nav-item .nav-link.active {
+        background-color: rgba(7, 199, 0, 0.096);
+    }
+</style>
             {% if product.unit == "piece" %}
                 <p><strong>Price:</strong> €{{ product.price }}/Piece</p>
             {% elif product.unit == "kg" %}
                 <p><strong>Price:</strong> €{{ product.price }}/Kg</p>
             {% endif %}
-            <button class="btn btn-success add_to_cart" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk type="product" %}">
-                Add to Cart
-            </button>
-            {% for c in categories_api %}
-            <p>c</p>
-            {% endfor %}
+            {% if quantity == 0 %}
+                        <button class="btn btn-success add_to_cart update" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk type="product" %}">
+                            Add to Cart
+                        </button>
+                        <div class="quantity-input" aria-disabled="true" style="display: none;">
+                            <button class="btn btn-success remove_from_cart decrement" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:remove_from_cart" pk=product.pk type="product"%}" data-unit="{{ product.unit }}" data-price={{ product.price }} data-remove="false">
+                                -
+                            </button>
+                            <input class="quantity form-control" type="text" value={{quantity}} min="1" readonly>
+                            <button class="btn btn-success increment add_to_cart" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk type="product" %}">
+                                +
+                            </button>
+                        </div>  
+                        {% else %}
+                        <button class="btn btn-success add_to_cart update" style="display:none;" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk type="product" %}">
+                            Add to Cart
+                        </button>
+                        <div class="quantity-input" aria-disabled="true">
+                            <button class="btn btn-success remove_from_cart decrement" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:remove_from_cart" pk=product.pk type="product"%}" data-unit="{{ product.unit }}" data-price={{ product.price }} data-remove="false">
+                                -
+                            </button>
+                            <input class="quantity form-control" type="text" value={{quantity}} min="1" readonly>
+                            <button class="btn btn-success increment add_to_cart" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk type="product" %}">
+                                +
+                            </button>
+                        </div>   
+                        {% endif %} 
 {% endblock %}
 {% block product_info %}
 <div class="container section-btns">
-    <div class="toggle-btns mt-4">
-        <button id="toggle-farmer" class="btn btn-section">Farmer</button>
-        <button id="toggle-nutrition" class="btn btn-section">Nutritional Information</button>
-        <button id="toggle-reviews" class="btn btn-section">Reviews</button>
-    </div>
+    <ul class="nav nav-tabs mt-4">
+        <li class="nav-item">
+            <a class="nav-link" id="toggle-farmer">Farmer</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="toggle-nutrition">Nutritional Information</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="toggle-reviews">Reviews</a>
+        </li>
+    </ul>
 </div>
 <div class="container-fluid section">
     <div class="container section-elements">
@@ -269,24 +306,39 @@
         const nutritionalInfo = document.getElementById("nutritional-info");
         const reviewsSection = document.getElementById("reviews");
         const farmerInfo = document.getElementById("farmer-info");
+        const farmerToggle = document.getElementById("toggle-farmer");
+        const reviewToggle = document.getElementById("toggle-reviews");
+        const nutritionToggle = document.getElementById("toggle-nutrition")
 
         function toggleSections(nutritional, reviews, farmer){
             farmerInfo.style.display = farmer ? "block" : "none";
+            if (farmer) farmerToggle.classList.add("active");
             nutritionalInfo.style.display = nutritional ? "block" : "none";
+            if (nutritional) nutritionToggle.classList.add("active");
             reviewsSection.style.display = reviews ? "block" : "none";
+            if (reviews) reviewToggle.classList.add("active");
         }
 
-        document.getElementById("toggle-nutrition").addEventListener("click", function () {
+        nutritionToggle.addEventListener("click", function () {
+            this.classList.add("active")
+            farmerToggle.classList.remove("active")
+            reviewToggle.classList.remove("active")
             saveCurrentToggle("nutritional");
             toggleSections(true, false, false);
         });
 
-        document.getElementById("toggle-reviews").addEventListener("click", function () {
+        reviewToggle.addEventListener("click", function () {
+            this.classList.add("active")
+            farmerToggle.classList.remove("active")
+            nutritionToggle.classList.remove("active")
             saveCurrentToggle("reviews");
             toggleSections(false, true, false);
         });
 
-        document.getElementById("toggle-farmer").addEventListener("click", function(){
+        farmerToggle.addEventListener("click", function(){
+            this.classList.add("active")
+            nutritionToggle.classList.remove("active")
+            reviewToggle.classList.remove("active")
             saveCurrentToggle("farmer_info");
             toggleSections(false, false, true);
         });

@@ -97,6 +97,11 @@
         background-color: #0056b3;
         border-color: #0056b3;
     }
+
+    .quantity{
+        margin-top: 0px;
+        margin-right: 15px;
+    }
 </style>
 
 <div class="container">
@@ -110,41 +115,67 @@
     </div>
     {% if cart_items %}
         <div class="row">
-            <h5 id="total">Total: {{ cart.total }}</h5>
-            <a class="btn btn-success" href="{% url "orders:payment" %}">Complete Order</a>
-            <a href="{% url "products:product_list" %}">Continue Shopping</a>
             {% for item in cart_items %}
                 <div class="col-md-12 mb-4">
-                    <div class="card h-100" id="card-{{item.product.pk}}" data-rating={{ item.product.avg_rating }}>
+                    <div class="card h-100" id="card-{{item.item.pk}}" data-rating={{ item..item.product.avg_rating }}>
                         <div class="row no-gutters">
                             <div class="col-md-8">
                                 <div class="card-body">
-                                    <h5 class="card-title">{{ item.product.name }}</h5>
+                                    <h5 class="card-title">{{ item.item.name }}</h5>
                                     <p class="card-text">
-                                        {% if item.product.unit == "piece" %}
-                                            Price: €{{ item.product.price }}/Piece
-                                        {% elif item.product.unit == "kg" %}
-                                            Price: €{{ item.product.price }}/Kg
+                                        {% if item.content_type.model == "box" %}
+                                            Price: €{{ item.item.price }}
+                                        {% elif item.item.unit == "piece" %}
+                                            Price: €{{ item.item.price }}/Piece
+                                        {% elif item.item.unit == "kg" %}
+                                            Price: €{{ item.item.price }}/Kg
                                         {% endif %}
                                     </p>
-                                    <p class="card-text" id="qty-{{item.product.pk}}">Quantity: {{ item.quantity }}{% if item.product.unit == "piece" %}Pieces{% elif item.product.unit == "kg" %}Kg{% endif %}</p>
-                                    <p class="card-text" id="total-{{item.product.pk}}">Total: {{ item.total }}</p>
-                                    <p class="card-text">
-                                        {% if item.product.available %}
-                                            <span class="text-success">Available: <i class="fa-solid fa-circle-check"></i></span>
-                                        {% else %}
-                                            <span class="text-danger">Not Available: <i class="fa-solid fa-circle-xmark"></i></span>
-                                        {% endif %}
-                                    </p>
-                                    <p class="card-text">Seller: <a href="{% url "accounts:user_detail" pk=item.product.seller.pk %}">{{ item.product.seller.username }}</a></p>
-                                    <a href="{% url "products:product_detail" pk=item.product.pk %}" class="btn btn-primary">View Details</a>
-                                    <button class="btn btn-danger remove_from_cart" data-product-id={{ item.product.pk }} data-add-url="{% url "cart:remove_from_cart" pk=item.product.pk type="product"%}" data-unit={{ item.product.unit }} data-price={{ item.product.price }}>
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
+                                    {% if item.quantity == 0 %}
+                        <button class="btn btn-success add_to_cart update" data-product-id="{{ item.item.pk }}" data-add-url="{% url "cart:add_to_cart" pk=item.item.pk type=item.content_type.model %}">
+                            Add to Cart
+                        </button>
+                        <div class="quantity-input" aria-disabled="true" style="display: none;">
+                            <button class="btn btn-success remove_from_cart decrement" data-product-id="{{ item.item.pk }}" data-add-url="{% url "cart:remove_from_cart" pk=item.item.pk type=item.content_type.model %}" data-unit="{{ item.item.unit }}" data-price={{ item.item.price }}>
+                                -
+                            </button>
+                            <input class="quantity form-control" type="text" value={{item.quantity}} min="1" readonly>
+                            <button class="btn btn-success increment add_to_cart" data-product-id="{{ item.item.pk }}" data-add-url="{% url "cart:add_to_cart" pk=item.item.pk type=item.content_type.model %}">
+                                +
+                            </button>
+                        </div>  
+                        {% else %}
+                        <button class="btn btn-success add_to_cart update" style="display:none;" data-product-id="{{ item.content_object.pk }}" data-add-url="{% url "cart:add_to_cart" pk=item.item.pk type=item.content_type.model %}">
+                            Add to Cart
+                        </button>
+                        <div class="quantity-input" aria-disabled="true">
+                            <button class="btn btn-success remove_from_cart decrement" data-product-id="{{ item.item.pk }}" data-add-url="{% url "cart:remove_from_cart" pk=item.item.pk type=item.content_type.model%}" data-unit="{{ product.unit }}" data-price={{ product.price }}>
+                                -
+                            </button>
+                            <input class="quantity form-control" type="text" value={{item.quantity}} min="1" readonly>
+                            <button class="btn btn-success increment add_to_cart" data-product-id="{{ item.item.pk }}" data-add-url="{% url "cart:add_to_cart" pk=item.item.pk type=item.content_type.model %}">
+                                +
+                            </button>
+                        </div>   
+                        {% endif %}  
+                            <p class="card-text" id="total-{{item.item.pk}}">Total: €{{ item.total }}</p>
+                            <p class="card-text">
+                            {% if item.product.available %}
+                                <span class="text-success">Available: <i class="fa-solid fa-circle-check"></i></span>
+                            {% else %}
+                                <span class="text-danger">Not Available: <i class="fa-solid fa-circle-xmark"></i></span>
+                            {% endif %}
+                            </p>
+                            {% if item.content_type.model == "product" %}
+                            <p class="card-text">Seller: <a href="{% url "accounts:user_detail" pk=item.item.seller.pk %}">{{ item.item.seller.username }}</a></p>
+                            <a href="{% url "products:product_detail" pk=item.item.pk %}" class="btn btn-primary">View Details</a>
+                            {% else %}
+                            <a href="{% url "products:box_detail" pk=item.item.pk %}" class="btn btn-primary">View Details</a>
+                            {% endif %}
+                        </div>
+                    </div>
                             <div class="col-md-4 ml-auto">
-                                <img src="{{ item.product.image.url }}" class="card-img product-image" alt="{{ item.product.name }}">
+                                <img src="{{ item.item.image.url }}" class="card-img product-image" alt="{{ item.item.name }}">
                             </div>
                         </div>
                     </div>
@@ -157,9 +188,24 @@
     </div>
 
     <div class="fixed-bar">
-        <h5>Total: {{ cart.total }}</h5>
+        <h5 id="total">Total: €{{ cart.total }}</h5>
         <a class="btn btn-success" href="{% url "orders:payment" %}">Complete Order</a>
         <a href="{% url "products:product_list" %}" class="btn btn-continue-shopping">Continue Shopping</a>
     </div>
+
+    <script>
+    $(document).ready(function(){
+        updateCartBadge();
+    
+        $('.decrement').on('click', function () {
+            console.log("yoy")
+            var quantityInput = $(this).siblings('.quantity');
+            var quantity = parseInt(quantityInput.val(), 10);
+            if (quantity == 1) {
+                $(this).closest(".card").remove();
+            }
+        });
+    })
+    </script>
 
     {% endblock %}

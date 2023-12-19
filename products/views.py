@@ -1,8 +1,9 @@
 from typing import Any
 from django import http
 from django.shortcuts import render, redirect
-from products.models import Category, Product, Box, Invitation
-from django.views.generic import View, ListView, DetailView, CreateView, DeleteView, UpdateView
+from products.models import Category, Product, Box, Invitation, BoxItem
+from cart.models import CartItem, Cart
+from django.views.generic import View, ListView, DetailView, CreateView, DeleteView, UpdateView, TemplateView
 from django.contrib.auth import get_user_model
 from braces.views import SelectRelatedMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -14,19 +15,15 @@ from django.http import Http404, JsonResponse
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.conf import settings
-from datetime import datetime, timedelta
 from django.core.cache import cache
 import base64
 import requests
-from itertools import chain
 from view_breadcrumbs import ListBreadcrumbMixin, DetailBreadcrumbMixin
 from fuzzywuzzy import fuzz
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
-from django.core.mail import send_mail
-import logging
 import json
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from itertools import zip_longest
+from django.contrib.contenttypes.models import ContentType
 
 User = get_user_model()
 
@@ -36,11 +33,28 @@ User = get_user_model()
 """
     PRODUCT
 """
+def get_cart_quantities(user, product_type, products):
+        q = []
+        if user.is_authenticated:
+            cart, created = Cart.objects.get_or_create(user=user)
+            for product in products:
+                try:
+                    content_type = ContentType.objects.get_for_model(product)
+                    object_id = product.pk
+                    cart_item = cart.cartitem_set.get(content_type=content_type, object_id=object_id)
+                    q.append(cart_item.quantity)
+                except CartItem.DoesNotExist:
+                    q.append(0)
+        else:
+            for product in products:
+                q.append(0)
+        return q
+
 
 class ProductList(ListBreadcrumbMixin, ListView):
     model = Product
     template_name = "products/product_list.html"
-    context_object_name = "products"
+    context_object_name = "products"        
     
     def get_queryset(self):
         query = self.request.GET.get("q")
@@ -67,7 +81,10 @@ class ProductList(ListBreadcrumbMixin, ListView):
         elif sort_by == "best_rated":
             products = products.order_by("-avg_rating")
             boxes = boxes.order_by("-avg_rating")
+
+        products = zip_longest(products, get_cart_quantities(self.request.user, "product", products))    
         sorted_products = {"products": products, "boxes": boxes}
+
         return sorted_products
 
         
@@ -76,6 +93,7 @@ class ProductList(ListBreadcrumbMixin, ListView):
         farmer = get_object_or_404(User, pk=farmer_id)
         products = Product.objects.filter(seller=farmer)
         boxes = Box.objects.filter(Q(asker=farmer) | Q(farmers=farmer))
+        products = zip_longest(products, get_cart_quantities(self.request.user, "product", products))
         return {"products": products, "boxes": boxes}
     
     def get_products_by_category(self, category):
@@ -84,42 +102,48 @@ class ProductList(ListBreadcrumbMixin, ListView):
         if category.lower() != "box":
             return {"products": products}
         else: 
-            return {"products": products, "boxes": Box.objects.all()}
+            return {"products": products, "boxes": boxes}
     
     def get_products_by_search(self, search):
         products = Product.objects.all()
         boxes = Box.objects.all()
         # use token sort because it doesn't care in what order, it accounts for similar for similar strings
-        product_search_result = (
+        product_search_result = [
             product for product in products
             if fuzz.token_sort_ratio(search, product.name) >= 70
                 or fuzz.token_sort_ratio(search, product.seller) >= 70
                   or fuzz.token_sort_ratio(search, product.description) >= 70
-        )
-        box_search_result = (
+        ]
+        box_search_result = [
             box for box in boxes
             if fuzz.token_sort_ratio(search, box.name) >= 70
                 or fuzz.token_sort_ratio(search, box.asker) >= 70
                   or fuzz.token_sort_ratio(search, box.description) >= 70
-        )
+        ]
+        product_search_result = zip_longest(product_search_result, get_cart_quantities(self.request.user, "product", products)) 
         return {"products": product_search_result, "boxes": box_search_result}
     
     def get_all_products(self):
+        if self.request.user.is_authenticated:
+            fav_ids_str = self.request.COOKIES.get("fav", "")
+            if fav_ids_str != "null":
+                fav_ids = [int(fav_id.strip('"')) for fav_id in fav_ids_str.strip("[").strip("]").split(",")] if fav_ids_str else []
+                fav_products = Product.objects.filter(seller__pk__in=fav_ids)
+                other_products = Product.objects.exclude(seller__pk__in=fav_ids)
+                fav_boxes = Box.objects.filter(asker__pk__in=fav_ids)
+                other_boxes = Box.objects.exclude(asker__pk__in=fav_ids)
+                products = fav_products | other_products
+                boxes = fav_boxes | other_boxes
+                return {"products": products, "boxes": boxes}
+            
         products = Product.objects.all()
         boxes = Box.objects.all()
-        fav_ids_str = self.request.COOKIES.get("fav", "")
-        fav_ids = [int(fav_id.strip('"')) for fav_id in fav_ids_str.strip("[").strip("]").split(",")] if fav_ids_str else []
-        fav_products = [product for product in products if product.seller.pk in fav_ids]
-        other_products = [product for product in products if product.seller.pk not in fav_ids]
-        products = fav_products + other_products
-        fav_boxes = [box for box in boxes if box.asker.pk in fav_ids]
-        other_boxes = [box for box in boxes if box.asker.pk not in fav_ids]
-        products = fav_products + other_products
-        boxes = fav_boxes + other_boxes
         return {"products": products, "boxes": boxes}
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        products = Product.objects.all()
+
         context["categories"] = Category.objects.all()
         return context
     
@@ -223,6 +247,7 @@ class ProductDetail(SelectRelatedMixin, DetailView):
             paginated_reviews = paginator.page(1)
         except EmptyPage:
             paginated_reviews = paginator.page(paginator.num_pages)
+        context["quantity"] = get_cart_quantities(self.request.user, "product", [product])[0]
         context["reviews"] = paginated_reviews       
         return context          
     
@@ -288,29 +313,51 @@ class UpdateProduct(LoginRequiredMixin, UpdateView):
 """
 
 class CreateBox(CreateView):
-    form_class = forms.BoxCreationForm
     model = Box
-    template_name = "products/box_form.html"
-    
-    def get_success_url(self):
-        return reverse("products:product_list")
-    
-    def form_valid(self, form):
-        products = form.cleaned_data["products"]
-        invited_farmers_pk = form.cleaned_data["farmers"]
-        invited_farmers = User.objects.filter(pk__in=invited_farmers_pk)
-        price = sum(product.price for product in products)
-        form.instance.price = price
-        form.instance.asker = self.request.user
-        form.instance.save()
-        for farmer in invited_farmers:
-            Invitation.objects.create(
-                inviting_farmer = self.request.user,
-                invited_farmer = farmer,
-                box = form.instance
-            )
-        return super().form_valid(form)
+    template_name = 'products/box_form.html'
+    form_class = forms.BoxCreationForm
+    success_url = reverse_lazy("products:pending")
 
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        if self.request.POST:
+            formset = forms.BoxItemFormSet(self.request.POST, instance=self.object, prefix='boxitem')
+        else:
+            formset = forms.BoxItemFormSet(instance=self.object, prefix='boxitem')
+
+        # Set the user attribute for the formset
+        formset.user = self.request.user
+
+        data['formset'] = formset
+        return data
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context['formset']
+
+        if form.is_valid() and formset.is_valid():
+            self.object = form.save(commit=False)
+            self.object.asker = self.request.user
+            self.object.save()
+            form.save_m2m()
+
+            # Associate BoxItem instances with the saved Box
+            formset.instance = self.object
+            formset.save()
+
+            print(formset.forms)
+            # Loop through forms in the formset to create BoxItem instances
+            for form in formset.forms:
+                product = form.cleaned_data.get('product')
+                quantity = form.cleaned_data.get('quantity')
+
+                if product and quantity:
+                    BoxItem.objects.create(box=self.object, product=product, quantity=quantity)
+
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
+        
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
@@ -384,7 +431,8 @@ class PendingDecision(View):
         if user.is_farmer:
             try: 
                 box = Box.objects.get(pk=box_id)
-                invitation = Invitation.objects.get(invited_farmer=user, box=box)
+                if user != box.asker:
+                    invitation = Invitation.objects.get(invited_farmer=user, box=box)
                 if action == "accept":
                     invitation.status = "accepted"
                     invitation.save()
@@ -418,7 +466,48 @@ class AddProductToBox(UpdateView):
         box.save()
         return JsonResponse({"status": "success"})
     
-    
+
+
+"""
+    PLANT INFORMATION
+"""
+class IdentifyDisease(TemplateView):
+    template_name = "products/identify_disease.html"
+
+    def post(self, request, *args, **kwargs):
+        api_url = "https://plant.id/api/v3/health_assessment?details=local_name,description,treatment"
+        api_key = settings.PLANT_ID_API_KEY
+        latitude = float(request.POST.get("latitude", 0))
+        longitude = float(request.POST.get("longitude", 0))
+        similar_images = True
+        data = {
+            'latitude': latitude,
+            'longitude': longitude,
+            'similar_images': similar_images,
+            'health': "only",
+        }
+        headers = {
+            'Api-Key': api_key,
+        }
+        files = {'images': request.FILES.get("image")}
+        response = requests.post(api_url, data=data, files=files, headers=headers)
+        # Process the response
+        if response.status_code == 201:
+            result = response.json()
+            print(result)
+            return render(request, "products/disease_info.html", {"data": result})
+        else:
+            result = "Error"
+            return render(request, "products/disease_info.html", {"message": result})
+
+        
+class DiseaseInfo(TemplateView):
+    template_name = "products/disease_info.html"
+
+    def get(self, request, *args, **kwargs):
+        data_json = request.GET.get("data", "{}")
+        data = json.loads(data_json)
+        return render(request, self.template_name, {"data": data})
     
     
     

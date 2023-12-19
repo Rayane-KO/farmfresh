@@ -38,6 +38,17 @@
         background-color: #17a2b8;
         color: #ffffff;
     }
+
+    .feedback-container {
+        position: relative;
+    }
+
+    #feedback-icon {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(15%);
+    }
 </style>
 
 <div class="container containerSignup">
@@ -48,6 +59,12 @@
             {% if field.name == "farm_nr" %}
                 <div id="farm_nr" style="display: none">{% bootstrap_field field %}</div>
             {% elif field.name == "username" %}
+            <div class="feedback-container">
+                {% bootstrap_field field %}
+                <span id="feedback-icon" data-toggle="tooltip" data-placement="top" title="Tooltip on top" data-url="{% url "accounts:check_username" %}">
+                    <i class="fa-solid" style="color: #009e4c;"></i>
+                </span>
+            </div>
             {% else %}
                 {% bootstrap_field field %}
             {% endif %}

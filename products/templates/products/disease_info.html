@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% block content %}
+
+<div class="container mt-5">
+    {% if message %}
+        <h2 class="alert alert-info">{{ message }}</h2>
+    {% endif %}
+
+    {% if data %}
+        <h2 class="mt-4">Plant Health Assessment Result</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <p><strong>Model Version:</strong> {{ data.model_version }}</p>
+                <p><strong>Result Status:</strong> {{ data.status }}</p>
+
+                {% if data.result.is_plant %}
+                    <p><strong>Is Plant Probability:</strong> {{ data.result.is_plant.probability }}</p>
+                    <p><strong>Is Plant Binary:</strong> {{ data.result.is_plant.binary }}</p>
+                    <p><strong>Is Plant Threshold:</strong> {{ data.result.is_plant.threshold }}</p>
+                {% endif %}
+
+                {% if data.result.is_healthy %}
+                    <p><strong>Is Healthy Probability:</strong> {{ data.result.is_healthy.probability }}</p>
+                    <p><strong>Is Healthy Binary:</strong> {{ data.result.is_healthy.binary }}</p>
+                    <p><strong>Is Healthy Threshold:</strong> {{ data.result.is_healthy.threshold }}</p>
+                {% endif %}
+            </div>
+
+            <div class="col-md-8">
+                {% if data.result.disease.suggestions %}
+                    <h3 class="mt-4">Diseases Suggestions:</h3>
+                    <ul class="list-group">
+                        {% for suggestion in data.result.disease.suggestions %}
+                            <li class="list-group-item">
+                                <p><strong>Name:</strong> {{ suggestion.name }}</p>
+                                <p><strong>Probability:</strong> {{ suggestion.probability }}</p>
+                                <p><strong>Local Name:</strong> {{ suggestion.details.local_name }}</p>
+                                <p><strong>Description:</strong> {{ suggestion.details.description }}</p>
+
+                                {% if suggestion.details.treatment %}
+                                    <h4>Treatment:</h4>
+                                    <ul>
+                                        {% for treatment in suggestion.details.treatment.chemical %}
+                                            <li>Chemical: {{ treatment }}</li>
+                                        {% endfor %}
+                                        {% for treatment in suggestion.details.treatment.biological %}
+                                            <li>Biological: {{ treatment }}</li>
+                                        {% endfor %}
+                                        {% for treatment in suggestion.details.treatment.prevention %}
+                                            <li>Prevention: {{ treatment }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+
+                                {% if suggestion.similar_images %}
+                                    <h4>Similar Images:</h4>
+                                    <ul class="list-group">
+                                        {% for similar_image in suggestion.similar_images %}
+                                            <li class="list-group-item">
+                                                <p><strong>Similarity:</strong> {{ similar_image.similarity }}</p>
+                                                <img src="{{ similar_image.url_small }}" alt="Similar Image" class="img-fluid">
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="mt-4">No disease suggestions available...</p>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <p class="mt-4">No data available...</p>
+    {% endif %}
+</div>
+
+{% endblock %}

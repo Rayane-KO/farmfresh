@@ -9,25 +9,6 @@ from cart.models import Cart, CartItem
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 
-# Create your views here.
-class PlaceOrder(View):
-    def get(self, request):
-        cart = Cart.objects.get(user=request.user)
-
-        order = Order.objects.create(
-            user = request.user,
-            total = cart.total
-        )
-
-        for item in cart.items.all():
-            OrderItem.objects.create(
-                order = order,
-                product = item.product,
-                quantity = item.quantity,
-                total = item.total
-            )
-        cart.items.clear()
-
 class OrderList(ListView):
     model = Order
     template_name = "orders/order_list.html"
@@ -54,7 +35,7 @@ class PaymentPage(LoginRequiredMixin, TemplateView):
             for item in cart.cartitem_set.all():
                 OrderItem.objects.create(
                     order=order,
-                    product=item.product,
+                    item=item.item,
                     quantity=item.quantity,
                     total=item.total
                 )

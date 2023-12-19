@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Welcome to the Plant Health Identification Tool!</h2>
+    <p>Use the form below to upload an image of your plant. The tool will analyze the image and provide information about the plant's health, including any potential diseases and treatments.</p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="image">Upload an Image of Your Plant:</label>
+            <input type="file" class="form-control-file" name="image" required>
+        </div>
+        <input type="hidden" name="latitude" id="latitude" placeholder="Latitude" data-user-lat="{{ user.latitude }}">
+        <input type="hidden" name="longitude" id="longitude" placeholder="Longitude" data-user-long="{{ user.longitude }}">
+        <button type="submit" class="btn btn-primary">Identify Plant Disease</button>
+    </form>
+</div>
+
+<script>
+    function getLocation() {
+        var userLat = parseFloat(document.getElementById("latitude").dataset.userLat);
+        var userLong = parseFloat(document.getElementById("longitude").dataset.userLong);
+        if (isNaN(userLat) || isNaN(userLong) || userLat === 0 || userLong === 0) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        } else {
+            document.getElementById("latitude").value = userLat;
+            document.getElementById("longitude").value = userLong;
+        }
+    }
+
+    function showPosition(position) {
+        document.getElementById("latitude").value = position.coords.latitude;
+        document.getElementById("longitude").value = position.coords.longitude;
+    }
+
+    document.addEventListener("DOMContentLoaded", getLocation);
+</script>
+{% endblock %}

@@ -76,3 +76,14 @@
 .date {
     font-size: 10px;
 }
+
+.quantity{
+    max-width: 15%;
+    margin: 0 5px;
+    margin-top: 10px;
+}
+
+.quantity-input{
+    display: flex;
+    align-items: center;
+}

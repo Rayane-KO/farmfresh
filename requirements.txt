@@ -1,4 +1,3 @@
-asgiref @ file:///C:/Users/dev-admin/perseverance-python-buildout/croot/asgiref_1699497449686/work
 beautifulsoup4==4.12.2
 cachetools==5.3.2
 certifi==2023.11.17
@@ -10,7 +9,6 @@ colorama==0.4.6
 contextlib2==21.6.0
 cryptography==41.0.7
 defusedxml==0.7.1
-Django @ file:///C:/Users/dev-admin/perseverance-python-buildout/croot/django_1699555153998/work
 django-allauth==0.58.2
 django-autocomplete-light==3.9.7
 django-bootstrap4==23.2
@@ -73,12 +71,10 @@ setuptools==68.0.0
 shortuuid==1.0.11
 six==1.16.0
 soupsieve==2.5
-sqlparse @ file:///C:/Users/dev-admin/perseverance-python-buildout/croot/sqlparse_1699544474746/work
 stripe==7.8.2
 tqdm==4.66.1
 tritonclient==2.34.0
 typing_extensions==4.8.0
-tzdata @ file:///croot/python-tzdata_1690578112552/work
 Unidecode==1.3.7
 urllib3==2.1.0
 wheel==0.41.2

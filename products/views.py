@@ -74,29 +74,34 @@ class ProductList(ListBreadcrumbMixin, ListView):
 
         products = queryset.get("products")
         boxes = queryset.get("boxes")
-        if sort_by == "ascending":
-            products = products.order_by("price")
-            boxes = boxes.order_by("price")
-        elif sort_by == "descending":
-            products = products.order_by("-price")
-            boxes = boxes.order_by("-price")
-        elif sort_by == "best_rated":
-            products = products.order_by("-avg_rating")
-            boxes = boxes.order_by("-avg_rating")
+
+        if products:
+            if sort_by == "ascending":
+                products = products.order_by("price")
+            elif sort_by == "descending":
+                products = products.order_by("-price")
+            elif sort_by == "best_rated":
+                products = products.order_by("-avg_rating")  
+        if boxes:
+            if sort_by == "ascending":
+                boxes = boxes.order_by("price")
+            elif sort_by == "descending":
+                boxes = boxes.order_by("-price")
+            elif sort_by == "best_rated":
+                boxes = boxes.order_by("-avg_rating")             
 
         products = zip_longest(products, get_cart_quantities(self.request.user, "product", products))    
-        sorted_products = {"products": products, "boxes": boxes}
+        requestes_products = {"products": products, "boxes": boxes}
 
-        return sorted_products
-
+        return requestes_products
         
     def get_products_by_farmer(self, farmer_id):
         # return the products of a specific farmer
         farmer = get_object_or_404(User, pk=farmer_id)
         products = Product.objects.filter(seller=farmer)
         boxes = Box.objects.filter(Q(asker=farmer) | Q(farmers=farmer))
-        products = zip_longest(products, get_cart_quantities(self.request.user, "product", products))
-        return {"products": products, "boxes": boxes}
+        farmer_products = zip_longest(products, get_cart_quantities(self.request.user, "product", products))
+        return {"products": farmer_products, "boxes": boxes}
     
     def get_products_by_category(self, category):
         products = Product.objects.filter(categories__name__iexact=category)
@@ -109,7 +114,7 @@ class ProductList(ListBreadcrumbMixin, ListView):
     def get_products_by_search(self, search):
         products = Product.objects.all()
         boxes = Box.objects.all()
-        # use token sort because it doesn't care in what order, it accounts for similar for similar strings
+        # use token sort because it doesn't care in what order, it accounts for similar strings
         product_search_result = [
             product for product in products
             if fuzz.token_sort_ratio(search, product.name) >= 70
@@ -122,7 +127,7 @@ class ProductList(ListBreadcrumbMixin, ListView):
                 or fuzz.token_sort_ratio(search, box.asker) >= 70
                   or fuzz.token_sort_ratio(search, box.description) >= 70
         ]
-        product_search_result = zip_longest(product_search_result, get_cart_quantities(self.request.user, "product", products)) 
+        product_search_result = zip_longest(product_search_result, get_cart_quantities(self.request.user, "product", product_search_result)) 
         return {"products": product_search_result, "boxes": box_search_result}
     
     def get_all_products(self):
@@ -383,6 +388,7 @@ class BoxDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         box = self.object
+        can_add = True if self.request.user == box.asker or Invitation.objects.filter(box=box, invited_farmer=self.request.user).exists() and Invitation.objects.get(box=box, invited_farmer=self.request.user).status == "accepted" else False
         box_items = box.items.all()
         farmers_product = Product.objects.filter(seller=self.request.user)
         farmers_product = farmers_product.exclude(pk__in=box_items.values_list("product__pk", flat=True))
@@ -390,6 +396,7 @@ class BoxDetail(DetailView):
         context["products"] = box_items
         context["farmers_products"] = farmers_product
         context["invitations"] = invitations
+        context["can_add"] = can_add
         return context
 
 class PendingBoxList(ListView):
@@ -409,18 +416,20 @@ class PendingBoxList(ListView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
         if not user.is_staff:
-            boxes = Box.objects.filter(Q(asker=user) | Q(farmers__in=[user]))  
-            invitations = []
+            boxes = Box.objects.filter(Q(asker=user) | Q(farmers__in=[user]))
+            invitations_dict = {}
             for box in boxes:
                 if user == box.asker:
-                    data = [{"box": box, "invitation": []}]
-                    invitations.extend(data) 
-                elif user.is_farmer and user != box.asker:
+                    if box not in invitations_dict:
+                        invitations_dict[box] = {"box": box, "invitation": []}
+                elif box.farmers.filter(pk=user.pk).exists():
                     invitation = Invitation.objects.get(invited_farmer=user, box=box)
-                    data = [{"box": box, "invitation": invitation}]
-                    invitations.extend(data) 
-            context["invitations"] = invitations        
-        return context  
+                    if box not in invitations_dict:
+                        invitations_dict[box] = {"box": box, "invitation": invitation}
+
+            invitations = list(invitations_dict.values())
+            context["invitations"] = invitations
+            return context
 
 class PendingDecision(View):
     def post(self, request, *args, **kwargs):

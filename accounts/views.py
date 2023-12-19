@@ -51,7 +51,7 @@ class UserDetail(DetailBreadcrumbMixin, DetailView):
         context = super().get_context_data(**kwargs)
         farmer = context["user_detail"]
         context["review_type"] = "farmer"
-        reviews = farmer.farmer_reviews.all()
+        reviews = farmer.farmer_reviews.all().order_by("-date")
         # paginate the reviews with 5 reviews per page
         paginator = Paginator(reviews, 5)   
         page = self.request.GET.get("page")  

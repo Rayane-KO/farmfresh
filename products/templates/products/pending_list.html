@@ -43,7 +43,7 @@
     }
 
     .box-details {
-        margin-top: 15px;
+        padding-bottom: 30px;
     }
 
     .box-details p {
@@ -65,8 +65,8 @@
 <div class="container containerBoxes">
     {% if pending_boxes %}
         {% for box in pending_boxes %}
-            <h2><strong>{{ box.name }}</strong></h2>
             <div class="box-details">
+                <h2><strong>{{ box.name }}</strong></h2>
                 <p><strong>Description:</strong> {{ box.description }}</p>
                 <p><strong>Price:</strong> ${{ box.price }}</p>
                 <p><strong>Availability:</strong> {% if box.available %}Available{% else %}Not Available{% endif %}</p>

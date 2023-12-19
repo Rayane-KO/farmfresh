@@ -9,7 +9,6 @@ from accounts.models import *
 from products.models import * 
 from reviews.models import *
 from orders.models import *
-from model_bakery.recipe import Recipe,foreign_key 
 import random
 
 
@@ -17,7 +16,7 @@ fake = Faker("nl_BE")
 categories = Category.objects.all()
 
 # Source: https://www.educative.io/courses/django-admin-web-developers/populating-the-database-with-fake-data
-for k in range(0):
+for k in range(10):
     user=User(
         username=fake.user_name(),
         first_name=fake.first_name(),

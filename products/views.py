@@ -410,11 +410,12 @@ class PendingBoxList(ListView):
         if not user.is_staff:
             boxes = Box.objects.filter(Q(asker=user) | Q(farmers__in=[user]))  
             invitations = []
+            print(boxes)
             for box in boxes:
                 if user == box.asker:
                     data = [{"box": box, "invitation": []}]
                     invitations.extend(data) 
-                elif user.is_farmer:
+                elif user.is_farmer and user != box.asker:
                     invitation = Invitation.objects.get(invited_farmer=user, box=box)
                     data = [{"box": box, "invitation": invitation}]
                     invitations.extend(data) 

@@ -44,7 +44,6 @@
             <div id="farmers-info" class="section-style mt-3">
                 <p><strong>Farmers:</strong>
                     {{ box.asker.username }}
-                    JonesFarm
                 {% for farmer in box.farmers.all %}
                     {{ farmer.username}}
                 {% endfor %}
@@ -65,7 +64,7 @@
                 <p>{{ p.invite_date }}: {{ p.invited_farmer.username }} was invited!</p>
                 {% endfor %}
                 {% else %}
-                <p>Nothing</p>
+                <p>Nothing to see...</p>
                 {% endif %}
             </div> 
 

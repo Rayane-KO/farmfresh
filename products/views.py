@@ -17,6 +17,7 @@ from django.shortcuts import get_object_or_404
 from django.conf import settings
 from django.core.cache import cache
 import base64
+from django.contrib import messages
 import requests
 from view_breadcrumbs import ListBreadcrumbMixin, DetailBreadcrumbMixin
 from fuzzywuzzy import fuzz
@@ -330,6 +331,16 @@ class CreateBox(CreateView):
 
         data['formset'] = formset
         return data
+    
+    def send_invitations(self):
+        invited_farmers = self.object.farmers.all()
+        print(invited_farmers)
+        for farmer in invited_farmers:
+            Invitation.objects.create(
+                inviting_farmer = self.request.user,
+                invited_farmer = farmer,
+                box = self.object
+            )
 
     def form_valid(self, form):
         context = self.get_context_data()
@@ -339,13 +350,10 @@ class CreateBox(CreateView):
             self.object = form.save(commit=False)
             self.object.asker = self.request.user
             self.object.save()
-            form.save_m2m()
-
-            # Associate BoxItem instances with the saved Box
+            self.object.farmers.set(form.cleaned_data.get('farmers', []))
+            
             formset.instance = self.object
-            formset.save()
 
-            print(formset.forms)
             # Loop through forms in the formset to create BoxItem instances
             for form in formset.forms:
                 product = form.cleaned_data.get('product')
@@ -353,10 +361,12 @@ class CreateBox(CreateView):
 
                 if product and quantity:
                     BoxItem.objects.create(box=self.object, product=product, quantity=quantity)
+            self.send_invitations()
+            messages.success(self.request, 'Box created successfully!')
+            # Do not save the formset here, as it has been saved above
+            return redirect(self.get_success_url())
 
-            return super().form_valid(form)
-        else:
-            return self.form_invalid(form)
+        return self.form_invalid(form)
         
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

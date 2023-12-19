@@ -78,7 +78,7 @@
             {% endfor %}
         </div>
         <button type="button" id="add-form" class="btn btn-primary">Add Product</button>
-        <button type="submit" class="btn btn-success">Submit</button>
+        <button type="submit" id="submit-btn" class="btn btn-success">Submit</button>
     </form>
 
     <script>
@@ -86,7 +86,8 @@
           const formsetContainer = document.getElementById('formset-container');
           const boxForm = document.querySelectorAll(".box-item-form");
           const addButton = document.getElementById('add-form');
-          const totalForms = document.querySelector("#id_form-TOTAL-FORMS");
+          const totalForms = document.querySelector("#id_boxitem-TOTAL_FORMS");
+          console.log(totalForms)
           
           var formNum = boxForm.length-1;
           addButton.addEventListener('click', addForm);
@@ -99,9 +100,25 @@
             const formRegex = RegExp(`form-(\\d){1}-`,'g');
             formNum++;
             newForm.innerHTML = newForm.innerHTML.replace(formRegex, `form-${formNum}-`);
-            formsetContainer.appendChild(newForm);
 
-            totalForms.setAttribute("value", `${formNum+1}`);
+             // Update both name and id attributes
+            newForm.querySelectorAll('[id]').forEach(element => {
+              const oldId = element.getAttribute('id');
+              const newId = oldId.replace(/\d+/g, formNum);
+              element.setAttribute('id', newId);
+            });
+
+          newForm.querySelectorAll('[name]').forEach(element => {
+            const oldName = element.getAttribute('name');
+            const newName = oldName.replace(/\d+/g, formNum);
+            element.setAttribute('name', newName);
+          });
+
+          formsetContainer.appendChild(newForm);
+
+          totalForms.setAttribute("value", `${formNum+1}`);
+
+          console.log("Cloned Form HTML:", newForm.outerHTML)
           }
       });
   </script>

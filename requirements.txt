@@ -24,6 +24,7 @@ django-phonenumber-field==7.2.0
 django-search-views==0.3.7
 django-view-breadcrumbs==2.5.1
 django-widget-tweaks==1.5.0
+djangorestframework==3.14.0
 elastic-transport==8.10.0
 elasticsearch==8.11.0
 elasticsearch-dsl==8.11.0

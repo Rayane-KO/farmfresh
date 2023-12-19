@@ -1,6 +1,35 @@
 {% extends "base.html" %}
 {% block content %}
-  <div class="container mt-4">
+
+<style>
+
+    .containerOrder {
+    margin-top: 10%;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+    margin-bottom:2%;
+    }
+
+    .mt-3 {
+      margin-top: 1rem !important;
+    }
+
+    .btn-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      border-radius: 0.2rem;
+    }
+
+    h1 {
+    color: #007bff; 
+}
+    
+  </style>
+
+  <div class="container containerOrder mt-4">
     <h1>Your Orders</h1>
     
     <div class="row">
@@ -35,16 +64,5 @@
     </div>
   </div>
 
-  <style>
-    .mt-3 {
-      margin-top: 1rem !important;
-    }
 
-    .btn-sm {
-      padding: 0.25rem 0.5rem;
-      font-size: 0.875rem;
-      line-height: 1.5;
-      border-radius: 0.2rem;
-    }
-  </style>
 {% endblock %}

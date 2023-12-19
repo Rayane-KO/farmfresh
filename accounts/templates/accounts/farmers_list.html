@@ -158,14 +158,14 @@
         <h5>Filter farmers</h5>
         <form method="get">
             <label>
-                <input type="radio" name="filter" value="best" {% if request.GET.filter == 'best' %}checked{% endif %}>
+                <input type="radio" name="best_farmers" value="best" {% if request.GET.filter == 'best' %}checked{% endif %}>
                 Best Rated
             </label>
             <label>
-                <input type="radio" name="filter" value="closest" {% if request.GET.filter == 'closest' %}checked{% endif %}>
+                <input type="radio" name="closest_farmers" value="closest" {% if request.GET.filter == 'closest' %}checked{% endif %}>
                 Closest
             </label>
-            <label><input type="checkbox" name="fav_farmers"id="fav" data-id={{ user.pk }} data-url={% url "accounts:user_list" %}> Favorites </label>
+            <label><input type="checkbox" name="fav_farmers" id="fav" data-id={{ user.pk }} data-url={% url "accounts:user_list" %}> Favorites </label>
             <div class="filter-buttons">
                 <button type="submit" class="apply-button">Apply Filter</button>
                 <button type="button" id="clear-filters" class="clear-button">Clear Filters</button>

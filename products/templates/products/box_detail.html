@@ -43,25 +43,31 @@
         <div id="toggle-section" class="mt-4">
             <div id="farmers-info" class="section-style mt-3">
                 <p><strong>Farmers:</strong>
-                    {{ box.asker.username }}
+                <a class="seller" href="{% url "accounts:user_detail" pk=box.asker.pk %}">{{ box.asker.username }}</a>,
                 {% for farmer in box.farmers.all %}
-                    {{ farmer.username}}
+                <a class="seller" href="{% url "accounts:user_detail" pk=farmer.pk %}">{{ farmer.username }}</a>,
                 {% endfor %}
                 </p>
             </div>
     
             <div id="products" class="section-style mt-3">
                 {% for product in products %}
-                <p><strong>{{ product.product.name }}</strong></p>
+                <a class="seller" href="{% url "products:product_detail" pk=product.product.pk %}">{{ product.product.name }}</a>
                 {% endfor %}
             </div>
             
     
             <div id="log" class="section-style mt-3">
                 <p>{{ box.date }}: {{ box.asker.username }} created a new box called {{ box.name }}</p>
-                {% if pending %}
-                {% for p in pending %}
-                <p>{{ p.invite_date }}: {{ p.invited_farmer.username }} was invited!</p>
+                {% if invitations %}
+                {% for invitation in invitations %}
+                {% if invitation.status == "Pending" %}
+                <p>{{ invitation.invite_date }}: {{ invitation.invited_farmer.username }} was invited!</p>
+                {% elif invitation.status == "accepted" %}
+                <p>{{ invitation.decision_date }}: {{ invitation.invited_farmer.username }} joined the box!</p>
+                {% elif invitation.status == "rejected" %}
+                <p>{{ invitation.decision_date }}: {{ invitation.invited_farmer.username }} leaved the box!</p>
+                {% endif %}
                 {% endfor %}
                 {% else %}
                 <p>Nothing to see...</p>

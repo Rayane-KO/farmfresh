@@ -28,9 +28,6 @@
         text-decoration: underline;
     }
 
-    .box-buttons {
-        margin-top: 10px;
-    }
 
     .btn-decision {
         margin-right: 5px;
@@ -60,8 +57,7 @@
 
     .btn-to-shop,
     .btn-more-details {
-        margin-top: 30px;
-        margin-bottom: -30px;
+        margin-bottom: 10px;
         text-align: center;
     }
 </style>
@@ -122,16 +118,20 @@
                         <a href="{% url "products:product_list" %}" class="btn btn-primary btn-to-shop">Go to Shop</a>
                     </div>
                     {% if data.invitation.status == "Pending" %}
+                    <div class="box-buttons">
                         <form method="post" action="{% url "products:decision" pk=data.box.pk %}" class="box-buttons">
                             {% csrf_token %}
                             <button type="submit" name="action" value="accept" class="btn btn-success btn-decision">Accept</button>
                             <button type="submit" name="action" value="reject" class="btn btn-danger btn-decision">Reject</button>
                         </form>
+                    </div>
                     {% elif data.box.status == "Pending" and request.user not in data.box.confirmed.all %}
+                    <div class="box-buttons">    
                         <form method="post" action="{% url "products:decision" pk=data.box.pk %}" class="box-buttons">
                             {% csrf_token %}
                             <button type="submit" name="action" value="confirm" class="btn btn-primary btn-decision">Confirm</button>
                         </form>
+                    </div>
                     {% endif %}
                 </div>
             {% endfor %}

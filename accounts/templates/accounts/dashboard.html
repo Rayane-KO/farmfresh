@@ -83,7 +83,7 @@
     <h2>Recent Orders:</h2>
     <ul>
       {% for order_item in recent_orders %}
-        <li>{{ order_item.product.name }} - Quantity: {{ order_item.quantity }} - Total: {{ order_item.total }}</li>
+        <li>{{ order_item.item.name }} - Quantity: {{ order_item.quantity }} - Total: €{{ order_item.total }}</li>
       {% endfor %}
     </ul>
     
@@ -108,7 +108,7 @@
     <h2>Customer Feedback:</h2>
     <ul>
       {% for review in customer_feedback %}
-        <li>{{ review.product.name }} - Rating: {{ review.rating }} - Comment: {{ review.review|default:"No comment" }}</li>
+        <li>{{ review.product.name }} - Rating: {{ review.rating }}/5 - Comment: {{ review.review|default:"No comment" }}</li>
       {% endfor %}
     </ul>
 </div>

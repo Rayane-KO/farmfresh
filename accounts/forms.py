@@ -17,7 +17,7 @@ class UserSignUpForm(UserCreationForm):
     farm_nr = forms.CharField(required=False)
 
     class Meta:
-        fields = ("username", "first_name", "last_name", "email", "password1", "password2", "user_type", "farm_nr")
+        fields = ("username", "first_name", "last_name", "email", "password1", "password2", "user_type", "farm_nr", "address", "city", "state", "zip_code", "country")
         model = get_user_model()
 
     def __init__(self, *args, **kwargs):

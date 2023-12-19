@@ -50,5 +50,15 @@ class BoxItemForm(forms.ModelForm):
     class Meta:
         fields = ("product", "quantity",)
         model = BoxItem
+        
+    def clean(self):
+        cleaned_data = super().clean()
+        product = cleaned_data.get("product")
+        quantity = cleaned_data.get("quantity")
+
+        if not product or not quantity:
+            raise forms.ValidationError("Both product and quantity are required.")
+        
+        return cleaned_data
 
 BoxItemFormSet = inlineformset_factory(Box, BoxItem, form=BoxItemForm, extra=1, can_delete=False)

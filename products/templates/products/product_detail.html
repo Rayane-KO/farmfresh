@@ -16,6 +16,8 @@
                 <p><strong>Price:</strong> €{{ product.price }}/Piece</p>
             {% elif product.unit == "kg" %}
                 <p><strong>Price:</strong> €{{ product.price }}/Kg</p>
+            {% elif product.unit == "liter" %}
+                <p><strong>Price:</strong> €{{ product.price }}/Liter</p>    
             {% endif %}
             {% if quantity == 0 %}
                         <button class="btn btn-success add_to_cart update" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk type="product" %}">
@@ -121,9 +123,11 @@
                                 <p>{{ review.review }}</p>
                             </div>
                             <div class="col-md-6">
+                                {% if user == product.seller %}
                                 <button type="button" class="btn btn-link" data-toggle="modal" data-target="#replyModal{{ review.id }}">
                                     Add Reply
                                 </button>
+                                {% endif %}
                                 {% if review.replies.exists %}
                                     <button type="button" class="btn btn-link" onclick="toggleReplies({{ review.id }})">
                                         See Replies

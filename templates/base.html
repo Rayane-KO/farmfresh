@@ -54,14 +54,22 @@
                   </li>
                 </ul>
                 <ul class="navbar-nav ml-auto">   
-                  {% if user.is_authenticated %}    
+                  {% if user.is_authenticated %}   
+                  <li class="">
+                    <a href="{% url "cart:cart_items" %}" class="nav-link">
+                      <div class="cart-counter">
+                        <i class="fa-solid fa-basket-shopping fa-xl" id="basket" style="color: #0a5200; margin-right: 10px;"></i>
+                        <span class="badge badge-warning" id="cart-badge" data-url="{% url "cart:count" %}">0</span>
+                      </div>
+                    </a>
+                </li> 
                   <li class="nav-item dropdown">
-                      <a class="nav-link" href="#" id="navbardrop" data-toggle="dropdown">Settings</a>
+                      <a class="nav-link" href="#" id="navbardrop" data-toggle="dropdown"><i class="fa-solid fa-bars fa-xl"></i></a>
                       <div class="dropdown-menu">
                           <a class="dropdown-item" href="{% url "accounts:user_detail" pk=user.pk %}">My Account</a>
                           <a class="dropdown-item" href="{% url "orders:orders" %}">My Orders</a>
-                          <a class="dropdown-item" href="{% url "accounts:dashboard" pk=user.pk %}">Dashboard</a>
                           {% if user.is_staff or user.is_farmer %}
+                          <a class="dropdown-item" href="{% url "accounts:dashboard" pk=user.pk %}">Dashboard</a>
                           <a class="dropdown-item" href="{% url "products:pending" %}">
                             Requests
                           </a>
@@ -75,14 +83,6 @@
                           </form>
                       </div>
                   </li>
-                  <li class="">
-                    <a href="{% url "cart:cart_items" %}" class="nav-link">
-                      <div class="cart-counter">
-                        <i class="fa-solid fa-basket-shopping fa-xl" id="basket" style="color: #0a5200; margin-right: 10px;"></i>
-                        <span class="badge badge-warning" id="cart-badge" data-url="{% url "cart:count" %}">0</span>
-                      </div>
-                    </a>
-                </li>
                   {% else %}
                   <li class="nav-item">
                     <a href="{% url 'accounts:login' %}" class="nav-link">Log In</a>

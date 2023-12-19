@@ -2,23 +2,6 @@
 {% load bootstrap4 %}
 {% block content %}
 
-<div class="container">
-    <h1>Delete account</h1>
-    <p>Are you sure you want to delete your account?</p>
-    <form method="post" action="{% url "accounts:delete_user" pk=object.pk %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Delete</button>
-        <a href="{% url "accounts:all" %}">Cancel</a>
-   </form>
-</div>
-
-{% endblock %}
-
-<!-- 
-{% extends "base.html" %}
-{% load bootstrap4 %}
-{% block content %}
-
 <style>
     .containerDelete {
         margin-top: 3%;
@@ -60,8 +43,8 @@
     <form method="post" action="{% url "accounts:delete_user" pk=object.pk %}">
         {% csrf_token %}
         <button type="submit" class="btn btn-danger">Delete</button>
-        <a href="{% url "products:all" %}" class="btn btn-cancel">Cancel</a>
+        <a href="{% url "accounts:user_detail" pk=user.pk %}" class="btn btn-cancel">Cancel</a>
    </form>
 </div>
 
-{% endblock %} -->
+{% endblock %}

@@ -17,6 +17,7 @@ from django.shortcuts import get_object_or_404
 from django.conf import settings
 from django.core.cache import cache
 import base64
+from django.contrib import messages
 import requests
 from view_breadcrumbs import ListBreadcrumbMixin, DetailBreadcrumbMixin
 from fuzzywuzzy import fuzz
@@ -261,6 +262,7 @@ class CreateProduct(SelectRelatedMixin, LoginRequiredMixin, CreateView):
         user_instance = User.objects.get(pk=self.request.user.pk)
         self.object.seller = user_instance
         self.object.save()
+        messages.success(self.request, 'Product created successfully!')
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -269,7 +271,7 @@ class CreateProduct(SelectRelatedMixin, LoginRequiredMixin, CreateView):
 
 class DeleteProduct(LoginRequiredMixin, DeleteView):
     model = Product
-    success_url = reverse_lazy("products:all")
+    success_url = reverse_lazy("products:product_list")
     template_name = "products/confirm_delete.html"
 
     def get_queryset(self):
@@ -330,6 +332,16 @@ class CreateBox(CreateView):
 
         data['formset'] = formset
         return data
+    
+    def send_invitations(self):
+        invited_farmers = self.object.farmers.all()
+        print(invited_farmers)
+        for farmer in invited_farmers:
+            Invitation.objects.create(
+                inviting_farmer = self.request.user,
+                invited_farmer = farmer,
+                box = self.object
+            )
 
     def form_valid(self, form):
         context = self.get_context_data()
@@ -339,13 +351,10 @@ class CreateBox(CreateView):
             self.object = form.save(commit=False)
             self.object.asker = self.request.user
             self.object.save()
-            form.save_m2m()
+            self.object.farmers.set(form.cleaned_data.get('farmers', []))
 
-            # Associate BoxItem instances with the saved Box
             formset.instance = self.object
-            formset.save()
 
-            print(formset.forms)
             # Loop through forms in the formset to create BoxItem instances
             for form in formset.forms:
                 product = form.cleaned_data.get('product')
@@ -353,10 +362,12 @@ class CreateBox(CreateView):
 
                 if product and quantity:
                     BoxItem.objects.create(box=self.object, product=product, quantity=quantity)
+            self.send_invitations()
+            messages.success(self.request, 'Box created successfully!')
+            # Do not save the formset here, as it has been saved above
+            return redirect(self.get_success_url())
 
-            return super().form_valid(form)
-        else:
-            return self.form_invalid(form)
+        return self.form_invalid(form)
         
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -371,11 +382,11 @@ class BoxDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         box = self.object
-        box_products = box.products.all()
+        box_items = box.items.all()
         farmers_product = Product.objects.filter(seller=self.request.user)
-        farmers_product = farmers_product.exclude(pk__in=box_products.values_list("pk", flat=True))
+        farmers_product = farmers_product.exclude(pk__in=box_items.values_list("product__pk", flat=True))
         invitations = Invitation.objects.filter(box=box)
-        context["products"] = box_products
+        context["products"] = box_items
         context["farmers_products"] = farmers_product
         context["pending"] = invitations
         return context

@@ -26,6 +26,10 @@ body{
     background-color: #f8f9fa;
 }
 
+.dropdown-menu{
+    margin-left: -100px;
+}
+
 
 .main{
     background-image: url("https://www.geantcasino.fr/wp-content/uploads/sites/2/2023/09/940x250-3.jpg");

@@ -25,7 +25,7 @@
                 {% endfor %}
             </p>
             <p><strong>Description:</strong> {{ object.description }}</p>
-            <p><strong>Rating:</strong> {{ object.avg_rating }}</p>
+            <p class="rating" data-rating={{ object.avg_rating }}><div class="stars"></div> {{ object.avg_rating }} out of 5</p>
             {% if object.available %}
                 <p class="available"><strong>Available:</strong> <i class="fa-solid fa-circle-check"></i></p>
             {% else %}
@@ -38,3 +38,37 @@
 </div>
 {% block product_info %}{% endblock %}
 {% endblock %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const products = document.querySelectorAll('.rating');
+    console.log(products)
+
+    products.forEach(product => {
+        const rating = parseFloat(product.getAttribute('data-rating'));
+        const stars = getStars(rating);
+        const starContainer = product.querySelector('.stars');
+        starContainer.innerHTML = stars + " " + rating.toFixed(1) + " out of 5";
+    });
+});
+
+function getStars(rating) {
+    const fullStars = Math.floor(rating);
+    const halfStar = rating % 1 !== 0;
+    const emptyStars = Math.ceil(5 - fullStars - halfStar)
+    const stars = [];
+
+    for (let i = 0; i < fullStars; i++) {
+        stars.push('<i class="fa-solid fa-star" style="color: #f8d544;"></i>');
+    }
+
+    if (halfStar) {
+        stars.push('<i class="fa-solid fa-star-half-stroke" style="color: #f8d544;"></i>');
+    }
+
+    for (let i = 0; i < emptyStars; i++) {
+        stars.push('<i class="fa-regular fa-star" style="color: #f8d544;"></i>');
+    }
+
+    return stars.join('');
+}
+</script>

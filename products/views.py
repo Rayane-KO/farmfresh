@@ -26,6 +26,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from itertools import zip_longest
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
+from itertools import chain
 
 User = get_user_model()
 
@@ -132,20 +133,32 @@ class ProductList(ListBreadcrumbMixin, ListView):
     
     def get_all_products(self):
         if self.request.user.is_authenticated:
-            fav_ids_str = self.request.COOKIES.get("fav", "")
-            if fav_ids_str != "null":
-                fav_ids = [int(fav_id.strip('"')) for fav_id in fav_ids_str.strip("[").strip("]").split(",")] if fav_ids_str else []
-                fav_products = Product.objects.filter(seller__pk__in=fav_ids)
-                other_products = Product.objects.exclude(seller__pk__in=fav_ids)
+            fav_ids_str = self.request.COOKIES.get("fav", "[]")
+            if fav_ids_str != "null" or fav_ids_str == "[]" or fav_ids_str == []:
+                fav_ids = [int(pk) for pk in json.loads(fav_ids_str)]
+                fav_products = list(Product.objects.filter(seller__pk__in=fav_ids))
+                other_products = list(Product.objects.exclude(seller__pk__in=fav_ids))
                 fav_boxes = Box.objects.filter(asker__pk__in=fav_ids)
                 other_boxes = Box.objects.exclude(asker__pk__in=fav_ids)
-                products = fav_products | other_products
-                boxes = fav_boxes | other_boxes
-                return {"products": products, "boxes": boxes}
+                res_products = fav_products + other_products
+                res_boxes = fav_boxes | other_boxes
+                fav_products = Product.objects.filter(seller__pk__in=fav_ids)
+                other_products = Product.objects.exclude(seller__pk__in=fav_ids)
+
+                # Add a custom sorting key to each queryset to preserve order
+                fav_products_with_sort = [(1, product) for product in fav_products]
+                other_products_with_sort = [(2, product) for product in other_products]
+
+                # Concatenate the lists while maintaining the specified order
+                res_products_with_sort = sorted(chain(fav_products_with_sort, other_products_with_sort), key=lambda x: x[0])
+
+                # Extract the actual products from the result
+                res_products = [product for _, product in res_products_with_sort]
+                return {"products": res_products, "boxes": res_boxes}
             
-        products = Product.objects.all()
-        boxes = Box.objects.all()
-        return {"products": products, "boxes": boxes}
+            products = Product.objects.all()
+            boxes = Box.objects.all()
+            return {"products": products, "boxes": boxes}
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -241,10 +254,10 @@ class ProductDetail(SelectRelatedMixin, DetailView):
         access_token = self.get_access_token()
         if access_token:
             product_id = self.get_product_id(product.pk, access_token)
-            if product_id:
-                nutritional_info = self.get_nutritional_info(product_id, access_token)
-                context["serving"] = nutritional_info[0]
-                context["nutritional_info"] = nutritional_info[1]
+            #if product_id:
+                #nutritional_info = self.get_nutritional_info(product_id, access_token)
+                #context["serving"] = nutritional_info[0]
+                #context["nutritional_info"] = nutritional_info[1]
         reviews = product.review_set.all()  
         paginator = Paginator(reviews, 5)   
         page = self.request.GET.get("page")  
@@ -516,7 +529,6 @@ class IdentifyDisease(TemplateView):
         # Process the response
         if response.status_code == 201:
             result = response.json()
-            print(result)
             return render(request, "products/disease_info.html", {"data": result})
         else:
             result = "Error"

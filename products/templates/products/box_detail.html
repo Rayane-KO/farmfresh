@@ -1,115 +1,191 @@
 {% extends "products/detail_base.html" %}
 {% load bootstrap4 %}
 {% load static %}
+
 {% block box_specific %}
 <style>
+    /* Styles for the product detail page */
     .nav-tabs .nav-item .nav-link.active {
         background-color: rgba(7, 199, 0, 0.096);
     }
+
+    body {
+        background-color: #f8f9fa; 
+        color: #343a40; 
+    }
+
+    .containerAbout {
+        width: 80%;
+        margin: 0 auto;
+        background-color: #ffffff; 
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+        margin-top: 30px;
+        border-radius: 8px; 
+    }
+
+    header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    h1 {
+        font-size: 2.5em;
+        color: #007bff;
+        margin-bottom: 10px;
+    }
+
+    p {
+        font-size: 1.2em;
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+
+    video {
+        width: 100%;
+        height: auto;
+        margin-bottom: 20px;
+        border-radius: 8px; 
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+    }
+
+    section {
+        margin-top: 20px;
+    }
+
+    .highlight {
+        color: #007bff; 
+        font-weight: bold;
+    }
+
+    .icon {
+        font-size: 1.5em;
+        margin-right: 5px;
+    }
+
+    .modal-body {
+        max-height: 300px; 
+        overflow-y: auto;
+    }
+
+    .form-check-label {
+        font-size: 1.2em;
+        margin-left: 10px;
+    }
 </style>
 
-
+<!-- Display the price of the box -->
 <p><strong>Price:</strong> €{{ box.price }}</p>
+
 {% if request.user == box.asker or request.user in box.farmers.all %}
-{% if box.status == "pending" %}
-<button class="btn btn-success" data-toggle="modal" data-target="#productModal">
-    Add product
-</button>
+    {% if box.status == "pending" %}
+        <!-- Display "Add product" button when the box is pending -->
+        <button class="btn btn-success" data-toggle="modal" data-target="#productModal">
+            Add product
+        </button>
+    {% endif %}
 {% endif %}
-{% endif %}
+
 {% if box.status == "approved" %}
-<button class="btn btn-success add_to_cart" data-product-id="{{ box.pk }}" data-add-url="{% url "cart:add_to_cart" pk=box.pk type="box" %}">
-    Add to Cart
-</button>
+    <!-- Display "Add to Cart" button when the box is approved -->
+    <button class="btn btn-success add_to_cart" data-product-id="{{ box.pk }}" data-add-url="{% url "cart:add_to_cart" pk=box.pk type="box" %}">
+        Add to Cart
+    </button>
 {% endif %}
 {% endblock %}
 
 {% block product_info %}
-    <div class="container section-btns">
-        <ul class="nav nav-tabs mt-4">
-            <li class="nav-item">
-                <a class="nav-link" id="toggle-farmers">Farmers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="toggle-products">Products</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="toggle-log">Log</a>
-            </li>
-        </ul>
-    </div>
-    <div class="container-fluid section">
-        <div class="container section-elements">
+<div class="container section-btns">
+    <ul class="nav nav-tabs mt-4">
+        <li class="nav-item">
+            <a class="nav-link" id="toggle-farmers">Farmers</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="toggle-products">Products</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="toggle-log">Log</a>
+        </li>
+    </ul>
+</div>
+
+<div class="container-fluid section">
+    <div class="container section-elements">
         <div id="toggle-section" class="mt-4">
+            <!-- Farmers information section -->
             <div id="farmers-info" class="section-style mt-3">
                 <p><strong>Farmers:</strong>
-                <a class="seller" href="{% url "accounts:user_detail" pk=box.asker.pk %}">{{ box.asker.username }}</a>,
-                {% for farmer in box.farmers.all %}
-                <a class="seller" href="{% url "accounts:user_detail" pk=farmer.pk %}">{{ farmer.username }}</a>,
-                {% endfor %}
+                    <a class="seller" href="{% url "accounts:user_detail" pk=box.asker.pk %}">{{ box.asker.username }}</a>,
+                    {% for farmer in box.farmers.all %}
+                        <a class="seller" href="{% url "accounts:user_detail" pk=farmer.pk %}">{{ farmer.username }}</a>,
+                    {% endfor %}
                 </p>
             </div>
-    
+
+            <!-- Products section -->
             <div id="products" class="section-style mt-3">
                 {% for product in products %}
-                <a class="seller" href="{% url "products:product_detail" pk=product.product.pk %}">{{ product.product.name }}</a>
+                    <a class="seller" href="{% url "products:product_detail" pk=product.product.pk %}">{{ product.product.name }}</a>
                 {% endfor %}
             </div>
-            
-    
+
+            <!-- Log section -->
             <div id="log" class="section-style mt-3">
                 <p>{{ box.date }}: {{ box.asker.username }} created a new box called {{ box.name }}</p>
                 {% if invitations %}
-                {% for invitation in invitations %}
-                {% if invitation.status == "Pending" %}
-                <p>{{ invitation.invite_date }}: {{ invitation.invited_farmer.username }} was invited!</p>
-                {% elif invitation.status == "accepted" %}
-                <p>{{ invitation.decision_date }}: {{ invitation.invited_farmer.username }} joined the box!</p>
-                {% elif invitation.status == "rejected" %}
-                <p>{{ invitation.decision_date }}: {{ invitation.invited_farmer.username }} leaved the box!</p>
-                {% endif %}
-                {% endfor %}
+                    {% for invitation in invitations %}
+                        {% if invitation.status == "Pending" %}
+                            <p>{{ invitation.invite_date }}: {{ invitation.invited_farmer.username }} was invited!</p>
+                        {% elif invitation.status == "accepted" %}
+                            <p>{{ invitation.decision_date }}: {{ invitation.invited_farmer.username }} joined the box!</p>
+                        {% elif invitation.status == "rejected" %}
+                            <p>{{ invitation.decision_date }}: {{ invitation.invited_farmer.username }} left the box!</p>
+                        {% endif %}
+                    {% endfor %}
                 {% else %}
-                <p>Nothing to see...</p>
+                    <p>Nothing to see...</p>
                 {% endif %}
-            </div> 
+            </div>
 
-<div class="modal" id="productModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Select Products</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                {% if farmers_products %}
-                <!-- Display the list of products here -->
-                {% for product in farmers_products %}
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="product_{{ product.pk }}" value="{{ product.pk }}">
-                        <label class="form-check-label" for="product_{{ product.pk }}">{{ product.name }}</label>
+            <!-- Modal for adding products -->
+            <div class="modal" id="productModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Select Products</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            {% if farmers_products %}
+                                <!-- Display the list of products here -->
+                                {% for product in farmers_products %}
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="product_{{ product.pk }}" value="{{ product.pk }}">
+                                        <label class="form-check-label" for="product_{{ product.pk }}">{{ product.name }}</label>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p>No products available</p>
+                            {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button class="btn btn-success" id="addProductsBtn" data-box-id={{ box.pk }} data-url="{% url "products:add_to_box" pk=box.pk %}">
+                                Add Products
+                            </button>
+                        </div>
                     </div>
-                {% endfor %}
-                {% else %}
-                <p>No products available</p>
-                {% endif %}
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button class="btn btn-success" id="addProductsBtn" data-box-id={{ box.pk }} data-url="{% url "products:add_to_box" pk=box.pk %}">
-                    Add Products
-                </button>
+                </div>
             </div>
         </div>
     </div>
 </div>
-</div>
-</div>
-</div>
 
+<!-- JavaScript for toggling sections and handling product addition -->
 <script>
+    // Function to toggle visibility of replies
     function toggleReplies(reviewId) {
         var replies = document.getElementById('replies' + reviewId);
         if (replies.style.display === 'none') {
@@ -119,19 +195,18 @@
         }
     }
 
-    function saveCurrentToggle(toggle){
+    function saveCurrentToggle(toggle) {
         localStorage.setItem("toggle", toggle);
     }
-
-    function getCurrentToggle(){
+    function getCurrentToggle() {
         return localStorage.getItem("toggle");
     }
-    
-    function getToken(){
+
+    function getToken() {
         var val = "; " + document.cookie;
         var parts = val.split("; csrftoken=");
-        if (parts.length === 2){
-            return parts.pop().split(";").shift()
+        if (parts.length === 2) {
+            return parts.pop().split(";").shift();
         }
     }
 
@@ -147,24 +222,28 @@
         productsInfo.style.display = "none";
         logInfo.style.display = "none";
 
+        // Event listener for toggling Farmers section
         document.getElementById("toggle-farmers").addEventListener("click", function () {
             productsInfo.style.display = "none"
             farmersInfo.style.display = "block";
             logInfo.style.display = "none";
         });
 
+        // Event listener for toggling Products section
         document.getElementById("toggle-products").addEventListener("click", function () {
             farmersInfo.style.display = "none"
             logInfo.style.display = "none";
             productsInfo.style.display = "block";
         });
 
-        document.getElementById("toggle-log").addEventListener("click", function(){
+        // Event listener for toggling Log section
+        document.getElementById("toggle-log").addEventListener("click", function () {
             logInfo.style.display = "block"
             farmersInfo.style.display = "none";
             productsInfo.style.display = "none";
         })
 
+        // Event listener for adding products to the box
         addProductsBtn.addEventListener('click', function () {
             const selectedProducts = Array.from(productCheckboxes)
                 .filter(function (checkbox) {
@@ -174,12 +253,14 @@
                     return checkbox.value;
                 });
 
+            // Close the modal
             productModal.classList.remove('show');
             productModal.style.display = 'none';
             document.body.classList.remove('modal-open');
             document.body.style.paddingRight = '0';
             document.querySelector('.modal-backdrop').remove();
 
+            // Send a POST request to add selected products to the box
             fetch(url, {
                 method: "POST",
                 headers: {
@@ -188,87 +269,21 @@
                 },
                 body: JSON.stringify({"products": selectedProducts}),
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                location.reload();
-                return response.json();
-            })
-            .then(data =>{
-                console.log(data);
-            })
-            .catch(error => {
-                console.log(error);
-            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    location.reload();
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.log(error);
+                })
         });
     });
 </script>
 
-<style>
-    /* Custom styles for improved appearance */
-    body {
-        background-color: #f8f9fa; /* Light gray background */
-        color: #343a40; /* Dark text color */
-    }
-
-    .containerAbout {
-        width: 80%;
-        margin: 0 auto;
-        background-color: #ffffff; /* White container background */
-        padding: 20px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle box shadow */
-        margin-top: 30px;
-        border-radius: 8px; /* Rounded corners */
-    }
-
-    header {
-        text-align: center;
-        margin-bottom: 30px;
-    }
-
-    h1 {
-        font-size: 2.5em;
-        color: #007bff; /* Primary color for heading */
-        margin-bottom: 10px;
-    }
-
-    p {
-        font-size: 1.2em;
-        line-height: 1.6;
-        margin-bottom: 15px;
-    }
-
-    video {
-        width: 100%;
-        height: auto;
-        margin-bottom: 20px;
-        border-radius: 8px; /* Rounded corners for video */
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle box shadow */
-    }
-
-    section {
-        margin-top: 20px;
-    }
-
-    .highlight {
-        color: #007bff; /* Highlight color */
-        font-weight: bold;
-    }
-
-    .icon {
-        font-size: 1.5em;
-        margin-right: 5px;
-    }
-
-    .modal-body {
-        max-height: 300px; /* Adjust the max height as needed */
-        overflow-y: auto;
-    }
-
-    .form-check-label {
-        font-size: 1.2em;
-        margin-left: 10px;
-    }
-</style>
 {% endblock %}

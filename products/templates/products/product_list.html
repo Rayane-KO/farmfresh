@@ -5,6 +5,7 @@
 
 <link rel="stylesheet" href="{% static 'products/css/products.css' %}">
 <style>
+    /* Styling for product cards */
     .card {
         transition: transform 0.3s;
     }
@@ -70,6 +71,7 @@
         margin-left: 5px;
     }
 
+    /* Button style for filter */
     .btn-filter {
         background-color: #3498db;
         color: #fff;
@@ -82,17 +84,18 @@
         background-color: #2980b9;
     }
 
+    /* Category checkboxes styling */
     .category-checkboxes {
         display: flex;
         flex-wrap: wrap;
-        margin-top: 5px;
-        /* Adjust the margin as needed */
+        margin-top: 5px; 
     }
 
     .form-check {
         margin-right: 20px;
     }
 
+    /* Clear filters button styling */
     .clear-filters {
         margin-top: 0px;
         background-color: #e74c3c;
@@ -109,6 +112,7 @@
 </style>
 
 <div class="container">
+    <!-- Search form -->
     <form method="get" class="mb-4 search-form">
         <div class="input-group">
             <input name="q" type="text" class="form-control" placeholder="Search">
@@ -117,9 +121,11 @@
             </div>
         </div>
     </form>
+
+    <!-- Filter form -->
     <form method="get" class="mb-4 filter-form" id="filter-form">
         <div class="form-group">
-            <label><Strong>Select a category:</Strong></label>
+            <label><strong>Select a category:</strong></label>
             <div class="category-checkboxes">
                 {% for category in categories %}
                 <div class="form-check">
@@ -140,15 +146,20 @@
             </select>
         </div>
 
+        <!-- Filter and clear filters buttons -->
         <button class="btn btn-filter" type="submit">Filter</button>
         <button type="button" class="btn btn-outline-secondary clear-filters">Clear Filters</button>
     </form>
+
     {% if user.is_farmer %}
+    <!-- Add product and box buttons for farmers -->
     <div class="text-center mt-4">
         <a href="{% url "products:create_product" %}" class="btn btn-primary btn-lg">Add New Product</a>
         <a href="{% url "products:create_box" %}" class="btn btn-primary btn-lg">Add New Box</a>
     </div>
     {% endif %}
+
+    <!-- Display products and boxes -->
     <div class="row" data-id={{ user.pk }}>
         {% if products.products %}
         {% for product, quantity in products.products %}
@@ -173,7 +184,7 @@
                             €{{ product.price }}/Piece
                         {% elif product.unit == "kg" %}
                             €{{ product.price }}/Kg
-                        {% elif produc.unit == "liter" %}
+                        {% elif product.unit == "liter" %}
                             €{{ product.price }}/Liter
                         {% endif %}
                     </p>
@@ -187,9 +198,11 @@
                     <a href="{% url "products:product_detail" pk=product.pk %}" class="btn btn-primary">View Details</a>
                     <div class="cart-actions">
                         {% if quantity == 0 %}
+                        <!-- Display add to cart button when quantity is 0 -->
                         <button class="btn btn-success add_to_cart update" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk type="product" %}">
                             Add to Cart
                         </button>
+                        <!-- Quantity input when quantity is not 0 -->
                         <div class="quantity-input" aria-disabled="true" style="display: none;">
                             <button class="btn btn-success remove_from_cart decrement" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:remove_from_cart" pk=product.pk type="product"%}" data-unit="{{ product.unit }}" data-price={{ product.price }} data-remove="false">
                                 -
@@ -200,9 +213,11 @@
                             </button>
                         </div>  
                         {% else %}
+                        <!-- Display add to cart button when quantity is not 0 -->
                         <button class="btn btn-success add_to_cart update" style="display:none;" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:add_to_cart" pk=product.pk type="product" %}">
                             Add to Cart
                         </button>
+                        <!-- Quantity input when quantity is not 0 -->
                         <div class="quantity-input" aria-disabled="true">
                             <button class="btn btn-success remove_from_cart decrement" data-product-id="{{ product.pk }}" data-add-url="{% url "cart:remove_from_cart" pk=product.pk type="product"%}" data-unit="{{ product.unit }}" data-price={{ product.price }} data-remove="false">
                                 -
@@ -217,8 +232,9 @@
                 </div>
             </div>
         </div>
-    {% endfor %}
-    {% endif %}
+        {% endfor %}
+        {% endif %}
+
         {% if products.boxes %}
         {% for box in products.boxes %}
         {% if box.status == "approved" %}
@@ -241,31 +257,36 @@
                         {% endif %}
                     </p>
                     <a href="{% url "products:box_detail" pk=box.pk %}" class="btn btn-primary">Look inside</a>
-                        <button class="btn btn-success add_to_cart" data-product-id="{{ box.pk }}" data-add-url="{% url "cart:add_to_cart" pk=box.pk type="box" %}">
-                            Add to Cart
-                        </button>
+                    <!-- Add to cart button for boxes -->
+                    <button class="btn btn-success add_to_cart" data-product-id="{{ box.pk }}" data-add-url="{% url "cart:add_to_cart" pk=box.pk type="box" %}">
+                        Add to Cart
+                    </button>
                 </div>
             </div>
         </div>
         {% endif %}
         {% endfor %}
         {% endif %}
+
         {% if not products.products and not products.boxes %}
+            <!-- Display message when no products are available -->
             <div class="col-md-12">
                 <p class="lead">No products available...</p>
             </div>
         {% endif %}
     </div>
 </div>
+
+<!-- JavaScript for handling favorite farmers and product ratings -->
 <script>
     function setFavFarmers(userId){
-        //https"://stackoverflow.com/questions/52327176/how-do-i-access-data-from-local-storage-in-django-views
         favId = "favorites_" + userId;
         fav_farmers = localStorage.getItem(favId);
         document.cookie = "fav=" + fav_farmers;
     }
-    document.addEventListener('DOMContentLoaded', function () {
 
+    document.addEventListener('DOMContentLoaded', function () {
+        // Clear filters button functionality
         const clearFiltersButton = document.querySelector('.clear-filters');
         if (clearFiltersButton) {
             clearFiltersButton.addEventListener("click", function () {
@@ -281,17 +302,14 @@
                     selects.forEach(select => {
                         select.selectedIndex = 0;
                     });
-
-                    // You may need to adjust this line based on your form structure
-                    // It clears any additional input fields or custom logic
                     filterForm.reset();
                 }
             });
         }
 
+        // Display stars for product ratings
         const products = document.querySelectorAll('.card');
         const userId = document.querySelector(".row").getAttribute("data-id");
-
         setFavFarmers(userId);
 
         products.forEach(product => {
@@ -302,6 +320,7 @@
         });
     });
 
+    // Function to generate star icons based on product ratings
     function getStars(rating) {
         const fullStars = Math.floor(rating);
         const halfStar = rating % 1 !== 0;

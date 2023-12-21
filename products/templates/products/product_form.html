@@ -3,6 +3,7 @@
 {% block content %}
 
 <style>
+    /* Styling for product buttons */
     .product-btn {
         background-color: #007bff; /* Bootstrap primary button color */
         color: #fff; /* Button text color */
@@ -14,8 +15,9 @@
     }
 
     .product-btn:hover {
-        background-color: #0056b3; /* Change color on hover */
+        background-color: #0056b3;
     }
+
     .container {
         margin-top: 10px;
     }
@@ -25,30 +27,31 @@
         margin-bottom: 30px;
     }
 
+    /* Styling for the main product container */
     .containerProduct {
-    margin-top: 2%;
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
-    margin-bottom:2%;
+        margin-top: 2%;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2%;
     }
 </style>
 
 <div class="container containerProduct">
     {% if is_update %}
-    <h1>Update Product</h1>
+        <h1>Update Product</h1>
     {% else %}
-    <h1>Add New Product</h1>
+        <h1>Add New Product</h1>
     {% endif %}
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {% bootstrap_form form %}
 
         {% if is_update %}
-        <div><button type="submit" class="product-btn">Update Product</button></div>
+            <div><button type="submit" class="product-btn">Update Product</button></div>
         {% else %}
-        <div><button type="submit" class="product-btn">Add Product</button></div>
+            <div><button type="submit" class="product-btn">Add Product</button></div>
         {% endif %}
    </form>
 </div>

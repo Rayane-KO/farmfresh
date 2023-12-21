@@ -1,7 +1,10 @@
 {% extends "base.html" %}
+
 {% block content %}
 
 <style>
+    /* Custom styling for the home page content */
+
     .mt-3 {
         text-align: center;
         padding-left: 70px;
@@ -28,7 +31,7 @@
     .tool-content {
         flex: 1;
         text-align: center;
-        color: white; /* Adjust text color as needed */
+        color: white; 
     }
 
     .tool h5 {
@@ -37,9 +40,9 @@
 
     .tool img {
         width: 100%;
-        max-width: 400px; /* Adjust the max-width as needed */
+        max-width: 400px; 
         height: auto;
-        margin: 20px auto; /* Center the image horizontally */
+        margin: 20px auto; 
         display: block;
     }
 
@@ -51,18 +54,20 @@
     }
 
     .tool .btn-success:hover {
-        background-color: #ccc; /* Gray color on hover */
+        background-color: #ccc;
         border: 1px solid #ccc;
     }
 
+    /* Styling for the "How it works?" section */
     .work {
         text-align: center;
         margin: 20px 0;
     }
 
+    /* Styling for the video within the "How it works?" */
     .work video {
         width: 100%;
-        max-width: 500px; /* Adjust the max-width as needed */
+        max-width: 500px; 
         height: auto;
     }
 
@@ -78,6 +83,7 @@
       padding-left: 30px;
     }
 
+    /* Responsive styling for small screens */
     @media (max-width: 767px) {
         .tool h5 {
             font-size: 1.2rem;
@@ -98,10 +104,13 @@
     <a href="{% url "products:product_list" %}" class="btn btn-discover btn-lg">Discover</a>
 </div>
 
+<!-- Container for additional content -->
 <div class="container mt-5">
+    <!-- Slogan section -->
     <h3 id="slogan" class="text-center mt-3">From the farm straight to your plate.</h3>
 
     <div class="shopping row mt-5 d-flex justify-content-around">
+        <!-- Local Farmers -->
         <div class="col-lg-6 col-md-12 col-sm-12 mb-4 text-center">
             <a class="shop-nav" href="{% url "products:product_list" %}">
                 <img src="https://images.rtl.fr/~c/770v513/rtl/www/1071023-legumes.jpg" alt="Local Farmers"
@@ -110,15 +119,17 @@
                 <a href="{% url "products:product_list" %}" class="btn btn-success">Shop Now</a>
             </a>
         </div>
+        <!-- Seasonal Boxes -->
         <div class="col-lg-6 col-md-12 col-sm-12 mb-4 text-center">
             <a class="shop-nav" href="#">
                 <img
                     src="https://img.freepik.com/photos-gratuite/legumes-automne-planche-bois-au-milieu_23-2147714800.jpg?w=1380&t=st=1699556004~exp=1699556604~hmac=7d1cdb06373859ab063ff7df8231ce223844bd2ce0b9d5af752185c6b21d04e0"
                     alt="Seasonal Boxes" class="img-fluid">
                 <p class="mt-3">Seasonal Boxes</p>
-                <a href="#" class="btn btn-success">Shop Now</a>
+                <a href="{% url "products:product_list" %}" class="btn btn-success">Shop Now</a>
             </a>
         </div>
+        <!-- Discover Your Next Farmer -->
         <div class="col-lg-6 col-md-12  col-sm-12 mb-4 text-center">
             <a class="shop-nav" href="{% url "accounts:user_list" %}">
                 <img
@@ -131,6 +142,7 @@
     </div>
 </div>
 
+<!-- Tool section with a new plant disease identifier -->
 <div class="tool">
     <div class="container">
         <div class="tool-content">
@@ -143,19 +155,22 @@
     </div>
 </div>
 
+<!-- "How it works?" section with a video and steps -->
 <div class="work">
-<video width="500" height="300" controls>
-    <source src="media/video/WIN_20231017_10_57_16_Pro.mp4" type="video/mp4">
-</video>
-<div class="text-left">
-    <h3>How it works?</h3>
-    <ol>
-        <li>Choose a product</li>
-        <li>Add it to your cart</li>
-        <li>Have it delivered to your door</li>
-    </ol>
-</div>
+    <video width="500" height="300" controls>
+        <source src="media/video/WIN_20231017_10_57_16_Pro.mp4" type="video/mp4">
+    </video>
+    <div class="text-left">
+        <h3>How it works?</h3>
+        <ol>
+            <li>Choose a product</li>
+            <li>Add it to your cart</li>
+            <li>Have it delivered to your door</li>
+        </ol>
+    </div>
 </div>
 
+<!-- Placeholder for an "About" section -->
 <div class="about"></div>
+
 {% endblock %}

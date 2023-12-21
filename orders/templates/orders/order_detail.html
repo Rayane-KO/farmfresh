@@ -2,14 +2,15 @@
 {% block content %}
 <style>
 
+/* Styles for the main order container */
 .containerOrder {
-        margin-top: 50px;
-        text-align: left;
-        background-color: #ffffff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
-        margin-bottom:20%;
+    margin-top: 50px;
+    text-align: left;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+    margin-bottom: 20%;
 }
 
 h1 {
@@ -20,6 +21,7 @@ h1 {
     padding: 20px;
 }
 
+/* Styles for h1 in the order detail */
 .order-detail h1 {
     font-size: 28px;
     margin-bottom: 20px;
@@ -48,6 +50,7 @@ h1 {
     margin-bottom: 5px;
 }
 
+/* Additional margin for some list group items */
 .order-detail .list-group-item.mb-3 {
     margin-bottom: 20px;
 }
@@ -55,22 +58,22 @@ h1 {
 </style>
 
 <div class="container containerOrder">
-<div class="container order-detail">
-    <h1 class="mb-4">Order Detail</h1>
-    <p class="lead">Order ID: {{ order.id }}</p>
-    <p>Total Price: {{ order.total }}</p>
+    <div class="container order-detail">
+        <h1 class="mb-4">Order Detail</h1>
+        <p class="lead">Order ID: {{ order.id }}</p>
+        <p>Total Price: {{ order.total }}</p>
 
-    <h2 class="mt-4">Ordered Products:</h2>
-    <ul class="list-group">
-        {% for order_item in order.orderitem_set.all %}
-            <li class="list-group-item mb-3">
-                <h4 class="mb-2">Product: {{ order_item.item.name }}</h4>
-                <p>Quantity: {{ order_item.quantity }}</p>
-                <p>Unit Price: {{ order_item.item.price }}</p>
-                <p class="mb-0">Subtotal: {{ order_item.total }}</p>
-            </li>
-        {% endfor %}
-    </ul>
-</div>
+        <h2 class="mt-4">Ordered Products:</h2>
+        <ul class="list-group">
+            {% for order_item in order.orderitem_set.all %}
+                <li class="list-group-item mb-3">
+                    <h4 class="mb-2">Product: {{ order_item.item.name }}</h4>
+                    <p>Quantity: {{ order_item.quantity }}</p>
+                    <p>Unit Price: {{ order_item.item.price }}</p>
+                    <p class="mb-0">Subtotal: {{ order_item.total }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
 </div>
 {% endblock %}

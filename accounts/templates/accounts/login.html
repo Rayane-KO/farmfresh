@@ -5,6 +5,7 @@
 {% block content %}
 
 <style>
+    /* Styles for the main login container */
     .containerLogin {
         margin-top: 50px;
         text-align: center;
@@ -24,10 +25,12 @@
         text-align: left; 
     }
 
+    /* Styles for form groups within the form */
     .form-group {
         margin-bottom: 15px; 
     }
 
+    /* Styles for buttons within the form */
     button {
         margin-top: 10px;
     }
@@ -41,6 +44,7 @@
         text-decoration: underline;
     }
 
+    /* Styles for the Google login button */
     .btn-outline-info {
         border-color: #17a2b8;
         color: #17a2b8; 
@@ -60,8 +64,10 @@
     }
 </style>
 
+<!-- HTML Content for the Login Page -->
 <div class="container containerLogin">
     <h1>Log In</h1>
+    <!-- Login form -->
     <form method="post">
         {% csrf_token %}
         <div class="form-group">
@@ -73,6 +79,7 @@
         <div>
             <p>Forgot your password? <a href="{% url 'accounts:password_reset' %}">Click Here</a></p>
         </div>
+        <!-- Login button and Google login button -->
         <div class="text-center">
             <button type="submit" class="btn btn-primary">Log In</button>
             <div class="social-login">
@@ -84,12 +91,11 @@
                 </button>
             </div>
         </div>
-        
+        <!-- Create new account link -->
         <div class="text-center"> 
             <p>New to FarmFresh? <a href="{% url 'accounts:signup' %}">Create a new account</a></p>
         </div>
     </form>
-    
 </div>
 
 {% endblock %}

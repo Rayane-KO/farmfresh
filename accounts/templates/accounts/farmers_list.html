@@ -3,157 +3,100 @@
 {% load static %}
 {% block content %}
 
+<!-- CSS Styles for Farmer List and Map -->
 <style>
-    ul {
-        list-style: none;
-        padding: 0;
-    }
-    .farmer_list {
-        position: relative;
-        margin-left: 300px;
-    }
-
-    .user-info:hover {
-        background-color: #0a5200; 
-        color: #fff; 
+    /* Styles for the main list container */
+    .containerDelete {
+        margin-top: 3%;
+        text-align: center;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 4%;
+        padding-bottom: 70px;
     }
 
+    h1 {
+        margin-top: -50px; 
+    }
+
+    /* Styles for user info items in the list */
     .user-info {
         border: 1px solid #0a5200;
         padding: 10px;
         border-radius: 5px;
         margin-top: 30px;
-        position: relative; /* Add this line to the user-info class */
+        position: relative; /* Position relative for absolute positioning of image */
     }
 
-    h1 {
-        margin-top: -50px;
-    }
-   
-
+    /* Styles for user info image */
     .user-info img {
-    width: 150px; /* Set the width as per your design */
-    height: 150px; /* Set the height as per your design */
-    border-radius: 50%;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    right: 20px; /* Adjust the right position as needed */
-}
-
-    #map-container {
-        position: fixed; 
-        top: 150px; 
-        right: 20px; 
-        z-index: 1; 
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 20px;
     }
 
+    /* Styles for the map container */
+    #map-container {
+        position: fixed;
+        top: 150px;
+        right: 20px;
+        z-index: 1;
+    }
+
+    /* Styles for the map */
     #map {
-        height: 600px; 
+        height: 600px;
         width: 100%;
         max-width: 650px;
         margin-top: 112px;
         margin-bottom: 50px;
-        border: #ddd;
+        border: #ddd; 
     }
 
-    @media (max-width: 767px) {
-        #map-container {
-            position: static;
-        }
-
-        .farmer_list {
-            margin-left: 0;
-        }
-
-        #map {
-            width: 100%; 
-            max-width: none; 
-        }
+    /* Styles for filter options */
+    .filter-options {
+        margin-top: 20px;
+        background-color: #f0f0f0;
+        padding: 10px;
+        border-radius: 5px;
+        width: fit-content;
     }
 
-    @media (min-width: 768px) and (max-width: 1199px) {
-        #map-container {
-            position: fixed;
-            top: 150px;
-            right: 20px;
-        }
-
-        .farmer_list {
-            margin-left: 0;
-        }
-
-        #map {
-            width: 100%; 
-            max-width: 650px;
-        }
+    /* Styles for filter option buttons */
+    .filter-options form {
+        display: flex;
+        flex-direction: column;
     }
 
-    @media (min-width: 1200px) {
-        #map-container {
-            position: fixed;
-            top: 150px;
-            right: 20px;
-        }
-
-        .farmer_list {
-            margin-left: 33px;
-        }
-
-        #map {
-            width: 100%; 
-            max-width: none;
-            max-height: none;
-        }
+    /* Styles for clear and apply filter buttons */
+    .clear-button,
+    .apply-button {
+        background-color: #e74c3c; 
+        border-radius: 10px;
+        color: #fff;
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
     }
-    
 
-.filter-options {
-    margin-top: 20px;
-    background-color: #f0f0f0; 
-    padding: 10px;
-    border-radius: 5px;
-    width:fit-content;
-}
+    .clear-button:hover {
+        background-color: #c0392b; 
+    }
 
-.filter-options form {
-    display: flex;
-    flex-direction: column;
-}
-
-.clear-button {
-    background-color: #e74c3c; 
-    border-radius: 10px;
-    color: #fff;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-}
-
-.clear-button:hover {
-    background-color: #c0392b; 
-}
-
-.apply-button {
-    background-color: #3498db;
-    border-radius: 10px;
-    color: #fff;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-}
-
-.apply-button:hover {
-    background-color: #2980b9;
-}
-
- 
-
-
+    .apply-button:hover {
+        background-color: #2980b9; /
+    }
 </style>
 
 <div class="container farmer_list">
     <h1>Farmers</h1>
+    <!-- Filter options for farmers -->
     <div class="filter-options">
         <h5>Filter farmers</h5>
         <form method="get">
@@ -173,42 +116,46 @@
         </form>
     </div>
     
+    <!-- Farmer List -->
     <div class="row">
         <div class="col-md-6 order-md-1 order-2">
             {% if farmers %}
-            <ul>
-                {% for farmer in farmers %}
-                <li>
-                    <div class="user-info" data-user-id={{ user.pk }} data-id={{ farmer.pk }} data-latitude={{ farmer.latitude }} data-longitude={{ farmer.longitude }} data-username={{ farmer.username }}>
-                        <img src="{{ farmer.profile_pic.url }}" alt="{{ farmer.username }} Profile Picture">
-                        <p>Name: {{ farmer.username }}</p>
-                        <p>Farm: {{ farmer.farm_nr }}</p>
-                        <p>Address: {{ farmer.address }} </p>      
-                        
-                        <a href="{% url "accounts:user_detail" pk=farmer.pk %}">View Details</a>
-                        {% if farmer != user and user.is_authenticated %}
-                        <button class="fav-button" data-farmer-id={{ farmer.pk }} data-auth={{ user.is_authenticated }}>
-                            <i class="fa-regular fa-star" style="color: #ffd43b;"></i>
-                        </button>
-                        {% endif %}
-                    </div>
-                </li>
-                {% endfor %}
-            </ul>
+                <ul>
+                    {% for farmer in farmers %}
+                        <li>
+                            <!-- User info details for each farmer -->
+                            <div class="user-info" data-user-id={{ user.pk }} data-id={{ farmer.pk }} data-latitude={{ farmer.latitude }} data-longitude={{ farmer.longitude }} data-username={{ farmer.username }}>
+                                <img src="{{ farmer.profile_pic.url }}" alt="{{ farmer.username }} Profile Picture">
+                                <p>Name: {{ farmer.username }}</p>
+                                <p>Farm: {{ farmer.farm_nr }}</p>
+                                <p>Address: {{ farmer.address }} </p>      
+                                <a href="{% url "accounts:user_detail" pk=farmer.pk %}">View Details</a>
+                                {% if farmer != user and user.is_authenticated %}
+                                    <button class="fav-button" data-farmer-id={{ farmer.pk }} data-auth={{ user.is_authenticated }}>
+                                        <i class="fa-regular fa-star" style="color: #ffd43b;"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
             {% else %}
                 <p>No farmers available yet...</p>
             {% endif %}
         </div>
+        <!-- Map container -->
         <div class="col-md-6 order-md-2 order-1" id="map-container">
             <div id="map"></div>
         </div>
     </div>
 </div>
 
+<!-- JavaScript for handling favorite farmers and updating map position -->
 <script src="{% static "farmfresh/js/fav_farmer.js" %}"></script>
 <script src="{% static "farmfresh/js/map.js" %}"></script>
 
 <script>
+    // Function to extract CSRF token from cookies
     function getToken(){
         var val = "; " + document.cookie;
         var parts = val.split("; csrftoken=");
@@ -216,6 +163,8 @@
             return parts.pop().split(";").shift()
         }
     }
+
+    // Function to update map position based on scroll and window resize
     function updateMapPosition() {
         var containerRect = container.getBoundingClientRect();
         var containerHeight = containerRect.height;
@@ -229,45 +178,46 @@
         mapContainer.style.top = topPosition + "px";
     }
 
+    // Function to set favorite farmers in local storage
     function setFavFarmers(userId){
-        //https"://stackoverflow.com/questions/52327176/how-do-i-access-data-from-local-storage-in-django-views
         favId = "favorites_" + userId;
         fav_farmers = localStorage.getItem(favId);
         document.cookie = "fav=" + fav_farmers;
     }
 
+    // Event listeners for DOM content loaded
     document.addEventListener("DOMContentLoaded", function () {
-        var mapContainer = document.getElementById("map-container");
-        var container = document.querySelector(".farmer_list");
-        var aboutSection = document.querySelector(".about");
+        // Event listener for favorite button
         var favButton = document.getElementById("fav");
-
         favButton.addEventListener("click", function(){
             var userId = this.dataset.id;
-            setFavFarmers(userId)
+            setFavFarmers(userId);
         });
 
+        // Initial update of map position
         updateMapPosition();
 
+        // Delayed update of map position
         setTimeout(updateMapPosition, 500);
 
+        // Event listeners for scroll and resize
         window.addEventListener("scroll", updateMapPosition);
         window.addEventListener("resize", updateMapPosition);
     });
 
-
-   
+    // Event listener for DOM content loaded
     document.addEventListener("DOMContentLoaded", function () {
+        // Event listener for clear filters button
         var clearFiltersButton = document.getElementById("clear-filters");
         var filterRadios = document.querySelectorAll('.filter-options input[type="radio"]');
 
         clearFiltersButton.addEventListener("click", function () {
+            // Clear all radio button selections
             filterRadios.forEach(function (radio) {
                 radio.checked = false;
             });
         });
     });
-
 </script>
 
 {% endblock %}

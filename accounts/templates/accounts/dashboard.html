@@ -2,7 +2,9 @@
 {% load bootstrap4 %}
 {% block content %}
 
+<!-- CSS Styles for the Dashboard -->
 <style>
+    /* Style for the main container of the dashboard */
     .containerDashboard {
         margin-top: 3%;
         text-align: left;
@@ -13,45 +15,54 @@
         margin-bottom: 4%;
     }
 
+    /* Styles for heading elements h1 and h2 */
     h1, h2 {
         color: #007bff;
         margin-top: 20px;
     }
 
+    /* Style specifically for h1 */
     h1 {
       text-align: center;
     }
 
+    /* Style for the canvas element */
     canvas {
         margin-top: 20px;
         width: 100%;
     }
 
+    /* Styles for unordered list and table */
     ul, table {
         margin-top: 20px;
     }
 
+    /* Style for list items in an unordered list */
     ul li {
         margin-bottom: 10px;
     }
 
+    /* Styles for the table */
     table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 20px;
     }
 
+    /* Styles for table header and data cells */
     th, td {
         border: 1px solid #ddd;
         padding: 8px;
         text-align: left;
     }
 
+    /* Styles for table header */
     th {
         background-color: #007bff;
         color: white;
     }
 
+    /* Styles for buttons */
     button {
         margin-top: 10px;
         background-color: #007bff;
@@ -62,17 +73,22 @@
         cursor: pointer;
     }
 
+    /* Hover effect for buttons */
     button:hover {
         background-color: #0056b3;
     }
 </style>
 
+<!-- HTML Content for the Dashboard -->
 <div class="container containerDashboard">
+    <!-- Heading for the Dashboard with dynamic username -->
     <h1>{{ farmer.username }}'s Dashboard</h1>
 
+    <!-- Monthly Sales Chart -->
     <h2>Monthly Sales Chart:</h2>
     <canvas id="monthlySalesChart" width="400" height="200"></canvas>
     
+    <!-- Most Purchased Products List -->
     <h2>Most Purchased Products:</h2>
     <ul>
       {% for product in top_products %}
@@ -80,6 +96,7 @@
       {% endfor %}
     </ul>
     
+    <!-- Recent Orders List -->
     <h2>Recent Orders:</h2>
     <ul>
       {% for order_item in recent_orders %}
@@ -87,6 +104,7 @@
       {% endfor %}
     </ul>
     
+    <!-- Product Performance Table -->
     <h2>Product Performance:</h2>
     <table>
       <tr>
@@ -105,6 +123,7 @@
       {% endfor %}
     </table>
     
+    <!-- Customer Feedback List -->
     <h2>Customer Feedback:</h2>
     <ul>
       {% for review in customer_feedback %}
@@ -113,6 +132,7 @@
     </ul>
 </div>
 
+<!-- JavaScript for rendering the Monthly Sales Chart using Chart.js -->
 <script>
     var ctx = document.getElementById('monthlySalesChart').getContext('2d');
     var chartData = {{ data|safe }};

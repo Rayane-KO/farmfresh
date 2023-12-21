@@ -78,12 +78,12 @@
 <p><strong>Price:</strong> €{{ box.price }}</p>
 
 {% if request.user == box.asker or request.user in box.farmers.all %}
-    {% if box.status == "pending" %}
+{% if can_add  and box.status == "Pending" %}
         <!-- Display "Add product" button when the box is pending -->
-        <button class="btn btn-success" data-toggle="modal" data-target="#productModal">
-            Add product
-        </button>
-    {% endif %}
+<button class="btn btn-success" data-toggle="modal" data-target="#productModal">
+    Add product
+</button>
+{% endif %}
 {% endif %}
 
 {% if box.status == "approved" %}
@@ -125,7 +125,8 @@
             <!-- Products section -->
             <div id="products" class="section-style mt-3">
                 {% for product in products %}
-                    <a class="seller" href="{% url "products:product_detail" pk=product.product.pk %}">{{ product.product.name }}</a>
+                <a class="seller" href="{% url "products:product_detail" pk=product.product.pk %}">{{ product.product.name }}</a>
+                x {{ product.quantity }}
                 {% endfor %}
             </div>
 

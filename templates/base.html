@@ -1,120 +1,143 @@
+<!-- This is the base template for the FarmFresh web application. 
+It includes necessary meta tags, stylesheets, scripts,
+and defines the overall structure of the site
+, such as the navigation bar, footer, and content area. -->
+
 <!DOCTYPE html>
 {% load static %}
 {% load bootstrap4 %}
 {% load view_breadcrumbs %}
 {% load widget_tweaks %}
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>FarmFresh</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-        <link href="https://fonts.googleapis.com/css2?family=Lexend&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="{% static 'farmfresh/css/master.css' %}">
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-        <link rel="stylesheet" href="https://unpkg.com/leaflet.awesome-markers/dist/leaflet.awesome-markers.css" />
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-        <script src="https://unpkg.com/leaflet.awesome-markers/dist/leaflet.awesome-markers.js"></script>
-        <script src="https://kit.fontawesome.com/b4f6eba574.js" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    </head>
-    <body>
-        <nav class="navbar navbar-expand-sm bg-light navbar-light fixed-top">
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>FarmFresh</title>
+    
+    <!-- External CSS stylesheets for Bootstrap, custom styles, and Leaflet maps -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'farmfresh/css/master.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.awesome-markers/dist/leaflet.awesome-markers.css" />
+    
+    <!-- External JavaScript libraries for Leaflet, Font Awesome, jQuery, and Bootstrap -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.awesome-markers/dist/leaflet.awesome-markers.js"></script>
+    <script src="https://kit.fontawesome.com/b4f6eba574.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation bar and main content area -->
+    <div id="containerFooter">
+        <div id="main">
+            <!-- Navigation bar with links to Home, Shop, Farmers, and About pages -->
+            <nav class="navbar navbar-expand-sm bg-light navbar-light fixed-top">
+                <!-- FarmFresh logo and navigation toggle button -->
+                <a class="navbar-brand" href="{% url "home" %}">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1yMS3OmB9dzcAgQO0tmxXnl9wWraP8ylU1aNlGqX6sAJvf1K8"
+                        alt="logo" style="width:30px;">
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <!-- Navigation links for Home, Shop, Farmers, and About pages -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url "home" %}">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url "products:product_list" %}">Shop</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url "accounts:user_list" %}">Farmers</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url "about" %}">About</a>
+                        </li>
+                    </ul>
+                    <!-- User-specific links and cart information -->
+                    <ul class="navbar-nav ml-auto">
+                        {% if user.is_authenticated %}
+                            <!-- Cart icon with badge displaying the number of items in the cart -->
+                            <li class="">
+                                <a href="{% url "cart:cart_items" %}" class="nav-link">
+                                    <div class="cart-counter">
+                                        <i class="fa-solid fa-basket-shopping fa-xl" id="basket"
+                                            style="color: #0a5200; margin-right: 10px;"></i>
+                                        <span class="badge badge-warning" id="cart-badge"
+                                            data-url="{% url "cart:count" %}">0</span>
+                                    </div>
+                                </a>
+                            </li>
+                            <!-- User account dropdown menu with options for My Account, My Orders, Dashboard, and Log Out -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link" href="#" id="navbardrop" data-toggle="dropdown"><i
+                                        class="fa-solid fa-bars fa-xl"></i></a>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item"
+                                        href="{% url "accounts:user_detail" pk=user.pk %}">My Account</a>
+                                    <a class="dropdown-item" href="{% url "orders:orders" %}">My Orders</a>
+                                    {% if user.is_staff or user.is_farmer %}
+                                        <a class="dropdown-item"
+                                            href="{% url "accounts:dashboard" pk=user.pk %}">Dashboard</a>
+                                        <a class="dropdown-item" href="{% url "products:pending" %}">Requests</a>
+                                        <a class="dropdown-item" href="{% url "products:disease" %}">Identify
+                                            Disease</a>
+                                    {% endif %}
+                                    <a class="dropdown-item" href="{% url "schema-swagger-ui" %}">API Documentation</a>
+                                    <!-- Log Out button with form submission -->
+                                    <form method="post" action="{% url 'accounts:logout' %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item">Log Out</button>
+                                    </form>
+                                </div>
+                            </li>
+                        {% else %}
+                            <!-- Log In link for non-authenticated users -->
+                            <li class="nav-item">
+                                <a href="{% url 'accounts:login' %}" class="nav-link">Log In</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </nav>
             
-            <a class="navbar-brand" href="{% url "home" %}">
-              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1yMS3OmB9dzcAgQO0tmxXnl9wWraP8ylU1aNlGqX6sAJvf1K8" alt="logo" style="width:30px;">
-            </a>
+            <!-- Breadcrumbs and messages displayed at the top of the content area -->
+            {% block breadcrumbs %}
+            <div class="container" id="breadcrumbs">
+                {% render_breadcrumbs %}
+            </div>
+            {% endblock %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endfor %}
             
-          
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button> 
-
-                      
-           
-              <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mr-auto"> 
-                  <li class="nav-item">
-                    <a class="nav-link" href="{% url "home" %}">Home</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="{% url "products:product_list" %}">Shop</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="{% url "accounts:user_list" %}">Farmers</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="{% url "about" %}">About</a>
-                  </li>
-                </ul>
-                <ul class="navbar-nav ml-auto">   
-                  {% if user.is_authenticated %}   
-                  <li class="">
-                    <a href="{% url "cart:cart_items" %}" class="nav-link">
-                      <div class="cart-counter">
-                        <i class="fa-solid fa-basket-shopping fa-xl" id="basket" style="color: #0a5200; margin-right: 10px;"></i>
-                        <span class="badge badge-warning" id="cart-badge" data-url="{% url "cart:count" %}">0</span>
-                      </div>
-                    </a>
-                </li> 
-                  <li class="nav-item dropdown">
-                      <a class="nav-link" href="#" id="navbardrop" data-toggle="dropdown"><i class="fa-solid fa-bars fa-xl"></i></a>
-                      <div class="dropdown-menu">
-                          <a class="dropdown-item" href="{% url "accounts:user_detail" pk=user.pk %}">My Account</a>
-                          <a class="dropdown-item" href="{% url "orders:orders" %}">My Orders</a>
-                          {% if user.is_staff or user.is_farmer %}
-                          <a class="dropdown-item" href="{% url "accounts:dashboard" pk=user.pk %}">Dashboard</a>
-                          <a class="dropdown-item" href="{% url "products:pending" %}">
-                            Requests
-                          </a>
-                          <a class="dropdown-item" href="{% url "products:disease" %}">
-                            Identify Disease
-                          </a>
-                          {% endif %}
-                          <a class="dropdown-item" href="{% url "schema-swagger-ui" %}">API Documentation</a>
-                          <form method="post" action="{% url 'accounts:logout' %}">
-                            {% csrf_token %}
-                            <button type="submit" class="dropdown-item">Log Out</button>
-                          </form>
-                      </div>
-                  </li>
-                  {% else %}
-                  <li class="nav-item">
-                    <a href="{% url 'accounts:login' %}" class="nav-link">Log In</a>
-                  </li>
-                  {% endif %}
-                </ul>
-              </div>
-              </ul>
-        </nav>
-
-          {% block breadcrumbs %}
-          <div class="container" id="breadcrumbs">
-            {% render_breadcrumbs %}
-          </div>
-          {% endblock %}
-          {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-          </div>
-          {% endfor %}
-        {% block content %}
-
-        {% endblock %}
-
-          <footer>
-            <small>Copyright © 2023 freshfarm.com All rights reserved.</small>
-          </footer>
-
-          <script src="{% static "farmfresh/js/cart_update.js" %}"></script>
-    </body>
+            <!-- Main content area to be filled by child templates -->
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+    
+    <!-- Footer section with copyright information -->
+    <footer>
+        <p>Copyright © 2023 freshfarm.com All rights reserved.</p>
+    </footer>
+    
+    <!-- JavaScript file for updating the shopping cart -->
+    <script src="{% static "farmfresh/js/cart_update.js" %}"></script>
+</body>
 </html>

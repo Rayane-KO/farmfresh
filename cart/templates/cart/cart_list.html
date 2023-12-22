@@ -1,29 +1,24 @@
+```html
 {% extends "base.html" %}
 {% load static %}
 {% load bootstrap4 %}
 {% block content %}
 
+<!-- External stylesheet for custom styling -->
 <link rel="stylesheet" href="{% static 'products/css/products.css' %}">
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-    }
 
-    .fixed-bar {
+<style>
+    /* Styles for the cart summary box */
+    .cart-summary-box {
         background-color: #f8f9fa;
         padding: 10px;
-        position: fixed;
-        bottom: 0; /* Changed top to bottom */
-        right: 0;
-        width: 100%;
-        box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* Changed shadow to be at the top */
-        z-index: 1000;
+        margin-top: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
     .container {
         margin-top: -30px;
-        padding-bottom: 90px; /* Adjusted padding for the content */
+        padding-bottom: 90px;
     }
 
     .cart-icon {
@@ -31,14 +26,15 @@
         margin-left: 5px;
     }
 
+    /* Styles for each cart item */
     .cart-item {
         background-color: #fff;
         border: 1px solid #ddd;
         padding: 15px;
         margin-bottom: 20px;
         transition: transform 0.3s;
-        min-height: 300px; 
-        position: relative; 
+        min-height: 300px;
+        position: relative;
     }
 
     .cart-item:hover {
@@ -68,9 +64,9 @@
     }
 
     .product-image {
-        width: 100%; 
-        height: 100%; 
-        object-fit: cover; 
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
         position: absolute;
         top: 0;
         left: 0;
@@ -98,7 +94,7 @@
         border-color: #0056b3;
     }
 
-    .quantity{
+    .quantity {
         margin-top: 0px;
         margin-right: 15px;
     }
@@ -132,48 +128,52 @@
                                         {% endif %}
                                     </p>
                                     {% if item.quantity == 0 %}
-                        <button class="btn btn-success add_to_cart update" data-product-id="{{ item.item.pk }}" data-add-url="{% url "cart:add_to_cart" pk=item.item.pk type=item.content_type.model %}">
-                            Add to Cart
-                        </button>
-                        <div class="quantity-input" aria-disabled="true" style="display: none;">
-                            <button class="btn btn-success remove_from_cart decrement" data-product-id="{{ item.item.pk }}" data-add-url="{% url "cart:remove_from_cart" pk=item.item.pk type=item.content_type.model %}" data-unit="{{ item.item.unit }}" data-price={{ item.item.price }}>
-                                -
-                            </button>
-                            <input class="quantity form-control" type="text" value={{item.quantity}} min="1" readonly>
-                            <button class="btn btn-success increment add_to_cart" data-product-id="{{ item.item.pk }}" data-add-url="{% url "cart:add_to_cart" pk=item.item.pk type=item.content_type.model %}">
-                                +
-                            </button>
-                        </div>  
-                        {% else %}
-                        <button class="btn btn-success add_to_cart update" style="display:none;" data-product-id="{{ item.content_object.pk }}" data-add-url="{% url "cart:add_to_cart" pk=item.item.pk type=item.content_type.model %}">
-                            Add to Cart
-                        </button>
-                        <div class="quantity-input" aria-disabled="true">
-                            <button class="btn btn-success remove_from_cart decrement" data-product-id="{{ item.item.pk }}" data-add-url="{% url "cart:remove_from_cart" pk=item.item.pk type=item.content_type.model%}" data-unit="{{ product.unit }}" data-price={{ product.price }}>
-                                -
-                            </button>
-                            <input class="quantity form-control" type="text" value={{item.quantity}} min="1" readonly>
-                            <button class="btn btn-success increment add_to_cart" data-product-id="{{ item.item.pk }}" data-add-url="{% url "cart:add_to_cart" pk=item.item.pk type=item.content_type.model %}">
-                                +
-                            </button>
-                        </div>   
-                        {% endif %}  
-                            <p class="card-text" id="total-{{item.item.pk}}">Total: €{{ item.total }}</p>
-                            <p class="card-text">
-                            {% if item.product.available %}
-                                <span class="text-success">Available: <i class="fa-solid fa-circle-check"></i></span>
-                            {% else %}
-                                <span class="text-danger">Not Available: <i class="fa-solid fa-circle-xmark"></i></span>
-                            {% endif %}
-                            </p>
-                            {% if item.content_type.model == "product" %}
-                            <p class="card-text">Seller: <a href="{% url "accounts:user_detail" pk=item.item.seller.pk %}">{{ item.item.seller.username }}</a></p>
-                            <a href="{% url "products:product_detail" pk=item.item.pk %}" class="btn btn-primary">View Details</a>
-                            {% else %}
-                            <a href="{% url "products:box_detail" pk=item.item.pk %}" class="btn btn-primary">View Details</a>
-                            {% endif %}
-                        </div>
-                    </div>
+                                        <!-- Button to add item to the cart -->
+                                        <button class="btn btn-success add_to_cart update" data-product-id="{{ item.item.pk }}" data-add-url="{% url "cart:add_to_cart" pk=item.item.pk type=item.content_type.model %}">
+                                            Add to Cart
+                                        </button>
+                                        <!-- Quantity input for item -->
+                                        <div class="quantity-input" aria-disabled="true" style="display: none;">
+                                            <button class="btn btn-success remove_from_cart decrement" data-product-id="{{ item.item.pk }}" data-add-url="{% url "cart:remove_from_cart" pk=item.item.pk type=item.content_type.model %}" data-unit="{{ item.item.unit }}" data-price={{ item.item.price }}>
+                                                -
+                                            </button>
+                                            <input class="quantity form-control" type="text" value={{item.quantity}} min="1" readonly>
+                                            <button class="btn btn-success increment add_to_cart" data-product-id="{{ item.item.pk }}" data-add-url="{% url "cart:add_to_cart" pk=item.item.pk type=item.content_type.model %}">
+                                                +
+                                            </button>
+                                        </div>  
+                                    {% else %}
+                                        <!-- Button to add item to the cart (hidden if quantity is not 0) -->
+                                        <button class="btn btn-success add_to_cart update" style="display:none;" data-product-id="{{ item.content_object.pk }}" data-add-url="{% url "cart:add_to_cart" pk=item.item.pk type=item.content_type.model %}">
+                                            Add to Cart
+                                        </button>
+                                        <!-- Quantity input for item -->
+                                        <div class="quantity-input" aria-disabled="true">
+                                            <button class="btn btn-success remove_from_cart decrement" data-product-id="{{ item.item.pk }}" data-add-url="{% url "cart:remove_from_cart" pk=item.item.pk type=item.content_type.model%}" data-unit="{{ product.unit }}" data-price={{ product.price }}>
+                                                -
+                                            </button>
+                                            <input class="quantity form-control" type="text" value={{item.quantity}} min="1" readonly>
+                                            <button class="btn btn-success increment add_to_cart" data-product-id="{{ item.item.pk }}" data-add-url="{% url "cart:add_to_cart" pk=item.item.pk type=item.content_type.model %}">
+                                                +
+                                            </button>
+                                        </div>   
+                                    {% endif %}  
+                                    <p class="card-text" id="total-{{item.item.pk}}">Total: €{{ item.total }}</p>
+                                    <p class="card-text">
+                                        {% if item.product.available %}
+                                            <span class="text-success">Available: <i class="fa-solid fa-circle-check"></i></span>
+                                        {% else %}
+                                            <span class="text-danger">Not Available: <i class="fa-solid fa-circle-xmark"></i></span>
+                                        {% endif %}
+                                    </p>
+                                    {% if item.content_type.model == "product" %}
+                                        <p class="card-text">Seller: <a href="{% url "accounts:user_detail" pk=item.item.seller.pk %}">{{ item.item.seller.username }}</a></p>
+                                        <a href="{% url "products:product_detail" pk=item.item.pk %}" class="btn btn-primary">View Details</a>
+                                    {% else %}
+                                        <a href="{% url "products:box_detail" pk=item.item.pk %}" class="btn btn-primary">View Details</a>
+                                    {% endif %}
+                                </div>
+                            </div>
                             <div class="col-md-4 ml-auto">
                                 <img src="{{ item.item.image.url }}" class="card-img product-image" alt="{{ item.item.name }}">
                             </div>
@@ -182,29 +182,33 @@
                 </div>
             {% endfor %}
         </div>
-        {% else %}
-            <p class="empty">No products available yet...</p>
-        {% endif %}
-    </div>
+        <!-- Cart summary box with total and action buttons -->
+        <div class="cart-summary-box">
+            <h5 id="total">Total: €{{ cart.total }}</h5>
+            <a class="btn btn-success" href="{% url "orders:payment" %}">Complete Order</a>
+            <a href="{% url "products:product_list" %}" class="btn btn-continue-shopping">Continue Shopping</a>
+        </div>
+    {% else %}
+        <!-- Message for empty cart -->
+        <p class="empty">No products available yet...</p>
+    {% endif %}
+</div>
 
-    <div class="fixed-bar">
-        <h5 id="total">Total: €{{ cart.total }}</h5>
-        <a class="btn btn-success" href="{% url "orders:payment" %}">Complete Order</a>
-        <a href="{% url "products:product_list" %}" class="btn btn-continue-shopping">Continue Shopping</a>
-    </div>
-
-    <script>
+<!-- jQuery script for cart functionalities -->
+<script>
     $(document).ready(function(){
         updateCartBadge();
     
+        // Event listener for decrement button in the cart
         $('.decrement').on('click', function () {
             var quantityInput = $(this).siblings('.quantity');
             var quantity = parseInt(quantityInput.val(), 10);
+            // Remove the card if the quantity becomes 1
             if (quantity == 1) {
                 $(this).closest(".card").remove();
             }
         });
     })
-    </script>
+</script>
 
-    {% endblock %}
+{% endblock %}

@@ -1,13 +1,18 @@
 {% extends "base.html" %}
+
 {% load bootstrap4 %}
 {% load static %}
+
 {% block content %}
 
 <style>
+    /* Custom styles for the Farmers page */
+
     ul {
         list-style: none;
         padding: 0;
     }
+
     .farmer_list {
         position: relative;
         margin-left: 300px;
@@ -23,23 +28,23 @@
         padding: 10px;
         border-radius: 5px;
         margin-top: 30px;
-        position: relative; /* Add this line to the user-info class */
+        position: relative; 
     }
 
     h1 {
         margin-top: -50px;
     }
-   
 
+    /* Styling for the user-info image */
     .user-info img {
-    width: 150px; /* Set the width as per your design */
-    height: 150px; /* Set the height as per your design */
-    border-radius: 50%;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    right: 20px; /* Adjust the right position as needed */
-}
+        width: 150px; 
+        height: 150px; 
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 20px; 
+    }
 
     #map-container {
         position: fixed; 
@@ -48,6 +53,7 @@
         z-index: 1; 
     }
 
+    /* Styling for the map */
     #map {
         height: 600px; 
         width: 100%;
@@ -57,6 +63,7 @@
         border: #ddd;
     }
 
+    /* Responsive styles for small screens */
     @media (max-width: 767px) {
         #map-container {
             position: static;
@@ -72,6 +79,7 @@
         }
     }
 
+    /* Responsive styles for medium screens */
     @media (min-width: 768px) and (max-width: 1199px) {
         #map-container {
             position: fixed;
@@ -89,6 +97,7 @@
         }
     }
 
+    /* Responsive styles for large screens */
     @media (min-width: 1200px) {
         #map-container {
             position: fixed;
@@ -106,54 +115,53 @@
             max-height: none;
         }
     }
-    
 
-.filter-options {
-    margin-top: 20px;
-    background-color: #f0f0f0; 
-    padding: 10px;
-    border-radius: 5px;
-    width:fit-content;
-}
+    /* Styling for filter-options and its form */
+    .filter-options {
+        margin-top: 20px;
+        background-color: #f0f0f0; 
+        padding: 10px;
+        border-radius: 5px;
+        width: fit-content;
+    }
 
-.filter-options form {
-    display: flex;
-    flex-direction: column;
-}
+    .filter-options form {
+        display: flex;
+        flex-direction: column;
+    }
 
-.clear-button {
-    background-color: #e74c3c; 
-    border-radius: 10px;
-    color: #fff;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-}
+    .clear-button {
+        background-color: #e74c3c; 
+        border-radius: 10px;
+        color: #fff;
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
+    }
 
-.clear-button:hover {
-    background-color: #c0392b; 
-}
+    .clear-button:hover {
+        background-color: #c0392b; 
+    }
 
-.apply-button {
-    background-color: #3498db;
-    border-radius: 10px;
-    color: #fff;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-}
+    .apply-button {
+        background-color: #3498db;
+        border-radius: 10px;
+        color: #fff;
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
+    }
 
-.apply-button:hover {
-    background-color: #2980b9;
-}
-
- 
-
-
+    .apply-button:hover {
+        background-color: #2980b9;
+    }
 </style>
 
+<!-- Container for Farmer List -->
 <div class="container farmer_list">
     <h1>Farmers</h1>
+
+    <!-- Filter Options Section -->
     <div class="filter-options">
         <h5>Filter farmers</h5>
         <form method="get">
@@ -173,12 +181,14 @@
         </form>
     </div>
     
+    <!-- Farmer List and Map Display -->
     <div class="row">
         <div class="col-md-6 order-md-1 order-2">
             {% if farmers %}
             <ul>
                 {% for farmer in farmers %}
                 <li>
+                    <!-- Individual Farmer Information -->
                     <div class="user-info" data-user-id={{ user.pk }} data-id={{ farmer.pk }} data-latitude={{ farmer.latitude }} data-longitude={{ farmer.longitude }} data-username={{ farmer.username }}>
                         <img src="{{ farmer.profile_pic.url }}" alt="{{ farmer.username }} Profile Picture">
                         <p>Name: {{ farmer.username }}</p>
@@ -186,6 +196,7 @@
                         <p>Address: {{ farmer.address }} </p>      
                         
                         <a href="{% url "accounts:user_detail" pk=farmer.pk %}">View Details</a>
+                        
                         {% if farmer != user and user.is_authenticated %}
                         <button class="fav-button" data-farmer-id={{ farmer.pk }} data-auth={{ user.is_authenticated }}>
                             <i class="fa-regular fa-star" style="color: #ffd43b;"></i>
@@ -199,16 +210,20 @@
                 <p>No farmers available yet...</p>
             {% endif %}
         </div>
+
+        <!-- Map Display -->
         <div class="col-md-6 order-md-2 order-1" id="map-container">
             <div id="map"></div>
         </div>
     </div>
 </div>
 
+<!-- JavaScript for Favorite Farmer and Map -->
 <script src="{% static "farmfresh/js/fav_farmer.js" %}"></script>
 <script src="{% static "farmfresh/js/map.js" %}"></script>
 
 <script>
+    /* JavaScript functions for updating map position and handling favorite farmers */
     function getToken(){
         var val = "; " + document.cookie;
         var parts = val.split("; csrftoken=");
@@ -216,6 +231,7 @@
             return parts.pop().split(";").shift()
         }
     }
+
     function updateMapPosition() {
         var containerRect = container.getBoundingClientRect();
         var containerHeight = containerRect.height;
@@ -230,7 +246,7 @@
     }
 
     function setFavFarmers(userId){
-        //https"://stackoverflow.com/questions/52327176/how-do-i-access-data-from-local-storage-in-django-views
+        // https://stackoverflow.com/questions/52327176/how-do-i-access-data-from-local-storage-in-django-views
         favId = "favorites_" + userId;
         fav_farmers = localStorage.getItem(favId);
         document.cookie = "fav=" + fav_farmers;
@@ -255,8 +271,6 @@
         window.addEventListener("resize", updateMapPosition);
     });
 
-
-   
     document.addEventListener("DOMContentLoaded", function () {
         var clearFiltersButton = document.getElementById("clear-filters");
         var filterRadios = document.querySelectorAll('.filter-options input[type="radio"]');
@@ -267,7 +281,6 @@
             });
         });
     });
-
 </script>
 
 {% endblock %}

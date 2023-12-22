@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% load bootstrap4 %}
 {% load static %}
+
 {% block content %}
 <style>
+    /* Styles for the container displaying the result of plant health assessment */
     .container-result {
         margin-top: 50px;
         padding: 20px;
@@ -17,6 +19,7 @@
         margin-top: 20px;
     }
 
+    /* Styles for the result section containing information about plant health assessment */
     .result-section {
         margin-top: 20px;
     }
@@ -29,6 +32,7 @@
         margin-top: 20px;
     }
 
+    /* Styles for each suggestion item within the disease suggestions section */
     .suggestion-item {
         margin-top: 20px;
         border: 1px solid #ddd;
@@ -44,6 +48,7 @@
         margin-top: 20px;
     }
 
+    /* Styles for each similar image item within the similar images section */
     .similar-image-item {
         margin-top: 20px;
         border: 1px solid #ddd;
@@ -51,38 +56,48 @@
         padding: 15px;
     }
 
+    /* Styles for responsive images */
     .img-fluid {
         max-width: 100%;
         height: auto;
     }
 </style>
 
+<!-- Container for displaying the result of plant health assessment -->
 <div class="container container-result">
+    <!-- Display a message if available -->
     {% if message %}
         <h2 class="alert alert-info">{{ message }}</h2>
     {% endif %}
 
+    <!-- Check if data is available -->
     {% if data %}
         <h2 class="result-heading mt-4">Plant Health Assessment Result</h2>
         <div class="row result-section">
+            <!-- Display result status -->
             <div class="col-md-4">
                 <p><strong>Result Status:</strong> {{ data.status }}</p>
             </div>
 
+            <!-- Display disease suggestions if available -->
             <div class="col-md-8">
                 {% if data.result.disease.suggestions %}
                     <h3 class="result-heading mt-4">Diseases Suggestions:</h3>
                     <ul class="list-group suggestions-section">
+                        <!-- Iterate over each disease suggestion -->
                         {% for suggestion in data.result.disease.suggestions %}
                             <li class="list-group-item suggestion-item">
+                                <!-- Display suggestion details -->
                                 <p><strong>Name:</strong> {{ suggestion.name }}</p>
                                 <p><strong>Probability:</strong> {{ suggestion.probability }}</p>
                                 <p><strong>Local Name:</strong> {{ suggestion.details.local_name }}</p>
                                 <p><strong>Description:</strong> {{ suggestion.details.description }}</p>
 
+                                <!-- Display treatment details if available -->
                                 {% if suggestion.details.treatment %}
                                     <h4>Treatment:</h4>
                                     <ul class="treatment-list">
+                                        <!-- Iterate over each type of treatment -->
                                         {% for treatment in suggestion.details.treatment.chemical %}
                                             <li>Chemical: {{ treatment }}</li>
                                         {% endfor %}
@@ -95,10 +110,12 @@
                                     </ul>
                                 {% endif %}
 
+                                <!-- Display similar images if available -->
                                 {% if suggestion.similar_images %}
-                                <br>
+                                    <br>
                                     <h4>Similar Images:</h4>
                                     <ul class="list-group similar-images-section">
+                                        <!-- Iterate over each similar image -->
                                         {% for similar_image in suggestion.similar_images %}
                                             <li class="list-group-item similar-image-item">
                                                 <p><strong>Similarity:</strong> {{ similar_image.similarity }}</p>
@@ -111,11 +128,13 @@
                         {% endfor %}
                     </ul>
                 {% else %}
+                    <!-- Display message if no disease suggestions available -->
                     <p class="mt-4">No disease suggestions available...</p>
                 {% endif %}
             </div>
         </div>
     {% else %}
+        <!-- Display message if no data available -->
         <p class="mt-4">No data available...</p>
     {% endif %}
 </div>

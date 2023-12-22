@@ -1,8 +1,37 @@
-body{
+html {
+    height: 100%;
+    box-sizing: border-box;
+}
+body {
     font-family: 'Lexend', sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    box-sizing: inherit;
 }
 
-.navbar{
+#main {
+    flex: 1; /* This will push the footer down */
+    overflow: auto;
+    padding-bottom: 100px;
+}
+
+footer {
+    background-color: gray;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    bottom: 0;
+}
+
+
+#containerFooter {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+
+.navbar {
     box-shadow: 0px 0px 5px gray;
     padding: 10px 50px;
     justify-content: space-between;
@@ -137,12 +166,7 @@ body{
     padding-bottom: 20px;
 }
 
-footer {
-    text-align: center;
-    padding: 10px;
-    background-color: #abbaba;
-    color: #000;
-}
+
 
 
 .fav-button{

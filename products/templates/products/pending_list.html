@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% load bootstrap4 %}
 {% load static %}
-{% block content %}
 
+{% block content %}
 <style>
+    /* Styles for the container displaying boxes information */
     .containerBoxes {
         margin-top: 3%;
         text-align: left;
@@ -27,7 +28,6 @@
     .box-link:hover {
         text-decoration: underline;
     }
-
 
     .btn-decision {
         margin-right: 5px;
@@ -55,6 +55,7 @@
         color: #9f6e04;
     }
 
+    /* Styles for buttons related to shopping and more details */
     .btn-to-shop,
     .btn-more-details {
         margin-bottom: 10px;
@@ -62,9 +63,13 @@
     }
 </style>
 
+<!-- Container for displaying box information -->
 <div class="container containerBoxes">
+    <!-- Checking if there are pending boxes to display -->
     {% if pending_boxes %}
         {% for box in pending_boxes %}
+            <!-- Displaying box details -->
+            <h2><strong>{{ box.name }}</strong></h2>
             <div class="box-details">
                 <h2><strong>{{ box.name }}</strong></h2>
                 <p><strong>Description:</strong> {{ box.description }}</p>
@@ -81,11 +86,13 @@
                         <i class="fa-regular fa-circle-xmark fa-icon" style="color: #e00000;"></i>
                     {% endif %}
                 </span></p>
+                <!-- Buttons for more details and going to shop -->
                 <div class="box-buttons">
                     <a href="{% url "products:box_detail" pk=box.pk %}" class="btn btn-primary btn-more-details">More Details</a>
                     <a href="{% url "products:product_list" %}" class="btn btn-primary btn-to-shop">Go to Shop</a>
                 </div>
             </div>
+            <!-- Additional decision buttons for staff users -->
             {% if user.is_staff %}
                 <form method="post" action="{% url "products:decision" pk=box.pk %}" class="box-buttons">
                     {% csrf_token %}
@@ -94,9 +101,11 @@
                 </form>
             {% endif %}
         {% endfor %}
+    <!-- If user is a farmer, display invitations -->
     {% elif user.is_farmer %}
         {% if invitations %}
             {% for data in invitations %}
+                <!-- Displaying box details and invitation information -->
                 <h2><strong>{{ data.box.name }}</strong></h2>
                 <div class="box-details">
                     <p><strong>Description:</strong> {{ data.box.description }}</p>
@@ -117,6 +126,7 @@
                         <a href="{% url "products:box_detail" pk=data.box.pk %}" class="btn btn-primary btn-more-details">More Details</a>
                         <a href="{% url "products:product_list" %}" class="btn btn-primary btn-to-shop">Go to Shop</a>
                     </div>
+                    <!-- Decision buttons for pending invitations -->
                     {% if data.invitation.status == "Pending" %}
                     <div class="box-buttons">
                         <form method="post" action="{% url "products:decision" pk=data.box.pk %}" class="box-buttons">
@@ -125,6 +135,7 @@
                             <button type="submit" name="action" value="reject" class="btn btn-danger btn-decision">Reject</button>
                         </form>
                     </div>
+                    <!-- Confirmation button for unconfirmed invitations -->
                     {% elif data.box.status == "Pending" and request.user not in data.box.confirmed.all %}
                     <div class="box-buttons">    
                         <form method="post" action="{% url "products:decision" pk=data.box.pk %}" class="box-buttons">
@@ -136,6 +147,7 @@
                 </div>
             {% endfor %}
         {% endif %}
+    <!-- Displayed when there are no boxes for the user -->
     {% else %}
         <p>No boxes...</p>
     {% endif %}

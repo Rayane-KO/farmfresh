@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% load bootstrap4 %}
-{% block content %}
 
+{% block content %}
 <style>
+    /* Styling for the container of the delete product page */
     .containerDeleteProduct {
         margin-top: 3%;
         text-align: center;
@@ -18,17 +19,13 @@
         color: #007bff;
     }
 
+    /* Styling for the delete button */
     .btn-danger {
         background-color: #dc3545;
         border-color: #dc3545;
         margin-top: 10px;
         text-align: left;
         width: fit-content;
-    }
-
-    form {
-        margin-top: 20px;
-        text-align: center;  /* Centering the form content */
     }
 
     .btn-danger:hover {
@@ -46,14 +43,25 @@
         background-color: #6c757d;
         color: #ffffff;
     }
+
+    form {
+        margin-top: 20px;
+        text-align: center;
+    }
 </style>
 
+<!-- Container for the delete product page -->
 <div class="container containerDeleteProduct">
     <h1>Delete Product</h1>
+    
+    <!-- Prompt message for product deletion -->
     <p>Are you sure you want to delete this product {{ object.name }}?</p>
+    
+    <!-- Form for submitting the delete request -->
     <form method="post" action="{% url "products:delete_product" pk=object.pk %}">
         {% csrf_token %}
-        <div class="text-center"> <!-- Adding text-center class to center the buttons -->
+        
+        <div class="text-center">
             <button type="submit" class="btn btn-danger">Delete</button>
             <a href="{% url "products:product_detail" pk=object.pk %}" class="btn btn-outline-secondary">Cancel</a>
         </div>

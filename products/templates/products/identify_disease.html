@@ -1,43 +1,47 @@
 {% extends "base.html" %}
 {% load bootstrap4 %}
 {% load static %}
+
 {% block content %}
 <style>
+    /* Styles for the container displaying the welcome message and form */
     .containerDisease {
         max-width: 600px;
-        padding-top: 50px; /* Increased padding for more space */
-        padding-bottom: 50px; /* Increased padding for more space */      
+        padding-top: 50px; 
+        padding-bottom: 50px; 
         border: 1px solid #ddd;
         border-radius: 5px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         background-color: #fff;
         margin-top: 50px;
-        text-align: center; /* Center text */
+        text-align: center; 
     }
 
     h2 {
         color: #12972f;
-        margin-bottom: 20px; /* Added margin for vertical space */
+        margin-bottom: 20px;
     }
 
     p {
         color: #555;
-        margin-bottom: 20px; /* Added margin for vertical space */
+        margin-bottom: 20px; 
     }
 
     form {
         margin-top: 20px;
     }
 
+    /* Styles for form labels */
     label {
         font-weight: bold;
-        margin-bottom: 10px; /* Added margin for vertical space */
+        margin-bottom: 10px; 
         color: #333;
-        display: block; /* Ensure label takes full width */
+        display: block; 
     }
 
+    /* Styles for file input */
     input[type="file"] {
-        margin-bottom: 20px; /* Added margin for vertical space */
+        margin-bottom: 20px;
         display: block; /* Ensure input takes full width */
         width: 100%; /* Make input full width */
     }
@@ -46,54 +50,59 @@
         background-color: #28a745;
         color: #fff;
         border: none;
-        padding: 15px 30px; /* Adjusted padding for more space */
+        padding: 15px 30px; 
         cursor: pointer;
     }
 
     button:hover {
         background-color: #218838;
     }
-    
-    
 </style>
 
+<!-- Container for displaying the welcome message and form -->
 <div class="container containerDisease">
     <h2>Welcome to the Plant Health Identification Tool!</h2>
     <p>Use the form below to upload an image of your plant. The tool will analyze the image and provide information about the plant's health, including any potential diseases and treatments.</p>
 
+    <!-- Form for uploading an image and identifying plant disease -->
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
+        <!-- Form group for file input -->
         <div class="form-group">
             <label for="image">Upload an Image of Your Plant:</label>
             <input type="file" class="form-control-file" name="image" required>
         </div>
+        <!-- Hidden fields for latitude and longitude -->
         <input type="hidden" name="latitude" id="latitude" placeholder="Latitude" data-user-lat="{{ user.latitude }}">
         <input type="hidden" name="longitude" id="longitude" placeholder="Longitude" data-user-long="{{ user.longitude }}">
+        <!-- Submission button -->
         <button type="submit" class="btn btn-primary">Identify Plant Disease</button>
     </form>
+
+    <!-- Script for obtaining user's geolocation -->
+    <script>
+        function getLocation() {
+            var userLat = parseFloat(document.getElementById("latitude").dataset.userLat);
+            var userLong = parseFloat(document.getElementById("longitude").dataset.userLong);
+            if (isNaN(userLat) || isNaN(userLong) || userLat === 0 || userLong === 0) {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(showPosition);
+                } else {
+                    alert("Geolocation is not supported by this browser.");
+                }
+            } else {
+                document.getElementById("latitude").value = userLat;
+                document.getElementById("longitude").value = userLong;
+            }
+        }
+
+        function showPosition(position) {
+            document.getElementById("latitude").value = position.coords.latitude;
+            document.getElementById("longitude").value = position.coords.longitude;
+        }
+
+        document.addEventListener("DOMContentLoaded", getLocation);
+    </script>
 </div>
 
-<script>
-    function getLocation() {
-        var userLat = parseFloat(document.getElementById("latitude").dataset.userLat);
-        var userLong = parseFloat(document.getElementById("longitude").dataset.userLong);
-        if (isNaN(userLat) || isNaN(userLong) || userLat === 0 || userLong === 0) {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition);
-            } else {
-                alert("Geolocation is not supported by this browser.");
-            }
-        } else {
-            document.getElementById("latitude").value = userLat;
-            document.getElementById("longitude").value = userLong;
-        }
-    }
-
-    function showPosition(position) {
-        document.getElementById("latitude").value = position.coords.latitude;
-        document.getElementById("longitude").value = position.coords.longitude;
-    }
-
-    document.addEventListener("DOMContentLoaded", getLocation);
-</script>
 {% endblock %}

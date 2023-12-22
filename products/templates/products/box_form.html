@@ -1,32 +1,36 @@
 {% extends "base.html" %}
 {% load bootstrap4 %}
+
 {% block content %}
 <style>
+    /* Global styles for the entire page */
     body {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        background-color: #f8f9fa; /* Light gray background */
-        color: #343a40; /* Dark text color */
+        background-color: #f8f9fa;
+        color: #343a40; 
     }
 
+    /* Styles for the main container */
     .containerBox {
         width: 80%;
         margin: 0 auto;
-        background-color: #ffffff; /* White container background */
+        background-color: #ffffff; 
         padding: 20px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle box shadow */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
         margin-top: 30px;
-        border-radius: 8px; /* Rounded corners */
+        border-radius: 8px;
     }
 
     form {
         margin-top: 20px;
     }
 
+    /* Button styles */
     button {
-        background-color: #007bff; /* Primary color for button */
-        color: #ffffff; /* Text color for button */
+        background-color: #007bff; 
+        color: #ffffff; 
         padding: 10px 20px;
         font-size: 1.2em;
         border: none;
@@ -35,11 +39,10 @@
     }
 
     button:hover {
-        background-color: #0056b3; /* Darker shade on hover */
+        background-color: #0056b3; 
     }
 
     @media only screen and (min-width: 768px) {
-        /* Adjust styles for larger screens if needed */
         h1 {
             font-size: 3em;
         }
@@ -55,14 +58,17 @@
 
     h1 {
         color: #007bff; 
-        margin-bottom:  30px;
+        margin-bottom: 30px;
     }
 </style>
 
 <div class="container containerBox">
-  <h1>Add a new box</h1>
+    <h1>Add a new box</h1>
+
+    <!-- Form for adding a new box -->
     <form id="form-container" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
+        
         <div class="box-form">
             {% bootstrap_form form %}
         </div>
@@ -71,59 +77,56 @@
         <div id="formset-container">
             {{ formset.management_form }}
             {% for form in formset %}
-            <div class="box-item-form" data-formset-prefix="{{ formset.prefix }}">
-                {% bootstrap_form form %}
-                <button type="button" class="btn btn-danger delete-form">Delete</button>
-            </div>
+                <div class="box-item-form" data-formset-prefix="{{ formset.prefix }}">
+                    {% bootstrap_form form %}
+                    <button type="button" class="btn btn-danger delete-form">Delete</button>
+                </div>
             {% endfor %}
         </div>
+
+        <!-- Buttons for adding a new product and submitting the form -->
         <button type="button" id="add-form" class="btn btn-primary">Add Product</button>
         <button type="submit" id="submit-btn" class="btn btn-success">Submit</button>
     </form>
 
+    <!-- JavaScript for handling dynamic formset addition -->
     <script>
-      document.addEventListener('DOMContentLoaded', function () {
-          const formsetContainer = document.getElementById('formset-container');
-          const boxForm = document.querySelectorAll(".box-item-form");
-          const addButton = document.getElementById('add-form');
-          const totalForms = document.querySelector("#id_boxitem-TOTAL_FORMS");
-          console.log(totalForms)
-          
-          var formNum = boxForm.length-1;
-          addButton.addEventListener('click', addForm);
-  
-          function addForm(e) {
-            e.preventDefault();
+        document.addEventListener('DOMContentLoaded', function () {
+            const formsetContainer = document.getElementById('formset-container');
+            const boxForm = document.querySelectorAll(".box-item-form");
+            const addButton = document.getElementById('add-form');
+            const totalForms = document.querySelector("#id_boxitem-TOTAL_FORMS");
 
-            console.log(boxForm);
-            const newForm = boxForm[0].cloneNode(true);
-            const formRegex = RegExp(`form-(\\d){1}-`,'g');
-            formNum++;
-            newForm.innerHTML = newForm.innerHTML.replace(formRegex, `form-${formNum}-`);
+            // Event listener for adding a new form
+            addButton.addEventListener('click', addForm);
 
-             // Update both name and id attributes
-            newForm.querySelectorAll('[id]').forEach(element => {
-              const oldId = element.getAttribute('id');
-              const newId = oldId.replace(/\d+/g, formNum);
-              element.setAttribute('id', newId);
-            });
+            // Function to add a new form
+            function addForm(e) {
+                e.preventDefault();
+                const newForm = boxForm[0].cloneNode(true);
+                const formRegex = RegExp(`form-(\\d){1}-`, 'g');
+                var formNum = boxForm.length - 1;
+                formNum++;
+                newForm.innerHTML = newForm.innerHTML.replace(formRegex, `form-${formNum}-`);
 
-          newForm.querySelectorAll('[name]').forEach(element => {
-            const oldName = element.getAttribute('name');
-            const newName = oldName.replace(/\d+/g, formNum);
-            element.setAttribute('name', newName);
-          });
+                // Update both name and id attributes
+                newForm.querySelectorAll('[id]').forEach(element => {
+                    const oldId = element.getAttribute('id');
+                    const newId = oldId.replace(/\d+/g, formNum);
+                    element.setAttribute('id', newId);
+                });
 
-          formsetContainer.appendChild(newForm);
+                newForm.querySelectorAll('[name]').forEach(element => {
+                    const oldName = element.getAttribute('name');
+                    const newName = oldName.replace(/\d+/g, formNum);
+                    element.setAttribute('name', newName);
+                });
 
-          totalForms.setAttribute("value", `${formNum+1}`);
+                formsetContainer.appendChild(newForm);
 
-          console.log("Cloned Form HTML:", newForm.outerHTML)
-          }
-      });
-  </script>
-  
-  
-
+                totalForms.setAttribute("value", `${formNum + 1}`);
+            }
+        });
+    </script>
 </div>
 {% endblock %}

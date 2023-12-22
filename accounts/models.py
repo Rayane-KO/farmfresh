@@ -25,7 +25,7 @@ A custom user model that has next attributes:
 class User(auth.models.AbstractUser):
     username = models.CharField(max_length=50, unique=True)
     is_farmer = models.BooleanField(default=False)
-    farm_nr = models.CharField(max_length=200, null=True)
+    farm_nr = models.CharField(max_length=200, null=True, unique=True)
     address = models.CharField(max_length=300, null=True)
     city = models.CharField(max_length=200, null=True)
     state = models.CharField(max_length=50, null=True)
@@ -55,21 +55,19 @@ class User(auth.models.AbstractUser):
         if response.status_code == 200:
             data = response.json() # parse the JSON data
             result = data["features"][0]
-            return (result["geometry"]["coordinates"][1], result["geometry"]["coordinates"][0]) # extract the lat and long
+            return (result["geometry"]["coordinates"][1], result["geometry"]["coordinates"][0]) # extract the latitude and longitude
         else:
             # if not successfull log an error message
             logging.error(f"Error: {response.status_code}")
             return None
         
-
-
     # use translate_address to get the latitude and longitude
     def save(self, *args, **kwargs):
         if self.address and self.city and self.state and self.zip_code and self.country:
             address = address = f"{self.address}, {self.city}, {self.state}, {self.zip_code}, {self.country.name}"
             coordinates = self.translate_address(address)
             if coordinates:
-                self.latitude, self.longitude = coordinates
+                self.latitude, self.longitude = coordinates # store the location
         return super().save(*args, **kwargs)
     
     class Meta:

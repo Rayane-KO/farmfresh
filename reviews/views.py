@@ -6,6 +6,13 @@ from products.models import Product
 from accounts.models import User
 from django.urls import reverse_lazy
 
+"""
+Views for handeling review management:
+    CreateProductReview: handles the creation of a product review
+    CreateFarmerReview: handles the creation of a farmer review
+    CreateFarmerReply: handles the creation of a farmer reply
+"""
+
 class CreateProductReview(CreateView):
     form_class = ProductReviewForm
     model = ProductReview
@@ -13,6 +20,7 @@ class CreateProductReview(CreateView):
 
     def form_valid(self, form):
         product = get_object_or_404(Product, pk=self.kwargs.get("pk"))
+        # update the info of the review
         form.instance.user = self.request.user
         form.instance.product = product
         return super().form_valid(form)
@@ -27,6 +35,7 @@ class CreateFarmerReview(CreateView):
 
     def form_valid(self, form):
         farmer = get_object_or_404(User, pk=self.kwargs.get("pk"))
+        # update the info of the review
         form.instance.user = self.request.user
         form.instance.farmer = farmer
         return super().form_valid(form)
@@ -39,8 +48,9 @@ class CreateFarmerReply(CreateView):
     model = FarmerReply
 
     def get_template_names(self):
+        # get the type of review (product or farmer)
         review_type = self.kwargs.get("type") 
-        print(review_type)
+        # take the correct template depending on the review type
         if review_type == "farmer":
             return ["accounts/user_detail.html"]
         else:
@@ -48,6 +58,7 @@ class CreateFarmerReply(CreateView):
     
     def get_success_url(self):
         review_type = self.kwargs.get("type") 
+        # when the review was successfully created redirect the user to the correct page
         if review_type == "farmer":
             farmer_review = get_object_or_404(FarmerReview, pk=self.kwargs.get("pk"))
             return reverse_lazy("accounts:user_detail", kwargs={"pk": farmer_review.farmer.pk})
@@ -58,8 +69,8 @@ class CreateFarmerReply(CreateView):
             raise NotImplementedError("Invalid review type")
 
     def form_valid(self, form):
-        # get the type of review (product or farmer)
         review_type = self.kwargs.get("type") 
+        # update the information of the reply
         if review_type == "farmer":
             farmer_review = get_object_or_404(FarmerReview, pk=self.kwargs.get("pk"))
             form.instance.farmer_review = farmer_review

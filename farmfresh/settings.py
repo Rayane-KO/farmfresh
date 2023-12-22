@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
     "view_breadcrumbs",
     "rest_framework",
+    "rest_framework_swagger",
+    "drf_yasg",
     "widget_tweaks",
     "bootstrap4",
     "accounts",
@@ -175,8 +177,8 @@ LOGIN_REDIRECT_URL = "test"
 LOGOUT_REDIRECT_URL = "thanks"
 
 # FATSECRET API info
-FATSECRET_CLIENT_ID = "d6ddc51c5feb49e59430f3cd45e2d363" #"212cb9126d1849aaaa9b0564f5eb8308"
-FATSECRET_CLIENT_SECRET = "f1f25eae702846cd8dfd96c31ee2c74e" # "fdef2f80a1264bacaed6244cf0357382"
+FATSECRET_CLIENT_ID = "212cb9126d1849aaaa9b0564f5eb8308"
+FATSECRET_CLIENT_SECRET = "fdef2f80a1264bacaed6244cf0357382"
 
 # PLANT.ID API info
 PLANT_ID_API_KEY = "YAPJN3uyePcCIzkOGI6tmnXwJxgpFftdwC2ty0gtSuHMF2nPKn"

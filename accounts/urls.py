@@ -2,6 +2,8 @@ from django.urls import path
 from django.contrib.auth import views as auth_views #as auth_views to not mix them with other views
 from . import views
 
+# Source:
+#   - Reset password: https://learndjango.com/tutorials/django-password-reset-tutorial
 
 app_name = "accounts"
 

@@ -75,37 +75,44 @@
                 {% endif %}
             </div> 
 
-<div class="modal" id="productModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Select Products</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                {% if farmers_products %}
-                <!-- Display the list of products here -->
-                {% for product in farmers_products %}
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="product_{{ product.pk }}" value="{{ product.pk }}">
-                        <label class="form-check-label" for="product_{{ product.pk }}">{{ product.name }}</label>
+            <div class="modal" id="productModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Select Products</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="productForm">
+                                <div class="form-group" id="productFields">
+                                    <!-- Initial product and quantity fields -->
+                                    <div class="form-row">
+                                        <div class="col">
+                                            <select class="form-control" name="product">
+                                                {% for product in farmers_products %}
+                                                    <option value="{{ product.pk }}">{{ product.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col">
+                                            <input type="number" class="form-control" name="quantity" min="1" placeholder="1">
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-primary" id="addFormField">Add Another Product</button>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button class="btn btn-success" id="addProductsBtn" data-box-id={{ box.pk }} data-url="{% url "products:add_to_box" pk=box.pk %}">
+                                Add Products
+                            </button>
+                        </div>
                     </div>
-                {% endfor %}
-                {% else %}
-                <p>No products available</p>
-                {% endif %}
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button class="btn btn-success" id="addProductsBtn" data-box-id={{ box.pk }} data-url="{% url "products:add_to_box" pk=box.pk %}">
-                    Add Products
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 </div>
 </div>
 </div>
@@ -166,28 +173,40 @@
             productsInfo.style.display = "none";
         })
 
+        const productForm = document.getElementById("productForm");
+        const productFields = document.getElementById("productFields");
+    
         addProductsBtn.addEventListener('click', function () {
-            const selectedProducts = Array.from(productCheckboxes)
-                .filter(function (checkbox) {
-                    return checkbox.checked;
-                })
-                .map(function (checkbox) {
-                    return checkbox.value;
-                });
-
+            const productForms = document.querySelectorAll('.form-row');
+            const selectedProducts = [];
+    
+            productForms.forEach(function (form) {
+                const productId = form.querySelector('select[name="product"]').value;
+                const quantity = form.querySelector('input[name="quantity"]').value;
+                console.log(quantity)
+                if (quantity > 0) {
+                    selectedProducts.push({
+                        product: productId,
+                        quantity: quantity
+                    });
+                }
+            });
+    
+            console.log(selectedProducts);
+    
             productModal.classList.remove('show');
             productModal.style.display = 'none';
             document.body.classList.remove('modal-open');
             document.body.style.paddingRight = '0';
             document.querySelector('.modal-backdrop').remove();
-
+    
             fetch(url, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRFToken": getToken(),
                 },
-                body: JSON.stringify({"products": selectedProducts}),
+                body: JSON.stringify({ "selected_products": selectedProducts }),
             })
             .then(response => {
                 if (!response.ok) {
@@ -196,12 +215,28 @@
                 location.reload();
                 return response.json();
             })
-            .then(data =>{
+            .then(data => {
                 console.log(data);
             })
             .catch(error => {
                 console.log(error);
-            })
+            });
+        });
+    
+
+        var formIndex = 1;
+
+        document.getElementById("addFormField").addEventListener("click", function() {
+            var productFields = document.getElementById("productFields");
+            var newField = productFields.firstElementChild.cloneNode(true);
+        
+            // Update input names to ensure they are unique
+            newField.querySelectorAll("select, input").forEach(function(field) {
+                field.name = field.name.replace('[0]', '[' + formIndex + ']');
+            });
+
+            productFields.appendChild(newField);
+            formIndex++;
         });
     });
 </script>

@@ -5,14 +5,30 @@ from products.models import Product
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 
+"""
+Review: abstract model with attributes:
+    - user: is the user associated with the review
+    - rating: is the users rating
+    - review: is the users comment
+    - date: is the date the review was created
+ProductReview: inherits from Review with attributes:
+    - product: is the product associated with the review
+ProductReview: inherits from Review with attributes:
+    - farmer: is the farmer associated with the review
+FarmerReply: a farmer can reply to a product or farmer review
+    - product_review: review of a product
+    - farmer_review = review of a farmer
+    - farmer = farmer who replies to a review
+    - reply = comment of the reply
+    - date = the date the reply was created
+"""
+
+# get the average rating of reviews
 def calc_avg_rating(reviews):
      avg = reviews.aggregate(Avg("rating"))["rating__avg"]
      return round(avg, 1) if avg is not None else 0
      
-
-# Create your models here.
 class Review(models.Model):
-
     RATING=[
         (0, "0"),
         (1, "1"),
@@ -28,11 +44,13 @@ class Review(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        # abstract to not be able to create instances of Review
         abstract = True
 
     def __str__(self):
          return f"{self.user.username} review for "
 
+# update the avg_rating of the correspondend product when saving or deleting a review
 class ProductReview(Review):
         product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="review_set")
 

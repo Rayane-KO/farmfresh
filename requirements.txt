@@ -1,3 +1,4 @@
+asgiref @ file:///C:/Users/dev-admin/perseverance-python-buildout/croot/asgiref_1699497449686/work
 beautifulsoup4==4.12.2
 cachetools==5.3.2
 certifi==2023.11.17
@@ -7,8 +8,11 @@ clarifai==9.11.0
 clarifai-grpc==9.11.0
 colorama==0.4.6
 contextlib2==21.6.0
+coreapi==2.3.3
+coreschema==0.0.4
 cryptography==41.0.7
 defusedxml==0.7.1
+Django @ file:///C:/Users/dev-admin/perseverance-python-buildout/croot/django_1699555153998/work
 django-allauth==0.58.2
 django-autocomplete-light==3.9.7
 django-bootstrap4==23.2
@@ -19,10 +23,13 @@ django-crumbs==0.5.0
 django-dynamic-breadcrumbs==0.4.3
 django-elasticsearch-dsl==8.0
 django-phonenumber-field==7.2.0
+django-rest-swagger==2.2.0
 django-search-views==0.3.7
 django-view-breadcrumbs==2.5.1
 django-widget-tweaks==1.5.0
 djangorestframework==3.14.0
+djangorestframework-api-key==2.3.0
+drf-yasg==1.21.7
 elastic-transport==8.10.0
 elasticsearch==8.11.0
 elasticsearch-dsl==8.11.0
@@ -37,13 +44,19 @@ googleapis-common-protos==1.62.0
 grpcio==1.60.0
 grpcio-status==1.60.0
 idna==3.4
+inflection==0.5.1
+itypes==1.2.0
+Jinja2==3.1.2
 Levenshtein==0.23.0
 markdown-it-py==3.0.0
+MarkupSafe==2.1.3
 mdurl==0.1.2
 model-bakery==1.17.0
 numpy==1.26.2
 oauthlib==3.2.2
+openapi-codec==1.3.2
 opencv-python==4.7.0.68
+packaging==23.2
 pandas==2.1.4
 phonenumbers==8.13.25
 Pillow==10.1.0
@@ -69,12 +82,16 @@ rsa==4.9
 schema==0.7.5
 setuptools==68.0.0
 shortuuid==1.0.11
+simplejson==3.19.2
 six==1.16.0
 soupsieve==2.5
+sqlparse @ file:///C:/Users/dev-admin/perseverance-python-buildout/croot/sqlparse_1699544474746/work
 stripe==7.8.2
 tqdm==4.66.1
 tritonclient==2.34.0
 typing_extensions==4.8.0
+tzdata @ file:///croot/python-tzdata_1690578112552/work
 Unidecode==1.3.7
+uritemplate==4.1.1
 urllib3==2.1.0
 wheel==0.41.2

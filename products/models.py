@@ -6,18 +6,43 @@ from orders.models import OrderItem
 from django.contrib.contenttypes.fields import GenericRelation
 
 """
-    Category: represents a product category
-    Product: represent a product that has next attributes:
-        - name: the name of the product
-        - category: a foreign key that is the category
-        - description: a description of the product
-        - price: price of the product
-        - unit: is the unit for the price (piece or kg)
-        - available: boolean that tells if a product is available
-        - date: date the product was added
-        - seller: farmer that sells the product
-        - image: image of the product
-        - avg_rating: average rating of the product on 5
+Category: represents a product category
+Product: represent a product that has next attributes:
+    - name: the name of the product
+    - category: a foreign key that is the category
+    - description: a description of the product
+    - price: price of the product
+    - unit: is the unit for the price (piece or kg)
+    - available: boolean that tells if a product is available
+    - date: date the product was added
+    - seller: farmer that sells the product
+    - image: image of the product
+    - avg_rating: average rating of the product on 5
+    - fatsecret_id: save the id of the fatsecret api to avoid unnecessary requests
+Box: represents a box with next attributes:
+    - name: name of the box
+    - farmers: farmers invited to the box
+    - confirmed: farmers that confirmed the box
+    - asker: farmer who created the box
+    - description: a description of the box
+    - price: is the price of the box
+    - available: if the box is available or not
+    - date: is the date the box was created
+    - image: is an image for the box
+    - status: is the current status of the box (example: pending)
+    - avg_rating: is the average rating of the box
+BoxItem: represents an item in a box with next attributes:
+    - box: the box associated with the box item
+    - product = is the product associated with the item
+    - quantity = the quantity of product in the box
+    - price = the subtotal price of the box item
+Invitation: represents an invitation sent to other farmers:
+    - inviting_farmer: is the farmer who sent the invitation
+    - invited_farmer: is the farmer who got the invitation
+    - box: is the box associated with the invitation
+    - status: status of the invitation (example: accepted)
+    - invite_date: is the date the invitation was sent
+    - decision_date: is the date the user accepted or rejected the invitation
 """
 class Category(models.Model):
     name = models.CharField(max_length=200, db_index=True)
@@ -43,8 +68,7 @@ class Product(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
     image = models.ImageField(upload_to="images/")
     avg_rating = models.DecimalField(max_digits=2, decimal_places=1, default=0)
-    fatsecret_id = models.IntegerField(blank=True, null=True)
-    order_items = GenericRelation(OrderItem)
+    order_items = GenericRelation(OrderItem) # to be able to retrieve the orderitems that uses the product
 
     def __str__(self):
         return self.name 
@@ -67,7 +91,7 @@ class Box(models.Model):
     image = models.ImageField(upload_to="images/")
     status = models.CharField(max_length=20, choices=STATUS, default="Pending")
     avg_rating = models.DecimalField(max_digits=2, decimal_places=1, default=0)
-    order_items = GenericRelation(OrderItem)
+    order_items = GenericRelation(OrderItem) # to be able to retrieve the orderitems that uses the box
     
 
     def is_confirmed(self):

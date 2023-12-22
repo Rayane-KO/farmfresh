@@ -198,7 +198,6 @@
         updateCartBadge();
     
         $('.decrement').on('click', function () {
-            console.log("yoy")
             var quantityInput = $(this).siblings('.quantity');
             var quantity = parseInt(quantityInput.val(), 10);
             if (quantity == 1) {
